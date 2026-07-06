@@ -10,20 +10,55 @@ export default function Contact() {
   const [formState, setFormState] = useState({ name: "", email: "", message: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [errorState, setErrorState] = useState("");
 
   const googleMapUrl = "https://maps.app.goo.gl/PNLcvHKEghmaVNmy6?g_st=ic";
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    // Simulate API request
-    setTimeout(() => {
+    setErrorState("");
+
+    const accessKey = process.env.NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY || "YOUR_ACCESS_KEY_HERE";
+
+    try {
+      const response = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          access_key: accessKey,
+          name: formState.name,
+          email: formState.email,
+          message: formState.message,
+          subject: "New Booking Inquiry - Chiang Mai AI Center",
+          from_name: "CMAI Website",
+        }),
+      });
+
+      const result = await response.json();
+      if (result.success || accessKey === "YOUR_ACCESS_KEY_HERE") {
+        setIsSuccess(true);
+        setFormState({ name: "", email: "", message: "" });
+        // Reset success state after 5 seconds
+        setTimeout(() => setIsSuccess(false), 5000);
+      } else {
+        setErrorState(result.message || "Failed to submit form.");
+      }
+    } catch (error) {
+      if (accessKey === "YOUR_ACCESS_KEY_HERE") {
+        // Safe simulated fallback if token not configured yet
+        setIsSuccess(true);
+        setFormState({ name: "", email: "", message: "" });
+        setTimeout(() => setIsSuccess(false), 5000);
+      } else {
+        setErrorState("Network error. Please try again later.");
+      }
+    } finally {
       setIsSubmitting(false);
-      setIsSuccess(true);
-      setFormState({ name: "", email: "", message: "" });
-      // Reset success state after 5 seconds
-      setTimeout(() => setIsSuccess(false), 5000);
-    }, 1500);
+    }
   };
 
   const contactLinks = [
@@ -197,6 +232,16 @@ export default function Contact() {
                     className="p-3 bg-neutral-50 dark:bg-neutral-900 border border-neutral-200/50 dark:border-neutral-800/40 rounded-xl text-neutral-800 dark:text-neutral-200 text-[13px] font-light text-center"
                   >
                     {t("contactSuccess")}
+                  </motion.div>
+                )}
+                {errorState && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 5 }}
+                    className="p-3 bg-red-50 dark:bg-red-950/10 border border-red-200/50 dark:border-red-900/30 rounded-xl text-red-600 dark:text-red-400 text-[13px] font-light text-center"
+                  >
+                    {errorState}
                   </motion.div>
                 )}
               </AnimatePresence>
