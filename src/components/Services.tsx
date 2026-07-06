@@ -495,6 +495,9 @@ export default function Services() {
                 <p className="text-[13px] text-[#515154] dark:text-[#86868b] leading-relaxed font-light">
                   {service.desc}
                 </p>
+                <div className="inline-flex items-center gap-1 text-[11px] font-medium text-neutral-400 dark:text-neutral-500 group-hover:text-black dark:group-hover:text-white transition-colors pt-1">
+                  <span>{t("servicesLearnMore")}</span>
+                </div>
               </div>
             ))}
           </div>
@@ -521,6 +524,9 @@ export default function Services() {
                 <p className="text-[13px] text-[#515154] dark:text-[#86868b] leading-relaxed font-light">
                   {service.desc}
                 </p>
+                <div className="inline-flex items-center gap-1 text-[11px] font-medium text-neutral-400 dark:text-neutral-500 group-hover:text-black dark:group-hover:text-white transition-colors pt-1">
+                  <span>{t("servicesLearnMore")}</span>
+                </div>
               </div>
             ))}
           </div>

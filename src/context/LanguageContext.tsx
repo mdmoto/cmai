@@ -66,6 +66,7 @@ const translations: Record<Language, TranslationDict> = {
     
     // Services
     servicesSectionTitle: "Services",
+    servicesLearnMore: "Learn More →",
     servicesSubtitle: "Full-Spectrum Business Support",
     servicesPrivateOffices: "Private Offices",
     servicesPrivateOfficesDesc: "Fully furnished offices for startups and international businesses.",
@@ -182,6 +183,7 @@ const translations: Record<Language, TranslationDict> = {
     
     // Services
     servicesSectionTitle: "商业服务",
+    servicesLearnMore: "点击了解更多 →",
     servicesSubtitle: "全方位商业支持",
     servicesPrivateOffices: "独立办公室",
     servicesPrivateOfficesDesc: "专为初创公司和跨国企业设计的精装修独立办公室。",
@@ -298,6 +300,7 @@ const translations: Record<Language, TranslationDict> = {
     
     // Services
     servicesSectionTitle: "บริการ",
+    servicesLearnMore: "เรียนรู้เพิ่มเติม →",
     servicesSubtitle: "การสนับสนุนธุรกิจครบวงจร",
     servicesPrivateOffices: "ออฟฟิศส่วนตัว",
     servicesPrivateOfficesDesc: "ออฟฟิศที่ตกแต่งครบครันสำหรับสตาร์ทอัพและธุรกิจต่างชาติ",
@@ -414,6 +417,7 @@ const translations: Record<Language, TranslationDict> = {
     
     // Services
     servicesSectionTitle: "サービス",
+    servicesLearnMore: "詳細を見る →",
     servicesSubtitle: "総合的なビジネス支援",
     servicesPrivateOffices: "プライベートオフィス",
     servicesPrivateOfficesDesc: "スタートアップや国際企業向けに家具が完備された個室オフィス。",
