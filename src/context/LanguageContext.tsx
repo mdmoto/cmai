@@ -116,6 +116,7 @@ const translations: Record<Language, TranslationDict> = {
     servicesVisaSupportDesc: "Complete visa and work permit application support.",
     servicesMeetingRental: "Meeting Room & Lounge",
     servicesMeetingRentalDesc: "Hourly rental of private lounges and high-tech meeting rooms.",
+    pricingDepositNote: "* Office leases require a 2-month refundable security deposit.",
 
     // Gallery
     gallerySectionTitle: "Gallery",
@@ -263,6 +264,7 @@ const translations: Record<Language, TranslationDict> = {
     servicesVisaSupportDesc: "外籍员工在泰合法工作签证与工作准证全套代办服务。",
     servicesMeetingRental: "会客室与会议室租用",
     servicesMeetingRentalDesc: "独立会客室及中大型智能会议室外部小时租用服务。",
+    pricingDepositNote: "* 办公空间租赁合规签约时，需另付 2 个月租金作为可退还押金。",
 
     // Gallery
     gallerySectionTitle: "空间实景",
@@ -410,6 +412,7 @@ const translations: Record<Language, TranslationDict> = {
     servicesVisaSupportDesc: "บริการขอวีซ่าและใบอนุญาตทำงานที่ครบวงจร",
     servicesMeetingRental: "ห้องรับรองและห้องประชุม",
     servicesMeetingRentalDesc: "บริการเช่าห้องรับรองและห้องประชุมเทคโนโลยีสูงรายชั่วโมง",
+    pricingDepositNote: "* การเช่าสำนักงานต้องวางเงินประกันความเสียหายที่คืนเงินได้ 2 เดือน",
 
     // Gallery
     gallerySectionTitle: "แกลเลอรี",
@@ -557,6 +560,7 @@ const translations: Record<Language, TranslationDict> = {
     servicesVisaSupportDesc: "タイ現地でのビジネスビザと就労許可証（ワークパーミット）の申請代行サポート。",
     servicesMeetingRental: "会客室・会議室レンタル",
     servicesMeetingRentalDesc: "個室応接スペースおよびハイテク会議室の時間貸しサービス。",
+    pricingDepositNote: "* オフィス賃貸契約の締結時に、別途2ヶ月分のデポジット（保証金、退去時返金可）が必要となります。",
 
     // Gallery
     gallerySectionTitle: "ギャラリー",

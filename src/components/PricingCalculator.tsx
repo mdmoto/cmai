@@ -891,6 +891,13 @@ export default function PricingCalculator() {
                 </div>
               </div>
 
+              {/* Security Deposit Note */}
+              {(selected.private_office || selected.shared_office) && (
+                <p className="text-[11px] text-amber-600/90 dark:text-amber-400/90 font-light text-center leading-relaxed bg-amber-500/5 p-2 rounded-lg border border-amber-500/10">
+                  {t("pricingDepositNote")}
+                </p>
+              )}
+
               {/* Inquire Quote Action */}
               <button
                 onClick={handleInquireQuote}
