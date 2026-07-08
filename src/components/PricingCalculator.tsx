@@ -177,7 +177,7 @@ export default function PricingCalculator() {
       confPrice: 1000, // Conference
       unitKey: "pricingOnce",
       isMonthly: false,
-      notesKey: "独立会客室（S/M/L）及多功能会议室外部小时租用",
+      notesKey: "独立会客室及会议室外部小时租用，与长期办公/入驻设立等所有服务互斥",
       icon: <Clock className="w-4 h-4" />,
     },
   ];
@@ -234,6 +234,19 @@ export default function PricingCalculator() {
     setSelected((prev) => {
       const next = { ...prev, [id]: !prev[id] };
       setWarningMessage("");
+
+      // 0. Hourly Meeting & Lounge Rental Mutex (Item 13)
+      if (id === "meeting_rental" && next.meeting_rental) {
+        // If hourly rental is selected, deselect all other long-term/one-time items
+        Object.keys(next).forEach((key) => {
+          if (key !== "meeting_rental") {
+            next[key] = false;
+          }
+        });
+      } else if (id !== "meeting_rental" && next[id]) {
+        // If any other service is selected, deselect hourly meeting rental
+        next.meeting_rental = false;
+      }
 
       // 1. Group A Workspace Mutual Exclusion (1, 2, 5)
       if (id === "private_office" && next.private_office) {
