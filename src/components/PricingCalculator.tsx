@@ -8,20 +8,22 @@ import {
   Calculator,
   ArrowRight,
   Shield,
-  HelpCircle,
   Building,
   Wifi,
   Scale,
   FileSpreadsheet,
   AlertCircle,
+  Clock,
+  UserCheck,
 } from "lucide-react";
 
 interface ServiceItem {
   id: string;
   nameKey: string;
-  basePrice: number; // For Private Office, this is S size
-  mPrice?: number;   // For M size
-  lPrice?: number;   // For L size
+  basePrice: number; // For Private Office or Meeting Room, this is S size
+  mPrice?: number;
+  lPrice?: number;
+  confPrice?: number; // For Conference Room
   unitKey: string;
   isMonthly: boolean;
   notesKey: string;
@@ -44,9 +46,14 @@ export default function PricingCalculator() {
     bank_account: false,
     accounting_agent: false,
     annual_audit: false,
+    visa_support: false,
+    meeting_rental: false,
   });
 
   const [officeSize, setOfficeSize] = useState<"s" | "m" | "l">("s");
+  const [meetingRoomType, setMeetingRoomType] = useState<"s" | "m" | "l" | "conf">("s");
+  const [meetingHours, setMeetingHours] = useState<number>(1);
+  const [visaEmployees, setVisaEmployees] = useState<number>(1);
   const [duration, setDuration] = useState<number>(1);
   const [warningMessage, setWarningMessage] = useState<string>("");
 
@@ -59,16 +66,16 @@ export default function PricingCalculator() {
       lPrice: 10000,
       unitKey: "pricingMonth",
       isMonthly: true,
-      notesKey: "1、2、5三项互斥，方向s, m, l对应3个价格",
+      notesKey: "1、2、5三项互斥，方向s, m, l对应3个价格；租独立办公室免费送专项 IP VPN（2台设备）",
       icon: <Building className="w-4 h-4" />,
     },
     {
       id: "shared_office",
-      nameKey: "servicesSharedOffice", // Fallback helper key
+      nameKey: "servicesSharedOffice",
       basePrice: 3000,
       unitKey: "pricingMonth",
       isMonthly: true,
-      notesKey: "1、2、5三项互斥",
+      notesKey: "1、2、5三项互斥；租共享办公室免费送专项 IP VPN（1台设备）",
       icon: <Building className="w-4 h-4" />,
     },
     {
@@ -77,7 +84,7 @@ export default function PricingCalculator() {
       basePrice: 1000,
       unitKey: "pricingMonth",
       isMonthly: true,
-      notesKey: "1、2、5三项互斥",
+      notesKey: "1、2、5三项互斥；租虚拟办公室免费送共享 IP VPN",
       icon: <Scale className="w-4 h-4" />,
     },
     {
@@ -86,7 +93,7 @@ export default function PricingCalculator() {
       basePrice: 600,
       unitKey: "pricingMonth",
       isMonthly: true,
-      notesKey: "3、4两项互斥",
+      notesKey: "3、4两项互斥；租独立/共享办公室可免费享用",
       icon: <Wifi className="w-4 h-4" />,
     },
     {
@@ -95,7 +102,7 @@ export default function PricingCalculator() {
       basePrice: 200,
       unitKey: "pricingMonth",
       isMonthly: true,
-      notesKey: "3、4两项互斥",
+      notesKey: "3、4两项互斥；租虚拟办公室可免费享用",
       icon: <Wifi className="w-4 h-4" />,
     },
     {
@@ -113,7 +120,7 @@ export default function PricingCalculator() {
       basePrice: 30000,
       unitKey: "pricingOnce",
       isMonthly: false,
-      notesKey: "选择这个必须选择1、2、5三项中的一项，价格打折为7折，免费包4，可升级3（300/月），租期默认12月起",
+      notesKey: "选择这个必须选择1、2、5中的一项，注册费用打7折，免费包4，可升级3（300/月），租期默认12月起",
       icon: <FileSpreadsheet className="w-4 h-4" />,
     },
     {
@@ -131,7 +138,7 @@ export default function PricingCalculator() {
       basePrice: 20000,
       unitKey: "pricingOnce",
       isMonthly: false,
-      notesKey: "选择这个必须选择1、2项中的一项，价格打折为7折，免费包4，可升级3（300/月），租期默认12月起",
+      notesKey: "选择这个必须选择1、2项中的一项，开户服务打7折，免费包4，可升级3（300/月），租期默认12月起",
       icon: <Building className="w-4 h-4" />,
     },
     {
@@ -152,9 +159,30 @@ export default function PricingCalculator() {
       notesKey: "",
       icon: <FileSpreadsheet className="w-4 h-4" />,
     },
+    {
+      id: "visa_support",
+      nameKey: "servicesVisaSupport",
+      basePrice: 20000,
+      unitKey: "pricingOnce",
+      isMonthly: false,
+      notesKey: "协助外籍团队成员办理合法工作签证与工作准证（以人数计费）",
+      icon: <UserCheck className="w-4 h-4" />,
+    },
+    {
+      id: "meeting_rental",
+      nameKey: "servicesMeetingRental",
+      basePrice: 200, // S
+      mPrice: 400,   // M
+      lPrice: 600,   // L
+      confPrice: 1000, // Conference
+      unitKey: "pricingOnce",
+      isMonthly: false,
+      notesKey: "独立会客室（S/M/L）及多功能会议室外部小时租用",
+      icon: <Clock className="w-4 h-4" />,
+    },
   ];
 
-  // Specific translations mapping for items missing in default context
+  // Translations for new items
   const customTranslations: Record<string, Record<Language, string>> = {
     servicesSharedOffice: {
       en: "Shared Workspace (Hot Desk)",
@@ -170,25 +198,25 @@ export default function PricingCalculator() {
     },
     servicesShareholder: {
       en: "Thai Shareholder Matching",
-      zh: "泰国股东撮合服务",
+      zh: "泰国股东配套撮合",
       th: "บริการจัดหาผู้ถือหุ้นไทย",
       ja: "タイ人株主マッチングサービス",
     },
     servicesBankAccount: {
       en: "Bank Account Certification",
-      zh: "银行开户认证支持",
+      zh: "商业银行开户认证",
       th: "บริการเปิดบัญชีธนาคาร",
       ja: "法人銀行口座開設サポート",
     },
     servicesAccounting: {
       en: "Corporate Bookkeeping / Tax",
-      zh: "每月财务记账代理",
+      zh: "财务代理服务",
       th: "บริการทำบัญชีและยื่นภาษีรายเดือน",
-      ja: "月次財務・会計代理業務",
+      ja: "財務・会計代理業務",
     },
     servicesAudit: {
       en: "Annual Fiscal Review / Audit",
-      zh: "年度审计与公司年审",
+      zh: "公司年度审计与年审",
       th: "การตรวจสอบและยื่นงบการเงินประจำปี",
       ja: "年次決算監査・年審業務",
     },
@@ -229,7 +257,18 @@ export default function PricingCalculator() {
         next.dedicated_vpn = false;
       }
 
-      // 3. Company Registration (Item 7) constraints
+      // 3. Auto-bundle logic for VPN based on workspace selection (Rule 3)
+      if (next.private_office || next.shared_office) {
+        // Renting 1 or 2 grants free Dedicated VPN (3)
+        next.dedicated_vpn = true;
+        next.shared_vpn = false;
+      } else if (next.virtual_address) {
+        // Renting 5 grants free Shared VPN (4)
+        next.shared_vpn = true;
+        next.dedicated_vpn = false;
+      }
+
+      // 4. Company Registration (Item 7) constraints
       if (next.company_registration) {
         // Must select one of workspace 1, 2, or 5
         if (!next.private_office && !next.shared_office && !next.virtual_address) {
@@ -237,31 +276,27 @@ export default function PricingCalculator() {
           next.private_office = true;
           next.shared_office = false;
           next.virtual_address = false;
+          // Apply its free VPN bundle
+          next.dedicated_vpn = true;
+          next.shared_vpn = false;
           setWarningMessage(t("pricingOfficeSelectionRequired"));
         }
-        // Force minimum duration of 12 months
         setDuration((prevD) => Math.max(12, prevD));
       }
 
-      // 4. Bank Account (Item 9) constraints
+      // 5. Bank Account (Item 9) constraints
       if (next.bank_account) {
         // Must select one of workspace 1 or 2 (virtual address not allowed)
         if (!next.private_office && !next.shared_office) {
           next.private_office = true;
           next.shared_office = false;
           next.virtual_address = false;
+          // Apply its free VPN bundle
+          next.dedicated_vpn = true;
+          next.shared_vpn = false;
           setWarningMessage(t("pricingOfficeRequiredForBank"));
         }
-        // Force minimum duration of 12 months
         setDuration((prevD) => Math.max(12, prevD));
-      }
-
-      // 5. Automatic bundles when company registration or bank account is selected
-      if (next.company_registration || next.bank_account) {
-        // Bundles shared VPN (4) by default if dedicated VPN (3) is not chosen
-        if (!next.dedicated_vpn) {
-          next.shared_vpn = true;
-        }
       }
 
       return next;
@@ -294,13 +329,29 @@ export default function PricingCalculator() {
     ? 20000 * (hasOfficeSelected ? 0.7 : 1)
     : 0;
 
-  // 4. VPN Bundling discounts (under 7 or 9)
-  const hasVpnBundle = selected.company_registration || selected.bank_account;
+  // 4. VPN Bundling discounts (Revised logic):
+  // - Private office (1) -> Dedicated VPN (3) is FREE (includes 2 devices)
+  // - Shared office (2) -> Dedicated VPN (3) is FREE (includes 1 device)
+  // - Virtual address (5) -> Shared VPN (4) is FREE (includes 1 connection)
+  // - Under Company Reg (7) or Bank (9): bundles Shared VPN for free, or Dedicated VPN for 300.
+  //   But if they already rent office 1 or 2, they get Dedicated VPN for FREE (which is even better!).
+  const hasVpnPromo = selected.company_registration || selected.bank_account;
   let vpnCost = 0;
+
   if (selected.shared_vpn) {
-    vpnCost = hasVpnBundle ? 0 : 200; // Free under bundle
+    if (selected.virtual_address || hasVpnPromo) {
+      vpnCost = 0; // Free
+    } else {
+      vpnCost = 200;
+    }
   } else if (selected.dedicated_vpn) {
-    vpnCost = hasVpnBundle ? 300 : 600; // Discounted to 300 under bundle
+    if (selected.private_office || selected.shared_office) {
+      vpnCost = 0; // Free
+    } else if (hasVpnPromo) {
+      vpnCost = 300; // Promo price under registration/banking bundle
+    } else {
+      vpnCost = 600;
+    }
   }
 
   // 5. Private Office Pricing based on size S, M, L
@@ -311,28 +362,33 @@ export default function PricingCalculator() {
     else if (officeSize === "l") officeCost = 10000;
   }
 
+  // 6. Meeting Room Hour-based pricing
+  let hourlyRate = 200;
+  if (meetingRoomType === "m") hourlyRate = 400;
+  else if (meetingRoomType === "l") hourlyRate = 600;
+  else if (meetingRoomType === "conf") hourlyRate = 1000;
+
+  const meetingTotalCost = selected.meeting_rental ? hourlyRate * meetingHours : 0;
+
+  // 7. Visa Support calculations based on number of employees
+  const visaTotalCost = selected.visa_support ? 20000 * visaEmployees : 0;
+
   // Calculate Subtotals
   let monthlySubtotal = 0;
-  // Office cost
   monthlySubtotal += officeCost;
-  // Shared office
   if (selected.shared_office) monthlySubtotal += 3000;
-  // Virtual address
   if (selected.virtual_address) monthlySubtotal += 1000;
-  // VPN Cost
   monthlySubtotal += vpnCost;
-  // Mail Handling (if selected and not free)
   if (selected.mail_handling && !isMailFree) monthlySubtotal += 500;
-  // Accounting Agent
   if (selected.accounting_agent) monthlySubtotal += 3000;
 
   let oneTimeSubtotal = 0;
   oneTimeSubtotal += registrationCost;
-  // Shareholder Matching
   if (selected.shareholder_matching) oneTimeSubtotal += 50000;
   oneTimeSubtotal += bankAccountCost;
-  // Annual Review Audit
   if (selected.annual_audit) oneTimeSubtotal += 15000;
+  oneTimeSubtotal += visaTotalCost;
+  oneTimeSubtotal += meetingTotalCost;
 
   // Total Estimate calculation (Monthly multiplied by lease duration + One-Time Fees)
   const totalEstimate = (monthlySubtotal * duration) + oneTimeSubtotal;
@@ -348,11 +404,22 @@ export default function PricingCalculator() {
   if (isMailFree) {
     activeDiscounts.push(language === "zh" ? "邮件代收服务免费优惠 (-¥500/月)" : "Free Mail Handling Service");
   }
-  if (hasVpnBundle) {
+  if (selected.dedicated_vpn && (selected.private_office || selected.shared_office)) {
+    const devNum = selected.private_office ? 2 : 1;
+    activeDiscounts.push(
+      language === "zh"
+        ? `租用办公室免费享用专项 IP VPN (${devNum}台设备) (-¥600/月)`
+        : `Free Dedicated VPN (${devNum} Dev) with Office`
+    );
+  } else if (selected.shared_vpn && selected.virtual_address) {
+    activeDiscounts.push(
+      language === "zh" ? "租虚拟地址免费享用共享 IP VPN (-¥200/月)" : "Free Shared VPN with Virtual Address"
+    );
+  } else if (hasVpnPromo) {
     if (selected.shared_vpn) {
       activeDiscounts.push(language === "zh" ? "赠送共享 IP VPN 免费服务 (-¥200/月)" : "Bundled Free Shared VPN");
     } else if (selected.dedicated_vpn) {
-      activeDiscounts.push(language === "zh" ? "专享 IP VPN 升级特惠 300/月 (-¥300/月)" : "Upgraded Dedicated VPN Promo Price");
+      activeDiscounts.push(language === "zh" ? "专属 IP VPN 升级特惠 300/月 (-¥300/月)" : "Upgraded Dedicated VPN Promo Price");
     }
   }
 
@@ -365,14 +432,22 @@ export default function PricingCalculator() {
       if (selected.private_office) quoteText += `- 独立办公室 (${officeSize.toUpperCase()} 户型): ฿${officeCost}/月\n`;
       if (selected.shared_office) quoteText += `- 共享办公室 (热租工位): ฿3,000/月\n`;
       if (selected.virtual_address) quoteText += `- 虚拟商区地址: ฿1,000/月\n`;
-      if (selected.shared_vpn) quoteText += `- 共享 IP VPN 服务: ฿${hasVpnBundle ? "0 (赠送)" : "200"}/月\n`;
-      if (selected.dedicated_vpn) quoteText += `- 专属 IP VPN 服务: ฿${hasVpnBundle ? "300 (特惠)" : "600"}/月\n`;
+      if (selected.shared_vpn) quoteText += `- 共享 IP VPN 服务: ฿${selected.virtual_address || hasVpnPromo ? "0 (赠送)" : "200"}/月\n`;
+      if (selected.dedicated_vpn) {
+        const devNum = selected.private_office ? "2台设备, 赠送" : selected.shared_office ? "1台设备, 赠送" : hasVpnPromo ? "特惠 300" : "600";
+        quoteText += `- 专属 IP VPN 服务: ฿${devNum}/月\n`;
+      }
       if (selected.mail_handling) quoteText += `- 邮件包裹代收: ฿${isMailFree ? "0 (赠送)" : "500"}/月\n`;
       if (selected.company_registration) quoteText += `- 泰国公司设立注册: ฿${registrationCost} (已折)\n`;
       if (selected.shareholder_matching) quoteText += `- 泰国股东配套撮合: ฿50,000 (一次性)\n`;
       if (selected.bank_account) quoteText += `- 商业银行开户认证: ฿${bankAccountCost} (已折)\n`;
       if (selected.accounting_agent) quoteText += `- 财务代理报税服务: ฿3,000/月\n`;
-      if (selected.annual_audit) quoteText += `- 年度审计年审服务: ฿15,000 (一次性)\n`;
+      if (selected.annual_audit) quoteText += `- 公司年审审计服务: ฿15,000 (一次性)\n`;
+      if (selected.visa_support) quoteText += `- 泰国工作签证与工作准证 (${visaEmployees} 人): ฿${visaTotalCost} (一次性)\n`;
+      if (selected.meeting_rental) {
+        const typeLabel = meetingRoomType === "conf" ? "智能会议室" : `独立会客室 ${meetingRoomType.toUpperCase()}`;
+        quoteText += `- ${typeLabel} 租用 (${meetingHours} 小时): ฿${meetingTotalCost} (一次性)\n`;
+      }
       quoteText += `-------------------------------------\n`;
       quoteText += `租期时长: ${duration} 个月\n`;
       quoteText += `月度租金总计: ฿${monthlySubtotal.toLocaleString()}/月\n`;
@@ -384,14 +459,22 @@ export default function PricingCalculator() {
       if (selected.private_office) quoteText += `- Private Office (Size ${officeSize.toUpperCase()}): ฿${officeCost}/mo\n`;
       if (selected.shared_office) quoteText += `- Shared Workspace: ฿3,000/mo\n`;
       if (selected.virtual_address) quoteText += `- Virtual Business Address: ฿1,000/mo\n`;
-      if (selected.shared_vpn) quoteText += `- Shared IP VPN: ฿${hasVpnBundle ? "0 (Bundled)" : "200"}/mo\n`;
-      if (selected.dedicated_vpn) quoteText += `- Dedicated IP VPN: ฿${hasVpnBundle ? "300 (Promo)" : "600"}/mo\n`;
+      if (selected.shared_vpn) quoteText += `- Shared IP VPN: ฿${selected.virtual_address || hasVpnPromo ? "0 (Bundled)" : "200"}/mo\n`;
+      if (selected.dedicated_vpn) {
+        const descStr = selected.private_office ? "0 (Bundled 2 Dev)" : selected.shared_office ? "0 (Bundled 1 Dev)" : hasVpnPromo ? "300 (Promo)" : "600";
+        quoteText += `- Dedicated IP VPN: ฿${descStr}/mo\n`;
+      }
       if (selected.mail_handling) quoteText += `- Mail Handling: ฿${isMailFree ? "0 (Free)" : "500"}/mo\n`;
       if (selected.company_registration) quoteText += `- Thai Company Registration: ฿${registrationCost} (One-time)\n`;
       if (selected.shareholder_matching) quoteText += `- Shareholder Matching: ฿50,000 (One-time)\n`;
       if (selected.bank_account) quoteText += `- Bank Account Setup: ฿${bankAccountCost} (One-time)\n`;
       if (selected.accounting_agent) quoteText += `- Bookkeeping & Accounting: ฿3,000/mo\n`;
       if (selected.annual_audit) quoteText += `- Annual Audit / Review: ฿15,000 (One-time)\n`;
+      if (selected.visa_support) quoteText += `- Visas & Work Permits (${visaEmployees} Pax): ฿${visaTotalCost} (One-time)\n`;
+      if (selected.meeting_rental) {
+        const typeLabel = meetingRoomType === "conf" ? "Conference Room" : `Guest Lounge ${meetingRoomType.toUpperCase()}`;
+        quoteText += `- ${typeLabel} Rental (${meetingHours} Hr): ฿${meetingTotalCost} (One-time)\n`;
+      }
       quoteText += `-------------------------------------\n`;
       quoteText += `Lease Term: ${duration} Months\n`;
       quoteText += `Monthly Fee Subtotal: ฿${monthlySubtotal.toLocaleString()}/mo\n`;
@@ -403,7 +486,6 @@ export default function PricingCalculator() {
     const textarea = document.querySelector("#form-message") as HTMLTextAreaElement;
     if (textarea) {
       textarea.value = quoteText;
-      // Trigger native react state updates
       const event = new Event("input", { bubbles: true });
       textarea.dispatchEvent(event);
     }
@@ -457,6 +539,11 @@ export default function PricingCalculator() {
                   if (officeSize === "s") displayPrice = 5000;
                   else if (officeSize === "m") displayPrice = 7500;
                   else if (officeSize === "l") displayPrice = 10000;
+                } else if (item.id === "meeting_rental") {
+                  if (meetingRoomType === "s") displayPrice = 200;
+                  else if (meetingRoomType === "m") displayPrice = 400;
+                  else if (meetingRoomType === "l") displayPrice = 600;
+                  else if (meetingRoomType === "conf") displayPrice = 1000;
                 }
 
                 // Inline bundle pricing adjustments for display
@@ -474,13 +561,18 @@ export default function PricingCalculator() {
                   originalPrice = 20000;
                   adjustedPrice = 14000;
                 }
-                if (item.id === "shared_vpn" && hasVpnBundle && isSelected) {
+                if (item.id === "shared_vpn" && (selected.virtual_address || hasVpnPromo) && isSelected) {
                   originalPrice = 200;
                   adjustedPrice = 0;
                 }
-                if (item.id === "dedicated_vpn" && hasVpnBundle && isSelected) {
-                  originalPrice = 600;
-                  adjustedPrice = 300;
+                if (item.id === "dedicated_vpn" && isSelected) {
+                  if (selected.private_office || selected.shared_office) {
+                    originalPrice = 600;
+                    adjustedPrice = 0;
+                  } else if (hasVpnPromo) {
+                    originalPrice = 600;
+                    adjustedPrice = 300;
+                  }
                 }
 
                 return (
@@ -493,8 +585,8 @@ export default function PricingCalculator() {
                     }`}
                   >
                     <div className="flex items-start justify-between gap-4">
-                      {/* Checkbox and icon/details */}
-                      <div className="flex items-start gap-4">
+                      {/* Checkbox and details */}
+                      <div className="flex items-start gap-4 w-full">
                         <button
                           onClick={() => handleToggle(item.id)}
                           className={`mt-1 size-5 rounded-md border flex items-center justify-center transition-all ${
@@ -506,7 +598,7 @@ export default function PricingCalculator() {
                           {isSelected && <Check className="w-3.5 h-3.5 stroke-[3]" />}
                         </button>
 
-                        <div className="space-y-1">
+                        <div className="space-y-1 w-full">
                           <div className="flex items-center gap-2">
                             <span className="text-neutral-400 dark:text-neutral-500 shrink-0">
                               {item.icon}
@@ -516,7 +608,7 @@ export default function PricingCalculator() {
                             </h4>
                           </div>
 
-                          {/* Sub-selectors (e.g. office size) */}
+                          {/* Private Office Sub-Selector */}
                           {item.id === "private_office" && isSelected && (
                             <div className="flex items-center gap-2 pt-2">
                               {(["s", "m", "l"] as const).map((size) => (
@@ -537,23 +629,102 @@ export default function PricingCalculator() {
                             </div>
                           )}
 
+                          {/* Visa Support Sub-Selector */}
+                          {item.id === "visa_support" && isSelected && (
+                            <div className="flex items-center gap-3 pt-2">
+                              <span className="text-[11px] text-neutral-500 dark:text-neutral-400">
+                                {language === "zh" ? "办理人数:" : "Number of People:"}
+                              </span>
+                              <div className="flex items-center gap-1.5">
+                                <button
+                                  onClick={() => setVisaEmployees((prev) => Math.max(1, prev - 1))}
+                                  className="w-5 h-5 border border-neutral-200 dark:border-neutral-800 rounded-full flex items-center justify-center text-xs hover:bg-neutral-100 dark:hover:bg-neutral-900 text-neutral-700 dark:text-neutral-300"
+                                >
+                                  -
+                                </button>
+                                <span className="text-xs font-semibold px-2 w-6 text-center text-neutral-800 dark:text-white">
+                                  {visaEmployees}
+                                </span>
+                                <button
+                                  onClick={() => setVisaEmployees((prev) => Math.min(20, prev + 1))}
+                                  className="w-5 h-5 border border-neutral-200 dark:border-neutral-800 rounded-full flex items-center justify-center text-xs hover:bg-neutral-100 dark:hover:bg-neutral-900 text-neutral-700 dark:text-neutral-300"
+                                >
+                                  +
+                                </button>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Meeting Room Sub-Selector */}
+                          {item.id === "meeting_rental" && isSelected && (
+                            <div className="space-y-3 pt-2">
+                              <div className="flex flex-wrap gap-2">
+                                {(["s", "m", "l", "conf"] as const).map((size) => (
+                                  <button
+                                    key={size}
+                                    onClick={() => setMeetingRoomType(size)}
+                                    className={`px-3 py-1 text-[11px] font-medium rounded-full border transition-all ${
+                                      meetingRoomType === size
+                                        ? "bg-neutral-900 border-neutral-900 dark:bg-white dark:border-white text-white dark:text-neutral-950"
+                                        : "border-neutral-200 hover:border-neutral-300 dark:border-neutral-800 dark:hover:border-neutral-700 text-neutral-600 dark:text-neutral-400"
+                                    }`}
+                                  >
+                                    {size === "s" && `${language === "zh" ? "会客室 S" : "Lounge S"} (฿200)`}
+                                    {size === "m" && `${language === "zh" ? "会客室 M" : "Lounge M"} (฿400)`}
+                                    {size === "l" && `${language === "zh" ? "会客室 L" : "Lounge L"} (฿600)`}
+                                    {size === "conf" && `${language === "zh" ? "会议厅" : "Conference"} (฿1000)`}
+                                  </button>
+                                ))}
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <span className="text-[11px] text-neutral-500 dark:text-neutral-400">
+                                  {language === "zh" ? "租用时长 (小时):" : "Hours to Rent:"}
+                                </span>
+                                <div className="flex items-center gap-1.5">
+                                  <button
+                                    onClick={() => setMeetingHours((prev) => Math.max(1, prev - 1))}
+                                    className="w-5 h-5 border border-neutral-200 dark:border-neutral-800 rounded-full flex items-center justify-center text-xs hover:bg-neutral-100 dark:hover:bg-neutral-900 text-neutral-700 dark:text-neutral-300"
+                                  >
+                                    -
+                                  </button>
+                                  <span className="text-xs font-semibold px-2 w-8 text-center text-neutral-800 dark:text-white">
+                                    {meetingHours}
+                                  </span>
+                                  <button
+                                    onClick={() => setMeetingHours((prev) => Math.min(100, prev + 1))}
+                                    className="w-5 h-5 border border-neutral-200 dark:border-neutral-800 rounded-full flex items-center justify-center text-xs hover:bg-neutral-100 dark:hover:bg-neutral-900 text-neutral-700 dark:text-neutral-300"
+                                  >
+                                    +
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
                           {item.notesKey && (
                             <p className="text-[11px] text-neutral-400 dark:text-neutral-500 font-light max-w-md pt-0.5 leading-relaxed">
-                              {/* Display descriptive English version of complex pricing logic for notes */}
                               {language === "zh"
                                 ? item.notesKey
                                 : item.id === "private_office"
-                                ? "Mutually exclusive with shared office / virtual address. Price varies by S, M, L size selection."
-                                : item.id === "shared_office" || item.id === "virtual_address"
-                                ? "Mutually exclusive with other workspace options."
-                                : item.id === "dedicated_vpn" || item.id === "shared_vpn"
-                                ? "Mutually exclusive with other VPN routing setups."
+                                ? "Mutually exclusive with Shared Office / Virtual Address. Includes Dedicated IP VPN (2 Devices) for free!"
+                                : item.id === "shared_office"
+                                ? "Mutually exclusive with Private Office / Virtual Address. Includes Dedicated IP VPN (1 Device) for free!"
+                                : item.id === "virtual_address"
+                                ? "Mutually exclusive with other workspaces. Includes Shared IP VPN for free!"
+                                : item.id === "dedicated_vpn"
+                                ? "Mutually exclusive with Shared VPN. Bundled free with Private/Shared Office rentals."
+                                : item.id === "shared_vpn"
+                                ? "Mutually exclusive with Dedicated VPN. Bundled free with Virtual Address."
                                 : item.id === "mail_handling"
                                 ? "Free if renting any Private Office, Shared Office, or Virtual Address."
                                 : item.id === "company_registration"
                                 ? "Requires office/virtual address setup. 30% discount on setup. Bundles free Shared VPN, with Dedicated VPN upgrade for ฿300/mo. Duration commits to 12 months."
                                 : item.id === "bank_account"
                                 ? "Requires office setup (Private/Shared). 30% discount on registration. Bundles free Shared VPN, with Dedicated VPN upgrade for ฿300/mo. Duration commits to 12 months."
+                                : item.id === "visa_support"
+                                ? "Visas & Work Permits processing for foreign teams in Thailand."
+                                : item.id === "meeting_rental"
+                                ? "Hourly rental of private lounges and high-tech meeting rooms."
                                 : ""}
                             </p>
                           )}
@@ -569,11 +740,15 @@ export default function PricingCalculator() {
                             </span>
                           )}
                           <span className="text-sm font-semibold text-neutral-800 dark:text-neutral-100">
-                            ฿{adjustedPrice.toLocaleString()}
+                            ฿{(item.id === "visa_support" && isSelected ? visaTotalCost : item.id === "meeting_rental" && isSelected ? meetingTotalCost : adjustedPrice).toLocaleString()}
                           </span>
                         </div>
                         <span className="text-[11px] text-neutral-400 dark:text-neutral-500 block font-light">
-                          {t(item.unitKey)}
+                          {item.id === "visa_support" && isSelected
+                            ? `${visaEmployees} ${t("pricingOnce")}`
+                            : item.id === "meeting_rental" && isSelected
+                            ? `${meetingHours} ${t("pricingHoursUnit")}`
+                            : t(item.unitKey)}
                         </span>
                       </div>
                     </div>
@@ -638,16 +813,24 @@ export default function PricingCalculator() {
                     if (item.id === "mail_handling" && hasWorkspaceSelected) finalPrice = 0;
                     if (item.id === "company_registration" && hasWorkspaceSelected) finalPrice = 21000;
                     if (item.id === "bank_account" && hasOfficeSelected) finalPrice = 14000;
-                    if (item.id === "shared_vpn" && hasVpnBundle) finalPrice = 0;
-                    if (item.id === "dedicated_vpn" && hasVpnBundle) finalPrice = 300;
+                    if (item.id === "shared_vpn" && (selected.virtual_address || hasVpnPromo)) finalPrice = 0;
+                    if (item.id === "dedicated_vpn") {
+                      if (selected.private_office || selected.shared_office) {
+                        finalPrice = 0;
+                      } else if (hasVpnPromo) {
+                        finalPrice = 300;
+                      }
+                    }
 
-                    const lineCost = item.isMonthly ? finalPrice * duration : finalPrice;
+                    const lineCost = item.isMonthly ? finalPrice * duration : item.id === "visa_support" ? visaTotalCost : item.id === "meeting_rental" ? meetingTotalCost : finalPrice;
 
                     return (
                       <div key={item.id} className="flex justify-between items-start text-[13px] font-light">
                         <span className="text-neutral-600 dark:text-neutral-400">
                           {getItemName(item)}{" "}
                           {item.id === "private_office" && `(${officeSize.toUpperCase()})`}{" "}
+                          {item.id === "meeting_rental" && `(${meetingHours}h)`}{" "}
+                          {item.id === "visa_support" && `(${visaEmployees} pax)`}{" "}
                           {item.isMonthly && `(x${duration} mo)`}
                         </span>
                         <span className="font-semibold text-neutral-800 dark:text-neutral-100">

@@ -110,6 +110,12 @@ const translations: Record<Language, TranslationDict> = {
     pricingMonthsUnit: "Months",
     pricingOfficeSelectionRequired: "Office or Virtual Address Selection Required",
     pricingOfficeRequiredForBank: "Office Selection (Private/Shared) Required for Bank Account",
+    pricingHoursUnit: "Hours",
+    pricingHourlyRate: "Hourly Rate",
+    servicesVisaSupport: "Visas & Work Permits",
+    servicesVisaSupportDesc: "Complete visa and work permit application support.",
+    servicesMeetingRental: "Meeting Room & Lounge",
+    servicesMeetingRentalDesc: "Hourly rental of private lounges and high-tech meeting rooms.",
 
     // Gallery
     gallerySectionTitle: "Gallery",
@@ -251,6 +257,12 @@ const translations: Record<Language, TranslationDict> = {
     pricingMonthsUnit: "个月",
     pricingOfficeSelectionRequired: "公司注册必须选择独立办公室、共享办公室或虚拟地址中的一项",
     pricingOfficeRequiredForBank: "办理银行开户必须选择独立办公室或共享办公室中的一项",
+    pricingHoursUnit: "小时",
+    pricingHourlyRate: "每小时租金",
+    servicesVisaSupport: "工作签证与工作准证",
+    servicesVisaSupportDesc: "外籍员工在泰合法工作签证与工作准证全套代办服务。",
+    servicesMeetingRental: "会客室与会议室租用",
+    servicesMeetingRentalDesc: "独立会客室及中大型智能会议室外部小时租用服务。",
 
     // Gallery
     gallerySectionTitle: "空间实景",
@@ -392,6 +404,12 @@ const translations: Record<Language, TranslationDict> = {
     pricingMonthsUnit: "เดือน",
     pricingOfficeSelectionRequired: "ต้องเลือกสำนักงานหรือที่อยู่เสมือนสำหรับการจดทะเบียนบริษัท",
     pricingOfficeRequiredForBank: "ต้องเลือกสำนักงานสำหรับการเปิดบัญชีธนาคาร",
+    pricingHoursUnit: "ชั่วโมง",
+    pricingHourlyRate: "อัตราค่าบริการรายชั่วโมง",
+    servicesVisaSupport: "วีซ่าและใบอนุญาตทำงาน",
+    servicesVisaSupportDesc: "บริการขอวีซ่าและใบอนุญาตทำงานที่ครบวงจร",
+    servicesMeetingRental: "ห้องรับรองและห้องประชุม",
+    servicesMeetingRentalDesc: "บริการเช่าห้องรับรองและห้องประชุมเทคโนโลยีสูงรายชั่วโมง",
 
     // Gallery
     gallerySectionTitle: "แกลเลอรี",
@@ -533,6 +551,12 @@ const translations: Record<Language, TranslationDict> = {
     pricingMonthsUnit: "ヶ月",
     pricingOfficeSelectionRequired: "会社設立にはオフィスまたはバーチャルアドレスの選択が必要です",
     pricingOfficeRequiredForBank: "銀行口座開設にはオフィス（独立またはシェア）の選択が必要です",
+    pricingHoursUnit: "時間",
+    pricingHourlyRate: "時間単価",
+    servicesVisaSupport: "ビザ・就労許可証サポート",
+    servicesVisaSupportDesc: "タイ現地でのビジネスビザと就労許可証（ワークパーミット）の申請代行サポート。",
+    servicesMeetingRental: "会客室・会議室レンタル",
+    servicesMeetingRentalDesc: "個室応接スペースおよびハイテク会議室の時間貸しサービス。",
 
     // Gallery
     gallerySectionTitle: "ギャラリー",
