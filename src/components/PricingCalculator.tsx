@@ -66,7 +66,7 @@ export default function PricingCalculator() {
       lPrice: 10000,
       unitKey: "pricingMonth",
       isMonthly: true,
-      notesKey: "1、2、5三项互斥，方向s, m, l对应3个价格；租独立办公室免费送专项 IP VPN（2台设备）",
+      notesKey: "尊享独立高档办公空间。租用即免费赠送专属 IP VPN（支持 2 台设备）。",
       icon: <Building className="w-4 h-4" />,
     },
     {
@@ -75,7 +75,7 @@ export default function PricingCalculator() {
       basePrice: 3000,
       unitKey: "pricingMonth",
       isMonthly: true,
-      notesKey: "1、2、5三项互斥；租共享办公室免费送专项 IP VPN（1台设备）",
+      notesKey: "共享移动办公工位。租用即免费赠送专属 IP VPN（支持 1 台设备）。",
       icon: <Building className="w-4 h-4" />,
     },
     {
@@ -84,7 +84,7 @@ export default function PricingCalculator() {
       basePrice: 1000,
       unitKey: "pricingMonth",
       isMonthly: true,
-      notesKey: "1、2、5三项互斥；租虚拟办公室免费送共享 IP VPN",
+      notesKey: "提供合规的清迈核心商区注册地址。租用即免费赠送共享 IP VPN。",
       icon: <Scale className="w-4 h-4" />,
     },
     {
@@ -93,7 +93,7 @@ export default function PricingCalculator() {
       basePrice: 600,
       unitKey: "pricingMonth",
       isMonthly: true,
-      notesKey: "3、4两项互斥；租独立/共享办公室可免费享用",
+      notesKey: "专为 TikTok、Lazada、Facebook 等跨境电商业务防封定制的独立住宅 IP。办公空间租户免费享用。",
       icon: <Wifi className="w-4 h-4" />,
     },
     {
@@ -102,7 +102,7 @@ export default function PricingCalculator() {
       basePrice: 200,
       unitKey: "pricingMonth",
       isMonthly: true,
-      notesKey: "3、4两项互斥；租虚拟办公室可免费享用",
+      notesKey: "高速共享 IP 安全上网通道。虚拟办公室租户免费享用。",
       icon: <Wifi className="w-4 h-4" />,
     },
     {
@@ -111,7 +111,7 @@ export default function PricingCalculator() {
       basePrice: 500,
       unitKey: "pricingMonth",
       isMonthly: true,
-      notesKey: "1、2、5三项选择任何一项这项免费",
+      notesKey: "代收商业信件与快递包裹并提供通知。办公空间或虚拟地址租户免费尊享。",
       icon: <Shield className="w-4 h-4" />,
     },
     {
@@ -120,7 +120,7 @@ export default function PricingCalculator() {
       basePrice: 30000,
       unitKey: "pricingOnce",
       isMonthly: false,
-      notesKey: "选择这个必须选择1、2、5中的一项，注册费用打7折，免费包4，可升级3（300/月），租期默认12月起",
+      notesKey: "泰国合规公司设立注册一站式代办。需租赁独立/共享/虚拟办公空间（租期 12 个月起），服务费享 7 折特惠。",
       icon: <FileSpreadsheet className="w-4 h-4" />,
     },
     {
@@ -129,7 +129,7 @@ export default function PricingCalculator() {
       basePrice: 50000,
       unitKey: "pricingOnce",
       isMonthly: false,
-      notesKey: "",
+      notesKey: "依照泰国法律，为合资企业依法合规撮合泰国本土合作股东。",
       icon: <Scale className="w-4 h-4" />,
     },
     {
@@ -138,7 +138,7 @@ export default function PricingCalculator() {
       basePrice: 20000,
       unitKey: "pricingOnce",
       isMonthly: false,
-      notesKey: "选择这个必须选择1、2项中的一项，开户服务打7折，免费包4，可升级3（300/月），租期默认12月起",
+      notesKey: "泰国主流商业银行公司开户认证代办。需租用独立办公室或共享办公室（租期 12 个月起），代办费享 7 折特惠。",
       icon: <Building className="w-4 h-4" />,
     },
     {
@@ -147,7 +147,7 @@ export default function PricingCalculator() {
       basePrice: 3000,
       unitKey: "pricingMonth",
       isMonthly: true,
-      notesKey: "",
+      notesKey: "包含每月发票账目整理、代账以及合规税务申报申报代办。",
       icon: <Shield className="w-4 h-4" />,
     },
     {
@@ -156,7 +156,7 @@ export default function PricingCalculator() {
       basePrice: 15000,
       unitKey: "pricingOnce",
       isMonthly: false,
-      notesKey: "",
+      notesKey: "包含年度审计报告出具，以及官方公司年审申报代办。",
       icon: <FileSpreadsheet className="w-4 h-4" />,
     },
     {
@@ -165,7 +165,7 @@ export default function PricingCalculator() {
       basePrice: 20000,
       unitKey: "pricingOnce",
       isMonthly: false,
-      notesKey: "协助外籍团队成员办理合法工作签证与工作准证（以人数计费）",
+      notesKey: "协助外籍团队成员办理在泰合法的 Non-B 工作签证与全套工作准证（按人数计费）。",
       icon: <UserCheck className="w-4 h-4" />,
     },
     {
@@ -177,7 +177,7 @@ export default function PricingCalculator() {
       confPrice: 1000, // Conference
       unitKey: "pricingOnce",
       isMonthly: false,
-      notesKey: "独立会客室及会议室外部小时租用，与长期办公/入驻设立等所有服务互斥",
+      notesKey: "独立会客空间及中大型会议厅临时小时预约租用（本服务与长期办公及公司注册等入驻服务互斥）。",
       icon: <Clock className="w-4 h-4" />,
     },
   ];
@@ -719,25 +719,31 @@ export default function PricingCalculator() {
                               {language === "zh"
                                 ? item.notesKey
                                 : item.id === "private_office"
-                                ? "Mutually exclusive with Shared Office / Virtual Address. Includes Dedicated IP VPN (2 Devices) for free!"
+                                ? "Premium private office spaces. Includes free Dedicated IP VPN (supports 2 devices)."
                                 : item.id === "shared_office"
-                                ? "Mutually exclusive with Private Office / Virtual Address. Includes Dedicated IP VPN (1 Device) for free!"
+                                ? "Shared workspace hot desks. Includes free Dedicated IP VPN (supports 1 device)."
                                 : item.id === "virtual_address"
-                                ? "Mutually exclusive with other workspaces. Includes Shared IP VPN for free!"
+                                ? "Registered corporate address in prime business district. Includes free Shared IP VPN."
                                 : item.id === "dedicated_vpn"
-                                ? "Mutually exclusive with Shared VPN. Bundled free with Private/Shared Office rentals."
+                                ? "Dedicated clean residential IP for account protection on TikTok, Lazada, and Facebook. Included free for physical office tenants."
                                 : item.id === "shared_vpn"
-                                ? "Mutually exclusive with Dedicated VPN. Bundled free with Virtual Address."
+                                ? "High-speed shared IP secure networking channel. Included free for virtual office tenants."
                                 : item.id === "mail_handling"
-                                ? "Free if renting any Private Office, Shared Office, or Virtual Address."
+                                ? "Receiving and managing corporate letters/parcels with notification. Free for physical and virtual office tenants."
                                 : item.id === "company_registration"
-                                ? "Requires office/virtual address setup. 30% discount on setup. Bundles free Shared VPN, with Dedicated VPN upgrade for ฿300/mo. Duration commits to 12 months."
+                                ? "One-stop Thai company incorporation service. Requires office rental (12-month min lease), service fee discounted by 30%."
+                                : item.id === "shareholder_matching"
+                                ? "Legal matching of local Thai partnership shareholders for joint ventures."
                                 : item.id === "bank_account"
-                                ? "Requires office setup (Private/Shared). 30% discount on registration. Bundles free Shared VPN, with Dedicated VPN upgrade for ฿300/mo. Duration commits to 12 months."
+                                ? "Thai commercial corporate bank account setup. Requires physical office rental (12-month min lease), setup fee discounted by 30%."
+                                : item.id === "accounting_agent"
+                                ? "Includes monthly bookkeeping, corporate tax preparation, and local VAT filings."
+                                : item.id === "annual_audit"
+                                ? "Includes corporate annual audit report compilation and renewal filings."
                                 : item.id === "visa_support"
-                                ? "Visas & Work Permits processing for foreign teams in Thailand."
+                                ? "Visa and work permit applications for foreign team members in Thailand (priced per person)."
                                 : item.id === "meeting_rental"
-                                ? "Hourly rental of private lounges and high-tech meeting rooms."
+                                ? "Hourly rental of executive lounges and training conference rooms (mutually exclusive with long-term rentals)."
                                 : ""}
                             </p>
                           )}
