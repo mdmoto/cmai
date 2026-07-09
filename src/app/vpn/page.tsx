@@ -53,7 +53,7 @@ export default function VpnSetupPage() {
       vlessMac: "macOS Client",
       vlessAndroid: "Android Client",
       vlessImportTitle: "2. Import & Connect",
-      vlessImportStep1: "Copy the connection link above.",
+      vlessImportStep1: "Get your private VLESS connection link from the administrator.",
       vlessImportStep2: "Open your downloaded client, press Paste (Ctrl+V or Cmd+V) to import.",
       vlessImportStep3: "Start the connection. Choose 'Route: Bypass Mainland China' for optimal routing.",
       
@@ -125,7 +125,7 @@ export default function VpnSetupPage() {
       vlessMac: "ไคลเอนต์ macOS",
       vlessAndroid: "ไคลเอนต์ Android",
       vlessImportTitle: "2. นำเข้าและเชื่อมต่อ",
-      vlessImportStep1: "คัดลอกลิงก์การเชื่อมต่อด้านบน",
+      vlessImportStep1: "รับคีย์เชื่อมต่อ VLESS ส่วนตัวของคุณจากผู้ดูแลระบบ",
       vlessImportStep2: "เปิดไคลเอนต์ที่คุณดาวน์โหลด กดวาง (Ctrl+V หรือ Cmd+V) เพื่อนำเข้า",
       vlessImportStep3: "เริ่มการเชื่อมต่อ เลือก 'เส้นทาง: เลี่ยงผ่านจีนแผ่นดินใหญ่' เพื่อการกำหนดเส้นทางที่ดีที่สุด",
       
@@ -161,7 +161,7 @@ export default function VpnSetupPage() {
       vlessMac: "macOS用クライアント",
       vlessAndroid: "Android用クライアント",
       vlessImportTitle: "2. インポートと接続",
-      vlessImportStep1: "上の接続リンクをコピーします。",
+      vlessImportStep1: "管理者から個別のVLESS接続キーを取得し、コピーします。",
       vlessImportStep2: "ダウンロードしたクライアントを開き、貼り付け（Ctrl+VまたはCmd+V）してインポートします。",
       vlessImportStep3: "接続を開始します。最適なルーティングのために「中国本土をバイパス」を選択してください。",
       
@@ -185,13 +185,7 @@ export default function VpnSetupPage() {
 
   const currentLanguageLabel = languages.find((l) => l.code === language)?.label || "English";
 
-  const vlessLink = "vless://62cd3cc9-9544-4cf8-b170-ffe493c19b01@52.220.132.229:443?encryption=none&flow=xtls-rprx-vision&security=reality&sni=images.apple.com&fp=chrome&pbk=O9hhqNGco2WrEkFkKuTXmDAjiNh6IoX-gAdLPm_CRAk&sid=74304fdffa3c9d73&type=tcp#CMAI-Remote-Worker";
 
-  const copyToClipboard = () => {
-    navigator.clipboard.writeText(vlessLink);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 3000);
-  };
 
   return (
     <div className="flex flex-col min-h-screen bg-neutral-50 dark:bg-neutral-950 font-sans antialiased text-neutral-900 dark:text-neutral-100 animate-fadeIn">
@@ -341,28 +335,20 @@ export default function VpnSetupPage() {
               </div>
 
               <div className="border-t border-neutral-100 dark:border-neutral-800/60 pt-6 space-y-6">
-                {/* VLESS Key Copy */}
+                {/* VLESS Key Notice */}
                 <div>
                   <label className="block text-xs font-semibold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider mb-2">
                     {t("vlessLinkTitle")}
                   </label>
-                  <div className="flex items-center gap-2">
-                    <div className="flex-grow p-3 bg-neutral-50 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-lg text-xs font-mono select-all overflow-x-auto whitespace-nowrap text-neutral-500 dark:text-neutral-400 max-w-[calc(100%-48px)]">
-                      {vlessLink}
+                  <div className="flex items-start gap-3 p-4 rounded-xl bg-neutral-50 dark:bg-neutral-950 border border-neutral-200/50 dark:border-neutral-800">
+                    <Info className="w-4 h-4 text-neutral-400 dark:text-neutral-500 flex-shrink-0 mt-0.5" />
+                    <div className="text-xs leading-relaxed text-neutral-500 dark:text-neutral-400">
+                      {language === "zh" && "为保障安全及实行设备数/流量限制，连接密钥已改为单人单号分发，请直接联系 IT 负责人或 HR 索取您的专属 VLESS 连接密钥。"}
+                      {language === "en" && "To ensure security and enforce device limits, connection keys are issued individually. Please contact the IT administrator or HR to request your personal VLESS connection link."}
+                      {language === "th" && "เพื่อความปลอดภัยและการจำกัดจำนวนอุปกรณ์ คีย์เชื่อมต่อจะถูกแจกจ่ายแบบรายบุคคล โปรดติดต่อผู้ดูแลระบบ IT หรือฝ่ายบุคคลเพื่อขอลิงก์ VLESS ส่วนตัวของคุณ"}
+                      {language === "ja" && "セキュリティとデバイス数制限を確保するため、接続キーは個別に発行されます。個人用VLESS接続リンクを取得するには、IT管理者または人事（HR）にお問い合わせください。"}
                     </div>
-                    <button
-                      onClick={copyToClipboard}
-                      className="p-3 bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 rounded-lg hover:opacity-90 active:scale-95 transition-all flex-shrink-0 cursor-pointer"
-                      title={t("vlessBtnCopy")}
-                    >
-                      {copied ? <Check className="w-4 h-4 text-emerald-450 dark:text-emerald-500" /> : <Copy className="w-4 h-4" />}
-                    </button>
                   </div>
-                  {copied && (
-                    <span className="text-[12px] text-emerald-500 font-medium mt-1.5 block">
-                      {t("vlessBtnCopied")}
-                    </span>
-                  )}
                 </div>
 
                 {/* Clients Download */}
