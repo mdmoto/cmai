@@ -31,15 +31,15 @@ export default function VpnSetupPage() {
       tabIos: "iOS (iPhone/iPad)",
       tabOthers: "Other Devices (Windows/Mac/Android)",
       
-      // IKEv2 Section
-      ikev2Title: "Apple iOS Native Setup (IKEv2)",
-      ikev2Desc: "No app installation required. Configure your iPhone directly using our secure profile.",
-      ikev2Btn: "Install iOS Profile",
-      ikev2StepsTitle: "Installation Steps",
-      ikev2Step1: "Click the button above to download the profile in Safari.",
-      ikev2Step2: "Open iOS Settings. You will see a 'Profile Downloaded' banner at the top. Tap it.",
-      ikev2Step3: "Tap 'Install' in the top-right corner, enter your passcode, and confirm.",
-      ikev2Step4: "Go to Settings > VPN, select 'IKEv2 VPN', and toggle the switch to connect.",
+      // L2TP Section
+      l2tpTitle: "Apple iOS Native Setup (L2TP)",
+      l2tpDesc: "No app installation required. Configure your iPhone directly using our secure profile.",
+      l2tpBtn: "Install iOS Profile",
+      l2tpStepsTitle: "Installation Steps",
+      l2tpStep1: "Click the button above to download the profile in Safari.",
+      l2tpStep2: "Open iOS Settings. You will see a 'Profile Downloaded' banner at the top. Tap it.",
+      l2tpStep3: "Tap 'Install' in the top-right corner, enter your passcode, and confirm.",
+      l2tpStep4: "Go to Settings > VPN, select 'L2TP VPN', and toggle the switch to connect.",
       
       // VLESS Section
       vlessTitle: "Secure VLESS Proxy Setup",
@@ -67,15 +67,15 @@ export default function VpnSetupPage() {
       tabIos: "苹果手机 (iOS)",
       tabOthers: "其他设备 (Windows/Mac/安卓)",
       
-      // IKEv2 Section
-      ikev2Title: "iOS 免客户端极速配置 (IKEv2)",
-      ikev2Desc: "无需下载任何软件，通过系统自带的安全描述文件一键自动配置连接。",
-      ikev2Btn: "下载并安装 iOS 描述文件",
-      ikev2StepsTitle: "安装步骤说明",
-      ikev2Step1: "使用 Safari 浏览器点击上方按钮下载配置文件。",
-      ikev2Step2: "打开 iPhone '设置'，在顶部会看到“已下载描述文件”选项，点击进入。",
-      ikev2Step3: "点击右上角“安装”，输入手机锁屏密码，确认安装。",
-      ikev2Step4: "返回 '设置' -> 'VPN'，选择 'IKEv2 VPN'，开启连接即可。",
+      // L2TP Section
+      l2tpTitle: "iOS 免客户端极速配置 (L2TP)",
+      l2tpDesc: "无需下载任何软件，通过系统自带的安全描述文件一键自动配置连接。",
+      l2tpBtn: "下载并安装 iOS 描述文件",
+      l2tpStepsTitle: "安装步骤说明",
+      l2tpStep1: "使用 Safari 浏览器点击上方按钮下载配置文件。",
+      l2tpStep2: "打开 iPhone '设置'，在顶部会看到“已下载描述文件”选项，点击进入。",
+      l2tpStep3: "点击右上角“安装”，输入手机锁屏密码，确认安装。",
+      l2tpStep4: "返回 '设置' -> 'VPN'，选择 'L2TP VPN'，开启连接即可。",
       
       // VLESS Section
       vlessTitle: "高性能 VLESS 加密代理配置",
@@ -103,15 +103,15 @@ export default function VpnSetupPage() {
       tabIos: "iOS (iPhone/iPad)",
       tabOthers: "อุปกรณ์อื่นๆ (Windows/Mac/Android)",
       
-      // IKEv2 Section
-      ikev2Title: "การตั้งค่าเนทีฟ Apple iOS (IKEv2)",
-      ikev2Desc: "ไม่ต้องติดตั้งแอปใดๆ กำหนดค่า iPhone ของคุณโดยตรงโดยใช้โปรไฟล์ที่ปลอดภัยของเรา",
-      ikev2Btn: "ติดตั้งโปรไฟล์ iOS",
-      ikev2StepsTitle: "ขั้นตอนการติดตั้ง",
-      ikev2Step1: "คลิกปุ่มด้านบนเพื่อดาวน์โหลดโปรไฟล์ใน Safari",
-      ikev2Step2: "เปิดการตั้งค่า iOS คุณจะเห็นแบนเนอร์ 'ดาวน์โหลดโปรไฟล์แล้ว' ที่ด้านบน แต้ปที่แบนเนอร์นั้น",
-      ikev2Step3: "แตะ 'ติดตั้ง' ที่มุมขวาบน ป้อนรหัสผ่านของคุณ และยืนยัน",
-      ikev2Step4: "ไปที่ การตั้งค่า > VPN เลือก 'IKEv2 VPN' และเปิดสวิตช์เพื่อเชื่อมต่อ",
+      // L2TP Section
+      l2tpTitle: "การตั้งค่าเนทีฟ Apple iOS (L2TP)",
+      l2tpDesc: "ไม่ต้องติดตั้งแอปใดๆ กำหนดค่า iPhone ของคุณโดยตรงโดยใช้โปรไฟล์ที่ปลอดภัยของเรา",
+      l2tpBtn: "ติดตั้งโปรไฟล์ iOS",
+      l2tpStepsTitle: "ขั้นตอนการติดตั้ง",
+      l2tpStep1: "คลิกปุ่มด้านบนเพื่อดาวน์โหลดโปรไฟล์ใน Safari",
+      l2tpStep2: "เปิดการตั้งค่า iOS คุณจะเห็นแบนเนอร์ 'ดาวน์โหลดโปรไฟล์แล้ว' ที่ด้านบน แต้ปที่แบนเนอร์นั้น",
+      l2tpStep3: "แตะ 'ติดตั้ง' ที่มุมขวาบน ป้อนรหัสผ่านของคุณ และยืนยัน",
+      l2tpStep4: "ไปที่ การตั้งค่า > VPN เลือก 'L2TP VPN' และเปิดสวิตช์เพื่อเชื่อมต่อ",
       
       // VLESS Section
       vlessTitle: "การตั้งค่า VLESS Proxy",
@@ -139,15 +139,15 @@ export default function VpnSetupPage() {
       tabIos: "iOS (iPhone/iPad)",
       tabOthers: "その他のデバイス (Windows/Mac/Android)",
       
-      // IKEv2 Section
-      ikev2Title: "Apple iOS ネイティブ設定 (IKEv2)",
-      ikev2Desc: "アプリのインストールは不要です。安全なプロファイルを使用してiPhoneを直接設定します。",
-      ikev2Btn: "iOS プロファイルをインストール",
-      ikev2StepsTitle: "インストール手順",
-      ikev2Step1: "上のボタンをクリックして、Safariでプロファイルをダウンロードします。",
-      ikev2Step2: "iOSの「設定」を開きます。上部に「プロファイルがダウンロードされました」というバナーが表示されるので、タップします。",
-      ikev2Step3: "右上の「インストール」をタップし、パスコードを入力して確認します。",
-      ikev2Step4: "設定 > VPN に移動し、「IKEv2 VPN」を選択してスイッチをオンにします。",
+      // L2TP Section
+      l2tpTitle: "Apple iOS ネイティブ設定 (L2TP)",
+      l2tpDesc: "アプリのインストールは不要です。安全なプロファイルを使用してiPhoneを直接設定します。",
+      l2tpBtn: "iOS プロファイルをインストール",
+      l2tpStepsTitle: "インストール手順",
+      l2tpStep1: "上のボタンをクリックして、Safariでプロファイルをダウンロードします。",
+      l2tpStep2: "iOSの「設定」を開きます。上部に「プロファイルがダウンロードされました」というバナーが表示されるので、タップします。",
+      l2tpStep3: "右上の「インストール」をタップし、パスコードを入力して確認します。",
+      l2tpStep4: "設定 > VPN に移動し、「L2TP VPN」を選択してスイッチをオンにします。",
       
       // VLESS Section
       vlessTitle: "セキュア VLESS プロキシ設定",
@@ -284,10 +284,10 @@ export default function VpnSetupPage() {
                 </div>
                 <div>
                   <h2 className="text-lg font-bold text-neutral-950 dark:text-white">
-                    {t("ikev2Title")}
+                    {t("l2tpTitle")}
                   </h2>
                   <p className="text-[13px] text-neutral-500 dark:text-neutral-400 mt-1">
-                    {t("ikev2Desc")}
+                    {t("l2tpDesc")}
                   </p>
                 </div>
               </div>
@@ -301,17 +301,17 @@ export default function VpnSetupPage() {
                     className="inline-flex items-center gap-2 px-6 py-3.5 bg-neutral-950 hover:bg-neutral-800 dark:bg-white dark:hover:bg-neutral-100 text-white dark:text-neutral-950 rounded-full font-medium text-[14px] transition-all shadow-md active:scale-95 cursor-pointer"
                   >
                     <Download className="w-4 h-4" />
-                    {t("ikev2Btn")}
+                    {t("l2tpBtn")}
                   </a>
                 </div>
 
                 {/* Steps */}
                 <div>
                   <h3 className="text-xs font-semibold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider mb-4">
-                    {t("ikev2StepsTitle")}
+                    {t("l2tpStepsTitle")}
                   </h3>
                   <ol className="space-y-4">
-                    {[t("ikev2Step1"), t("ikev2Step2"), t("ikev2Step3"), t("ikev2Step4")].map((step, idx) => (
+                    {[t("l2tpStep1"), t("l2tpStep2"), t("l2tpStep3"), t("l2tpStep4")].map((step, idx) => (
                       <li key={idx} className="flex gap-3 text-[13.5px] leading-relaxed text-neutral-600 dark:text-neutral-350">
                         <span className="flex-shrink-0 flex items-center justify-center w-5.5 h-5.5 rounded-full bg-neutral-100 dark:bg-neutral-800/80 text-[11px] font-bold text-neutral-500 dark:text-neutral-400">
                           {idx + 1}
