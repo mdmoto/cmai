@@ -303,7 +303,7 @@ export default function VpnSetupPage() {
                     {t("ciscoBtn")}
                   </a>
                   <a 
-                    href="https://mirror.ghproxy.com/https://raw.githubusercontent.com/mdmoto/cmai/main/installers/openconnect.apk" 
+                    href="https://ghproxy.net/https://raw.githubusercontent.com/mdmoto/cmai/main/installers/openconnect.apk" 
                     className="inline-flex items-center gap-2 px-6 py-3.5 bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-neutral-900 dark:text-white rounded-full font-medium text-[14px] transition-all shadow-md active:scale-95 cursor-pointer"
                   >
                     <Download className="w-4 h-4" />
@@ -389,28 +389,28 @@ export default function VpnSetupPage() {
                   </p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <a
-                      href="https://mirror.ghproxy.com/https://github.com/2dust/v2rayN/releases/download/7.23.3/v2rayN-windows-64-desktop.zip"
+                      href="https://ghproxy.net/https://github.com/2dust/v2rayN/releases/download/7.23.3/v2rayN-windows-64-desktop.zip"
                       className="flex items-center justify-between p-3.5 rounded-xl border border-neutral-100 hover:border-neutral-300 dark:border-neutral-800 dark:hover:border-neutral-700 bg-neutral-50/50 dark:bg-neutral-950/50 text-[13px] font-medium transition-all hover:shadow-sm"
                     >
                       <span>{t("vlessWin")} (Windows)</span>
                       <Download className="w-4 h-4 text-neutral-400" />
                     </a>
                     <a
-                      href="https://mirror.ghproxy.com/https://github.com/2dust/v2rayNG/releases/download/2.2.6/v2rayNG_2.2.6_arm64-v8a.apk"
+                      href="https://ghproxy.net/https://github.com/2dust/v2rayNG/releases/download/2.2.6/v2rayNG_2.2.6_arm64-v8a.apk"
                       className="flex items-center justify-between p-3.5 rounded-xl border border-neutral-100 hover:border-neutral-300 dark:border-neutral-800 dark:hover:border-neutral-700 bg-neutral-50/50 dark:bg-neutral-950/50 text-[13px] font-medium transition-all hover:shadow-sm"
                     >
                       <span>{t("vlessAndroid")} (Android)</span>
                       <Download className="w-4 h-4 text-neutral-400" />
                     </a>
                     <a
-                      href="https://mirror.ghproxy.com/https://github.com/yanue/V2rayU/releases/download/v5.1.0/V2rayU-arm64.dmg"
+                      href="https://ghproxy.net/https://github.com/yanue/V2rayU/releases/download/v5.1.0/V2rayU-arm64.dmg"
                       className="flex items-center justify-between p-3.5 rounded-xl border border-neutral-100 hover:border-neutral-300 dark:border-neutral-800 dark:hover:border-neutral-700 bg-neutral-50/50 dark:bg-neutral-950/50 text-[13px] font-medium transition-all hover:shadow-sm"
                     >
                       <span>{t("vlessMacSilicon")}</span>
                       <Download className="w-4 h-4 text-neutral-400" />
                     </a>
                     <a
-                      href="https://mirror.ghproxy.com/https://github.com/yanue/V2rayU/releases/download/v5.1.0/V2rayU-64.dmg"
+                      href="https://ghproxy.net/https://github.com/yanue/V2rayU/releases/download/v5.1.0/V2rayU-64.dmg"
                       className="flex items-center justify-between p-3.5 rounded-xl border border-neutral-100 hover:border-neutral-300 dark:border-neutral-800 dark:hover:border-neutral-700 bg-neutral-50/50 dark:bg-neutral-950/50 text-[13px] font-medium transition-all hover:shadow-sm"
                     >
                       <span>{t("vlessMacIntel")}</span>
