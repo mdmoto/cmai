@@ -38,7 +38,7 @@ export default function VpnSetupPage() {
       ciscoStepsTitle: "Setup & Connection Steps",
       ciscoStep1: "Click the button above to go to the App Store, or search and download 'Cisco Secure Client'.",
       ciscoStep2: "Open the app, go to the 'Settings' (设置) tab, and turn OFF 'Block Untrusted Servers' (阻止不受信任的服务器). This is required to allow our secure self-signed connection.",
-      ciscoStep3: "Go to the 'Home' (主页) tab, tap 'Connections' -> 'Add VPN Connection'. Set Description to 'CMAI' and Server Address to: 52.220.132.229:4443.",
+      ciscoStep3: "Go to the 'Home' (主页) tab, tap 'Connections' → 'Add VPN Connection'. Set Description to 'CMAI' and Server Address to: 52.220.132.229:4443.",
       ciscoStep4: "Go back to Home and toggle the 'AnyConnect VPN' switch. Tap 'Continue' on the certificate prompt, then enter the username and password provided by the administrator.",
       
       // VLESS Section
@@ -75,7 +75,7 @@ export default function VpnSetupPage() {
       ciscoStepsTitle: "配置与连接步骤说明",
       ciscoStep1: "点击上方按钮（或在 App Store 中搜索）下载官方「Cisco Secure Client」客户端。",
       ciscoStep2: "打开 App，点击底部的「设置」选项卡，务必将「阻止不受信任的服务器」关闭（设为灰色）。这是连接自签安全证书的必要操作。",
-      ciscoStep3: "点击底部的「主页」选项卡，点击「连接」->「添加 VPN 连接」，说明填写「CMAI」，服务器地址填写：52.220.132.229:4443 并保存。",
+      ciscoStep3: "点击底部的「主页」选项卡，点击「连接」 → 「添加 VPN 连接」，说明填写「CMAI」，服务器地址填写：52.220.132.229:4443 并保存。",
       ciscoStep4: "返回主页，开启「AnyConnect VPN」开关。若弹出证书警告请选择「继续 (Continue)」，然后依次输入您的用户名和密码即可连接成功！",
       
       // VLESS Section
@@ -112,7 +112,7 @@ export default function VpnSetupPage() {
       ciscoStepsTitle: "ขั้นตอนการตั้งค่าและการเชื่อมต่อ",
       ciscoStep1: "คลิกปุ่มด้านบนหรือค้นหา 'Cisco Secure Client' ใน App Store เพื่อดาวน์โหลด",
       ciscoStep2: "เปิดแอป แตะแท็บ 'การตั้งค่า' (Settings) และปิด 'Block Untrusted Servers' (บล็อกเซิร์ฟเวอร์ที่ไม่น่าเชื่อถือ) ซึ่งจำเป็นสำหรับการอนุญาตใบรับรองความปลอดภัย",
-      ciscoStep3: "แตะแท็บ 'หน้าแรก' (Home) คลิก 'Connections' -> 'Add VPN Connection' ตั้งชื่อเป็น 'CMAI' และกรอก Server Address: 52.220.132.229:4443",
+      ciscoStep3: "แตะแท็บ 'หน้าแรก' (Home) คลิก 'Connections' → 'Add VPN Connection' ตั้งชื่อเป็น 'CMAI' และกรอก Server Address: 52.220.132.229:4443",
       ciscoStep4: "กลับไปที่หน้าแรกและเปิดสวิตช์ 'AnyConnect VPN' คลิก 'Continue' เมื่อมีคำเตือนใบรับรอง จากนั้นป้อนชื่อผู้ใช้และรหัสผ่านของคุณ",
       
       // VLESS Section
@@ -149,7 +149,7 @@ export default function VpnSetupPage() {
       ciscoStepsTitle: "セットアップと接続手順",
       ciscoStep1: "上のボタンをクリックするか、App Store で「Cisco Secure Client」を検索してダウンロードします。",
       ciscoStep2: "アプリを開き、下部の「設定」タブで「信頼されていないサーバーをブロック」をオフ（無効）にしてください。自己署名証明書での接続に必要です。",
-      ciscoStep3: "「ホーム」タブに戻り、「接続」->「VPN接続の追加」をタップします。説明に「CMAI」、サーバーアドレスに「52.220.132.229:4443」を入力して保存します。",
+      ciscoStep3: "「ホーム」タブに戻り、「接続」 → 「VPN接続の追加」をタップします。説明に「CMAI」、サーバーアドレスに「52.220.132.229:4443」を入力して保存します。",
       ciscoStep4: "ホーム画面に戻り、「AnyConnect VPN」のスイッチをオンにします。証明書の警告が表示されたら「続行」をタップし、ユーザー名とパスワードを入力します。",
       
       // VLESS Section
@@ -420,20 +420,72 @@ export default function VpnSetupPage() {
                 </div>
 
                 {/* Import Instructions */}
-                <div>
-                  <h3 className="text-xs font-semibold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider mb-3">
+                <div className="space-y-6">
+                  <h3 className="text-xs font-semibold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider">
                     {t("vlessImportTitle")}
                   </h3>
-                  <ol className="space-y-3">
-                    {[t("vlessImportStep1"), t("vlessImportStep2"), t("vlessImportStep3")].map((step, idx) => (
-                      <li key={idx} className="flex gap-3 text-[13.5px] leading-relaxed text-neutral-600 dark:text-neutral-350">
-                        <span className="flex-shrink-0 flex items-center justify-center w-5.5 h-5.5 rounded-full bg-neutral-100 dark:bg-neutral-800/80 text-[11px] font-bold text-neutral-500 dark:text-neutral-400">
-                          {idx + 1}
-                        </span>
-                        <span>{step}</span>
-                      </li>
-                    ))}
-                  </ol>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Android Guide */}
+                    <div className="bg-neutral-50 dark:bg-neutral-950 p-5 rounded-xl border border-neutral-200/50 dark:border-neutral-800">
+                      <h4 className="text-[13px] font-bold text-neutral-900 dark:text-white mb-3 flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                        安卓手机连接步骤 / Android Setup Guide
+                      </h4>
+                      <ol className="space-y-3 text-[12.5px] leading-relaxed text-neutral-600 dark:text-neutral-450">
+                        <li className="flex gap-2">
+                          <span className="font-semibold text-neutral-900 dark:text-white">1.</span>
+                          <span>复制管理员发给您的 VLESS 链接。</span>
+                        </li>
+                        <li className="flex gap-2">
+                          <span className="font-semibold text-neutral-900 dark:text-white">2.</span>
+                          <span>打开 **v2rayNG** 软件，点击右上角 **「+」** 按钮。</span>
+                        </li>
+                        <li className="flex gap-2">
+                          <span className="font-semibold text-neutral-900 dark:text-white">3.</span>
+                          <span>选择 **「从剪贴板导入配置文件」**。</span>
+                        </li>
+                        <li className="flex gap-2">
+                          <span className="font-semibold text-neutral-900 dark:text-white">4.</span>
+                          <span>点击列表中刚导入的节点，使其左侧显示绿色选中状态。</span>
+                        </li>
+                        <li className="flex gap-2">
+                          <span className="font-semibold text-neutral-900 dark:text-white">5.</span>
+                          <span>点击右下角圆形的 **「V」** 字图标即可开启连接。 (首次连接请点“确定”允许VPN权限)</span>
+                        </li>
+                      </ol>
+                    </div>
+
+                    {/* Windows Guide */}
+                    <div className="bg-neutral-50 dark:bg-neutral-950 p-5 rounded-xl border border-neutral-200/50 dark:border-neutral-800">
+                      <h4 className="text-[13px] font-bold text-neutral-900 dark:text-white mb-3 flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+                        Windows 电脑连接步骤 / Windows Setup Guide
+                      </h4>
+                      <ol className="space-y-3 text-[12.5px] leading-relaxed text-neutral-600 dark:text-neutral-450">
+                        <li className="flex gap-2">
+                          <span className="font-semibold text-neutral-900 dark:text-white">1.</span>
+                          <span>复制管理员发给您的 VLESS 链接。</span>
+                        </li>
+                        <li className="flex gap-2">
+                          <span className="font-semibold text-neutral-900 dark:text-white">2.</span>
+                          <span>打开 **v2rayN** 软件，在主界面按 **`Ctrl+V`** 键即可导入。</span>
+                        </li>
+                        <li className="flex gap-2">
+                          <span className="font-semibold text-neutral-900 dark:text-white">3.</span>
+                          <span>在列表中右键点击该节点，选择 **「设为活动服务器」**。</span>
+                        </li>
+                        <li className="flex gap-2">
+                          <span className="font-semibold text-neutral-900 dark:text-white">4.</span>
+                          <span>在桌面右下角系统托盘中，右键点击 v2rayN 蓝/红图标。</span>
+                        </li>
+                        <li className="flex gap-2">
+                          <span className="font-semibold text-neutral-900 dark:text-white">5.</span>
+                          <span>选择 **「系统代理」** → **「自动配置系统代理」** 即可开启代理。</span>
+                        </li>
+                      </ol>
+                    </div>
+                  </div>
                 </div>
               </div>
             </section>
