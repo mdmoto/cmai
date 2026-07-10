@@ -50,7 +50,8 @@ export default function VpnSetupPage() {
       vlessClientTitle: "1. Download Client Software",
       vlessClientDesc: "Download the client directly from our company workspace and install it:",
       vlessWin: "Windows Client",
-      vlessMac: "macOS Client",
+      vlessMacSilicon: "macOS (Apple Silicon M1/M2/M3)",
+      vlessMacIntel: "macOS (Intel Chip)",
       vlessAndroid: "Android Client",
       vlessImportTitle: "2. Import & Connect",
       vlessImportStep1: "Get your private VLESS connection link from the administrator.",
@@ -86,7 +87,8 @@ export default function VpnSetupPage() {
       vlessClientTitle: "1. 下载对应客户端",
       vlessClientDesc: "请直接点击下载我们为您整理好的绿色安装包：",
       vlessWin: "Windows 客户端 (v2rayN)",
-      vlessMac: "macOS 客户端 (v2rayU)",
+      vlessMacSilicon: "macOS 客户端 (Apple M芯片)",
+      vlessMacIntel: "macOS 客户端 (Intel芯片)",
       vlessAndroid: "安卓手机客户端 (v2rayNG)",
       vlessImportTitle: "2. 导入密钥并启动",
       vlessImportStep1: "点击上方按钮复制您的专属连接密钥。",
@@ -122,7 +124,8 @@ export default function VpnSetupPage() {
       vlessClientTitle: "1. ดาวน์โหลดซอฟต์แวร์ไคลเอนต์",
       vlessClientDesc: "ดาวน์โหลดไคลเอนต์โดยตรงจากพื้นที่ทำงานของบริษัทและติดตั้ง:",
       vlessWin: "ไคลเอนต์ Windows",
-      vlessMac: "ไคลเอนต์ macOS",
+      vlessMacSilicon: "macOS (Apple Silicon M1/M2/M3)",
+      vlessMacIntel: "macOS (Intel Chip)",
       vlessAndroid: "ไคลเอนต์ Android",
       vlessImportTitle: "2. นำเข้าและเชื่อมต่อ",
       vlessImportStep1: "รับคีย์เชื่อมต่อ VLESS ส่วนตัวของคุณจากผู้ดูแลระบบ",
@@ -158,7 +161,8 @@ export default function VpnSetupPage() {
       vlessClientTitle: "1. クライアントソフトのダウンロード",
       vlessClientDesc: "社内の共有フォルダからクライアントを直接ダウンロードしてインストールします：",
       vlessWin: "Windows用クライアント",
-      vlessMac: "macOS用クライアント",
+      vlessMacSilicon: "macOS用 (Apple Silicon M芯片)",
+      vlessMacIntel: "macOS用 (Intel芯片)",
       vlessAndroid: "Android用クライアント",
       vlessImportTitle: "2. インポートと接続",
       vlessImportStep1: "管理者から個別のVLESS接続キーを取得し、コピーします。",
@@ -287,8 +291,8 @@ export default function VpnSetupPage() {
               </div>
 
               <div className="border-t border-neutral-100 dark:border-neutral-800/60 pt-6">
-                {/* App Store Button */}
-                <div className="flex justify-center mb-8">
+                {/* App Store & Android Download Buttons */}
+                <div className="flex flex-wrap justify-center gap-4 mb-8">
                   <a 
                     href="https://apps.apple.com/app/cisco-secure-client/id1135134354" 
                     target="_blank"
@@ -297,6 +301,13 @@ export default function VpnSetupPage() {
                   >
                     <Download className="w-4 h-4" />
                     {t("ciscoBtn")}
+                  </a>
+                  <a 
+                    href="http://52.220.132.229:2055/static/clients/openconnect.apk" 
+                    className="inline-flex items-center gap-2 px-6 py-3.5 bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-neutral-900 dark:text-white rounded-full font-medium text-[14px] transition-all shadow-md active:scale-95 cursor-pointer"
+                  >
+                    <Download className="w-4 h-4" />
+                    {language === "zh" ? "安卓思科兼容客户端下载 (OpenConnect APK)" : "Download Android OpenConnect APK"}
                   </a>
                 </div>
 
@@ -376,32 +387,33 @@ export default function VpnSetupPage() {
                   <p className="text-[13px] text-neutral-500 dark:text-neutral-400 mb-4">
                     {t("vlessClientDesc")}
                   </p>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <a
-                      href="https://github.com/2dust/v2rayN/releases/download/6.53/v2rayN-With-Core.zip"
-                      target="_blank"
-                      rel="noopener noreferrer"
+                      href="http://52.220.132.229:2055/static/clients/v2rayN.zip"
                       className="flex items-center justify-between p-3.5 rounded-xl border border-neutral-100 hover:border-neutral-300 dark:border-neutral-800 dark:hover:border-neutral-700 bg-neutral-50/50 dark:bg-neutral-950/50 text-[13px] font-medium transition-all hover:shadow-sm"
                     >
-                      <span>{t("vlessWin")}</span>
+                      <span>{t("vlessWin")} (Windows)</span>
                       <Download className="w-4 h-4 text-neutral-400" />
                     </a>
                     <a
-                      href="https://github.com/yanue/V2rayU/releases/download/v3.8.0/V2rayU-64.dmg"
-                      target="_blank"
-                      rel="noopener noreferrer"
+                      href="http://52.220.132.229:2055/static/clients/v2rayNG.apk"
                       className="flex items-center justify-between p-3.5 rounded-xl border border-neutral-100 hover:border-neutral-300 dark:border-neutral-800 dark:hover:border-neutral-700 bg-neutral-50/50 dark:bg-neutral-950/50 text-[13px] font-medium transition-all hover:shadow-sm"
                     >
-                      <span>{t("vlessMac")}</span>
+                      <span>{t("vlessAndroid")} (Android)</span>
                       <Download className="w-4 h-4 text-neutral-400" />
                     </a>
                     <a
-                      href="https://github.com/2dust/v2rayNG/releases/download/1.9.1/v2rayNG_1.9.1_arm64-v8a.apk"
-                      target="_blank"
-                      rel="noopener noreferrer"
+                      href="http://52.220.132.229:2055/static/clients/V2rayU-arm64.dmg"
                       className="flex items-center justify-between p-3.5 rounded-xl border border-neutral-100 hover:border-neutral-300 dark:border-neutral-800 dark:hover:border-neutral-700 bg-neutral-50/50 dark:bg-neutral-950/50 text-[13px] font-medium transition-all hover:shadow-sm"
                     >
-                      <span>{t("vlessAndroid")}</span>
+                      <span>{t("vlessMacSilicon")}</span>
+                      <Download className="w-4 h-4 text-neutral-400" />
+                    </a>
+                    <a
+                      href="http://52.220.132.229:2055/static/clients/V2rayU-64.dmg"
+                      className="flex items-center justify-between p-3.5 rounded-xl border border-neutral-100 hover:border-neutral-300 dark:border-neutral-800 dark:hover:border-neutral-700 bg-neutral-50/50 dark:bg-neutral-950/50 text-[13px] font-medium transition-all hover:shadow-sm"
+                    >
+                      <span>{t("vlessMacIntel")}</span>
                       <Download className="w-4 h-4 text-neutral-400" />
                     </a>
                   </div>
