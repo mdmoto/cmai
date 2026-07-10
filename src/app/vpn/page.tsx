@@ -396,10 +396,10 @@ export default function VpnSetupPage() {
                       <Download className="w-4 h-4 text-neutral-400" />
                     </a>
                     <a
-                      href="https://ghproxy.net/https://github.com/2dust/v2rayNG/releases/download/2.2.6/v2rayNG_2.2.6_arm64-v8a.apk"
+                      href="https://ghproxy.net/https://github.com/hiddify/hiddify-app/releases/download/v4.1.1/Hiddify-Android-universal.apk"
                       className="flex items-center justify-between p-3.5 rounded-xl border border-neutral-100 hover:border-neutral-300 dark:border-neutral-800 dark:hover:border-neutral-700 bg-neutral-50/50 dark:bg-neutral-950/50 text-[13px] font-medium transition-all hover:shadow-sm"
                     >
-                      <span>{t("vlessAndroid")} (Android)</span>
+                      <span>{t("vlessAndroid")} (Android Hiddify)</span>
                       <Download className="w-4 h-4 text-neutral-400" />
                     </a>
                     <a
@@ -430,7 +430,7 @@ export default function VpnSetupPage() {
                     <div className="bg-neutral-50 dark:bg-neutral-950 p-5 rounded-xl border border-neutral-200/50 dark:border-neutral-800">
                       <h4 className="text-[13px] font-bold text-neutral-900 dark:text-white mb-3 flex items-center gap-1.5">
                         <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-                        安卓手机连接步骤 / Android Setup Guide
+                        安卓手机极简连接步骤 (Hiddify 推荐)
                       </h4>
                       <ol className="space-y-3 text-[12.5px] leading-relaxed text-neutral-600 dark:text-neutral-450">
                         <li className="flex gap-2">
@@ -439,19 +439,15 @@ export default function VpnSetupPage() {
                         </li>
                         <li className="flex gap-2">
                           <span className="font-semibold text-neutral-900 dark:text-white">2.</span>
-                          <span>打开 **v2rayNG** 软件，点击右上角 **「+」** 按钮。</span>
+                          <span>打开 **Hiddify** 软件，点击屏幕上方的 **「从剪贴板导入」** (或点击右上角「+」选择从剪贴板添加)。</span>
                         </li>
                         <li className="flex gap-2">
                           <span className="font-semibold text-neutral-900 dark:text-white">3.</span>
-                          <span>选择 **「从剪贴板导入配置文件」**。</span>
+                          <span>导入成功后，直接点击屏幕中央硕大的 **圆形按钮**。</span>
                         </li>
                         <li className="flex gap-2">
                           <span className="font-semibold text-neutral-900 dark:text-white">4.</span>
-                          <span>点击列表中刚导入的节点，使其左侧显示绿色选中状态。</span>
-                        </li>
-                        <li className="flex gap-2">
-                          <span className="font-semibold text-neutral-900 dark:text-white">5.</span>
-                          <span>点击右下角圆形的 **「V」** 字图标即可开启连接。 (首次连接请点“确定”允许VPN权限)</span>
+                          <span>当圆形按钮变为 **绿色** 且显示 **已连接 (Connected)** 时，即代表连接成功！</span>
                         </li>
                       </ol>
                     </div>
