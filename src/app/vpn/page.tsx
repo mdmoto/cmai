@@ -396,10 +396,10 @@ export default function VpnSetupPage() {
                       <Download className="w-4 h-4 text-neutral-400" />
                     </a>
                     <a
-                      href="https://ghproxy.net/https://github.com/hiddify/hiddify-app/releases/download/v4.1.1/Hiddify-Android-universal.apk"
+                      href="https://ghproxy.net/https://github.com/SagerNet/sing-box/releases/download/v1.13.14/SFA-1.13.14-arm64-v8a.apk"
                       className="flex items-center justify-between p-3.5 rounded-xl border border-neutral-100 hover:border-neutral-300 dark:border-neutral-800 dark:hover:border-neutral-700 bg-neutral-50/50 dark:bg-neutral-950/50 text-[13px] font-medium transition-all hover:shadow-sm"
                     >
-                      <span>{t("vlessAndroid")} (Android Hiddify)</span>
+                      <span>{t("vlessAndroid")} (Android Sing-box)</span>
                       <Download className="w-4 h-4 text-neutral-400" />
                     </a>
                     <a
@@ -430,7 +430,7 @@ export default function VpnSetupPage() {
                     <div className="bg-neutral-50 dark:bg-neutral-950 p-5 rounded-xl border border-neutral-200/50 dark:border-neutral-800">
                       <h4 className="text-[13px] font-bold text-neutral-900 dark:text-white mb-3 flex items-center gap-1.5">
                         <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-                        安卓手机极简连接步骤 (Hiddify 推荐)
+                        安卓手机连接步骤 (Sing-box 极简推荐)
                       </h4>
                       <ol className="space-y-3 text-[12.5px] leading-relaxed text-neutral-600 dark:text-neutral-450">
                         <li className="flex gap-2">
@@ -439,15 +439,15 @@ export default function VpnSetupPage() {
                         </li>
                         <li className="flex gap-2">
                           <span className="font-semibold text-neutral-900 dark:text-white">2.</span>
-                          <span>打开 **Hiddify** 软件，点击屏幕上方的 **「从剪贴板导入」** (或点击右上角「+」选择从剪贴板添加)。</span>
+                          <span>打开 **Sing-box** 软件，点击下方的 **「Profiles (配置)」** 选项卡。</span>
                         </li>
                         <li className="flex gap-2">
                           <span className="font-semibold text-neutral-900 dark:text-white">3.</span>
-                          <span>导入成功后，直接点击屏幕中央硕大的 **圆形按钮**。</span>
+                          <span>点击 **「Add Profile」**，Type 选择 **「Import」**，在 URL 处粘贴链接并保存。</span>
                         </li>
                         <li className="flex gap-2">
                           <span className="font-semibold text-neutral-900 dark:text-white">4.</span>
-                          <span>当圆形按钮变为 **绿色** 且显示 **已连接 (Connected)** 时，即代表连接成功！</span>
+                          <span>返回首面 **「Dashboard」**，点击顶部的 **「Enable (启用)」** 按钮即可连接成功！</span>
                         </li>
                       </ol>
                     </div>
