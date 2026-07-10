@@ -31,15 +31,15 @@ export default function VpnSetupPage() {
       tabIos: "iOS (iPhone/iPad)",
       tabOthers: "Other Devices (Windows/Mac/Android)",
       
-      // L2TP Section
-      l2tpTitle: "Apple iOS Native Setup (L2TP)",
-      l2tpDesc: "No app installation required. Configure your iPhone directly using our secure profile.",
-      l2tpBtn: "Install iOS Profile",
-      l2tpStepsTitle: "Installation Steps",
-      l2tpStep1: "Click the button above to download the profile in Safari.",
-      l2tpStep2: "Open iOS Settings. You will see a 'Profile Downloaded' banner at the top. Tap it.",
-      l2tpStep3: "Tap 'Install' in the top-right corner, enter your passcode, and confirm.",
-      l2tpStep4: "Go to Settings > VPN, select 'L2TP VPN', and toggle the switch to connect.",
+      // Cisco AnyConnect Section
+      ciscoTitle: "Apple iOS Setup (Cisco AnyConnect)",
+      ciscoDesc: "Directly download the official client from the China App Store. No foreign Apple ID required.",
+      ciscoBtn: "Search on App Store",
+      ciscoStepsTitle: "Setup & Connection Steps",
+      ciscoStep1: "Click the button above to go to the App Store, or search and download 'Cisco Secure Client'.",
+      ciscoStep2: "Open the app, go to the 'Settings' (设置) tab, and turn OFF 'Block Untrusted Servers' (阻止不受信任的服务器). This is required to allow our secure self-signed connection.",
+      ciscoStep3: "Go to the 'Home' (主页) tab, tap 'Connections' -> 'Add VPN Connection'. Set Description to 'CMAI' and Server Address to: 52.220.132.229:4443.",
+      ciscoStep4: "Go back to Home and toggle the 'AnyConnect VPN' switch. Tap 'Continue' on the certificate prompt, then enter the username and password provided by the administrator.",
       
       // VLESS Section
       vlessTitle: "Secure VLESS Proxy Setup",
@@ -67,15 +67,15 @@ export default function VpnSetupPage() {
       tabIos: "苹果手机 (iOS)",
       tabOthers: "其他设备 (Windows/Mac/安卓)",
       
-      // L2TP Section
-      l2tpTitle: "iOS 免客户端极速配置 (L2TP)",
-      l2tpDesc: "无需下载任何软件，通过系统自带的安全描述文件一键自动配置连接。",
-      l2tpBtn: "下载并安装 iOS 描述文件",
-      l2tpStepsTitle: "安装步骤说明",
-      l2tpStep1: "使用 Safari 浏览器点击上方按钮下载配置文件。",
-      l2tpStep2: "打开 iPhone '设置'，在顶部会看到“已下载描述文件”选项，点击进入。",
-      l2tpStep3: "点击右上角“安装”，输入手机锁屏密码，确认安装。",
-      l2tpStep4: "返回 '设置' -> 'VPN'，选择 'L2TP VPN'，开启连接即可。",
+      // Cisco AnyConnect Section
+      ciscoTitle: "苹果 iOS 系统配置指南 (思科 AnyConnect)",
+      ciscoDesc: "免换号！直接在国区 App Store 下载思科官方客户端，使用个人账号密码极速连接。",
+      ciscoBtn: "在 App Store 中查看",
+      ciscoStepsTitle: "配置与连接步骤说明",
+      ciscoStep1: "点击上方按钮（或在 App Store 中搜索）下载官方「Cisco Secure Client」客户端。",
+      ciscoStep2: "打开 App，点击底部的「设置」选项卡，务必将「阻止不受信任的服务器」关闭（设为灰色）。这是连接自签安全证书的必要操作。",
+      ciscoStep3: "点击底部的「主页」选项卡，点击「连接」->「添加 VPN 连接」，说明填写「CMAI」，服务器地址填写：52.220.132.229:4443 并保存。",
+      ciscoStep4: "返回主页，开启「AnyConnect VPN」开关。若弹出证书警告请选择「继续 (Continue)」，然后依次输入您的用户名和密码即可连接成功！",
       
       // VLESS Section
       vlessTitle: "高性能 VLESS 加密代理配置",
@@ -103,15 +103,15 @@ export default function VpnSetupPage() {
       tabIos: "iOS (iPhone/iPad)",
       tabOthers: "อุปกรณ์อื่นๆ (Windows/Mac/Android)",
       
-      // L2TP Section
-      l2tpTitle: "การตั้งค่าเนทีฟ Apple iOS (L2TP)",
-      l2tpDesc: "ไม่ต้องติดตั้งแอปใดๆ กำหนดค่า iPhone ของคุณโดยตรงโดยใช้โปรไฟล์ที่ปลอดภัยของเรา",
-      l2tpBtn: "ติดตั้งโปรไฟล์ iOS",
-      l2tpStepsTitle: "ขั้นตอนการติดตั้ง",
-      l2tpStep1: "คลิกปุ่มด้านบนเพื่อดาวน์โหลดโปรไฟล์ใน Safari",
-      l2tpStep2: "เปิดการตั้งค่า iOS คุณจะเห็นแบนเนอร์ 'ดาวน์โหลดโปรไฟล์แล้ว' ที่ด้านบน แต้ปที่แบนเนอร์นั้น",
-      l2tpStep3: "แตะ 'ติดตั้ง' ที่มุมขวาบน ป้อนรหัสผ่านของคุณ และยืนยัน",
-      l2tpStep4: "ไปที่ การตั้งค่า > VPN เลือก 'L2TP VPN' และเปิดสวิตช์เพื่อเชื่อมต่อ",
+      // Cisco AnyConnect Section
+      ciscoTitle: "การตั้งค่า iOS (Cisco AnyConnect)",
+      ciscoDesc: "ดาวน์โหลดจาก App Store ไทยได้โดยตรง ไม่ต้องเปลี่ยน Apple ID ใช้รหัสผ่านส่วนตัวเชื่อมต่อได้ทันที",
+      ciscoBtn: "ดูบน App Store",
+      ciscoStepsTitle: "ขั้นตอนการตั้งค่าและการเชื่อมต่อ",
+      ciscoStep1: "คลิกปุ่มด้านบนหรือค้นหา 'Cisco Secure Client' ใน App Store เพื่อดาวน์โหลด",
+      ciscoStep2: "เปิดแอป แตะแท็บ 'การตั้งค่า' (Settings) และปิด 'Block Untrusted Servers' (บล็อกเซิร์ฟเวอร์ที่ไม่น่าเชื่อถือ) ซึ่งจำเป็นสำหรับการอนุญาตใบรับรองความปลอดภัย",
+      ciscoStep3: "แตะแท็บ 'หน้าแรก' (Home) คลิก 'Connections' -> 'Add VPN Connection' ตั้งชื่อเป็น 'CMAI' และกรอก Server Address: 52.220.132.229:4443",
+      ciscoStep4: "กลับไปที่หน้าแรกและเปิดสวิตช์ 'AnyConnect VPN' คลิก 'Continue' เมื่อมีคำเตือนใบรับรอง จากนั้นป้อนชื่อผู้ใช้และรหัสผ่านของคุณ",
       
       // VLESS Section
       vlessTitle: "การตั้งค่า VLESS Proxy",
@@ -139,15 +139,15 @@ export default function VpnSetupPage() {
       tabIos: "iOS (iPhone/iPad)",
       tabOthers: "その他のデバイス (Windows/Mac/Android)",
       
-      // L2TP Section
-      l2tpTitle: "Apple iOS ネイティブ設定 (L2TP)",
-      l2tpDesc: "アプリのインストールは不要です。安全なプロファイルを使用してiPhoneを直接設定します。",
-      l2tpBtn: "iOS プロファイルをインストール",
-      l2tpStepsTitle: "インストール手順",
-      l2tpStep1: "上のボタンをクリックして、Safariでプロファイルをダウンロードします。",
-      l2tpStep2: "iOSの「設定」を開きます。上部に「プロファイルがダウンロードされました」というバナーが表示されるので、タップします。",
-      l2tpStep3: "右上の「インストール」をタップし、パスコードを入力して確認します。",
-      l2tpStep4: "設定 > VPN に移動し、「L2TP VPN」を選択してスイッチをオンにします。",
+      // Cisco AnyConnect Section
+      ciscoTitle: "iOS 設定ガイド (Cisco AnyConnect)",
+      ciscoDesc: "日本の App Store から直接ダウンロード可能！海外の Apple ID 不要、ユーザー名とパスワードで即座に接続できます。",
+      ciscoBtn: "App Store で表示",
+      ciscoStepsTitle: "セットアップと接続手順",
+      ciscoStep1: "上のボタンをクリックするか、App Store で「Cisco Secure Client」を検索してダウンロードします。",
+      ciscoStep2: "アプリを開き、下部の「設定」タブで「信頼されていないサーバーをブロック」をオフ（無効）にしてください。自己署名証明書での接続に必要です。",
+      ciscoStep3: "「ホーム」タブに戻り、「接続」->「VPN接続の追加」をタップします。説明に「CMAI」、サーバーアドレスに「52.220.132.229:4443」を入力して保存します。",
+      ciscoStep4: "ホーム画面に戻り、「AnyConnect VPN」のスイッチをオンにします。証明書の警告が表示されたら「続行」をタップし、ユーザー名とパスワードを入力します。",
       
       // VLESS Section
       vlessTitle: "セキュア VLESS プロキシ設定",
@@ -278,34 +278,35 @@ export default function VpnSetupPage() {
                 </div>
                 <div>
                   <h2 className="text-lg font-bold text-neutral-950 dark:text-white">
-                    {t("l2tpTitle")}
+                    {t("ciscoTitle")}
                   </h2>
                   <p className="text-[13px] text-neutral-500 dark:text-neutral-400 mt-1">
-                    {t("l2tpDesc")}
+                    {t("ciscoDesc")}
                   </p>
                 </div>
               </div>
 
               <div className="border-t border-neutral-100 dark:border-neutral-800/60 pt-6">
-                {/* Download Button */}
+                {/* App Store Button */}
                 <div className="flex justify-center mb-8">
                   <a 
-                    href="/vpnclient.mobileconfig" 
-                    download
+                    href="https://apps.apple.com/app/cisco-secure-client/id1135134354" 
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 px-6 py-3.5 bg-neutral-950 hover:bg-neutral-800 dark:bg-white dark:hover:bg-neutral-100 text-white dark:text-neutral-950 rounded-full font-medium text-[14px] transition-all shadow-md active:scale-95 cursor-pointer"
                   >
                     <Download className="w-4 h-4" />
-                    {t("l2tpBtn")}
+                    {t("ciscoBtn")}
                   </a>
                 </div>
 
                 {/* Steps */}
-                <div>
+                <div className="mb-8">
                   <h3 className="text-xs font-semibold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider mb-4">
-                    {t("l2tpStepsTitle")}
+                    {t("ciscoStepsTitle")}
                   </h3>
                   <ol className="space-y-4">
-                    {[t("l2tpStep1"), t("l2tpStep2"), t("l2tpStep3"), t("l2tpStep4")].map((step, idx) => (
+                    {[t("ciscoStep1"), t("ciscoStep2"), t("ciscoStep3"), t("ciscoStep4")].map((step, idx) => (
                       <li key={idx} className="flex gap-3 text-[13.5px] leading-relaxed text-neutral-600 dark:text-neutral-350">
                         <span className="flex-shrink-0 flex items-center justify-center w-5.5 h-5.5 rounded-full bg-neutral-100 dark:bg-neutral-800/80 text-[11px] font-bold text-neutral-500 dark:text-neutral-400">
                           {idx + 1}
@@ -314,6 +315,22 @@ export default function VpnSetupPage() {
                       </li>
                     ))}
                   </ol>
+                </div>
+
+                {/* Visual Guide Screenshots */}
+                <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-6 border-t border-neutral-100 dark:border-neutral-800/60 pt-8">
+                  <div className="space-y-3">
+                    <p className="text-[12px] font-semibold text-neutral-500 text-center">步骤 2：关闭「阻止不受信任的服务器」 / Turn OFF Untrusted Blocker</p>
+                    <div className="overflow-hidden rounded-2xl border border-neutral-200 dark:border-neutral-800 shadow-sm max-w-[240px] mx-auto bg-neutral-50 dark:bg-neutral-950 p-1">
+                      <img src="/cisco_settings.png" alt="Settings Guide" className="w-full h-auto rounded-xl" />
+                    </div>
+                  </div>
+                  <div className="space-y-3">
+                    <p className="text-[12px] font-semibold text-neutral-500 text-center">步骤 4：主页开启连接并输入用户名密码 / Start Connection on Home</p>
+                    <div className="overflow-hidden rounded-2xl border border-neutral-200 dark:border-neutral-800 shadow-sm max-w-[240px] mx-auto bg-neutral-50 dark:bg-neutral-950 p-1">
+                      <img src="/cisco_main.png" alt="Main Guide" className="w-full h-auto rounded-xl" />
+                    </div>
+                  </div>
                 </div>
               </div>
             </section>
