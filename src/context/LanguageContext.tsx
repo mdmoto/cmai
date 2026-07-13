@@ -119,6 +119,7 @@ const translations: Record<Language, TranslationDict> = {
     servicesAffiliation: "Corporate Affiliation & Hosting",
     servicesAffiliationDesc: "Operate under our established Thai companies to quickly launch local business and e-commerce.",
     pricingDepositNote: "* Office leases and corporate hosting services require a 2-month refundable security deposit.",
+    pricingRefundableDeposit: "Refundable Deposit (2 Mo.)",
 
     // Gallery
     gallerySectionTitle: "Gallery",
@@ -269,6 +270,7 @@ const translations: Record<Language, TranslationDict> = {
     servicesAffiliation: "泰国公司资质挂靠与业务托管",
     servicesAffiliationDesc: "挂靠我们已成立的泰国合规本土公司开展本地业务与电商开店（如 TikTok, Lazada 等）。",
     pricingDepositNote: "* 办公空间租赁或资质挂靠服务合规签约时，需另付 2 个月租金作为可退还押金。",
+    pricingRefundableDeposit: "合同押金小计 (2个月，可退)",
 
     // Gallery
     gallerySectionTitle: "空间实景",
@@ -419,6 +421,7 @@ const translations: Record<Language, TranslationDict> = {
     servicesAffiliation: "บริการฝากตัวตนบริษัทและการดูแลการดำเนินงาน",
     servicesAffiliationDesc: "ดำเนินงานภายใต้บริษัทไทยที่จัดตั้งขึ้นของเราเพื่อเปิดร้านค้าอีคอมเมิร์ซและดำเนินธุรกิจในท้องถิ่นได้อย่างรวดเร็ว",
     pricingDepositNote: "* การเช่าสำนักงานหรือบริการโฮสติ้งองค์กรต้องวางเงินประกันความเสียหายที่คืนเงินได้ 2 เดือน",
+    pricingRefundableDeposit: "เงินประกันความเสียหาย (2 เดือน)",
 
     // Gallery
     gallerySectionTitle: "แกลเลอรี",
@@ -569,6 +572,7 @@ const translations: Record<Language, TranslationDict> = {
     servicesAffiliation: "タイ法人名義レンタル・事業运营ホスティング",
     servicesAffiliationDesc: "弊社のタイ現地合規法人名義を利用して、現地ビジネスやEC出店（TikTok、Lazada等）を迅速に開始。",
     pricingDepositNote: "* オフィス賃貸契約または法人名義レンタルサービスの締結時に、別途2ヶ月分のデポジットが必要となります。",
+    pricingRefundableDeposit: "保証金小計（2ヶ月分、返金可）",
 
     // Gallery
     gallerySectionTitle: "ギャラリー",

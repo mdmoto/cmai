@@ -307,8 +307,8 @@ export default function PricingCalculator() {
         // Renting 1 or 2 grants free Dedicated VPN (3)
         next.dedicated_vpn = true;
         next.shared_vpn = false;
-      } else if (next.virtual_address) {
-        // Renting 5 grants free Shared VPN (4)
+      } else if (next.virtual_address || next.corporate_affiliation) {
+        // Renting 5 or corporate affiliation grants free Shared VPN (4)
         next.shared_vpn = true;
         next.dedicated_vpn = false;
       }
@@ -378,9 +378,9 @@ export default function PricingCalculator() {
   // - Private office (1) -> Dedicated VPN (3) is FREE (includes 2 devices)
   // - Shared office (2) -> Dedicated VPN (3) is FREE (includes 1 device)
   // - Virtual address (5) -> Shared VPN (4) is FREE (includes 1 connection)
-  // - Under Company Reg (7) or Bank (9): bundles Shared VPN for free, or Dedicated VPN for 300.
+  // - Under Company Reg (7) or Bank (9) or Affiliation (14): bundles Shared VPN for free, or Dedicated VPN for 300.
   //   But if they already rent office 1 or 2, they get Dedicated VPN for FREE (which is even better!).
-  const hasVpnPromo = selected.company_registration || selected.bank_account;
+  const hasVpnPromo = selected.company_registration || selected.bank_account || selected.corporate_affiliation;
   let vpnCost = 0;
 
   if (selected.shared_vpn) {
@@ -436,8 +436,16 @@ export default function PricingCalculator() {
   oneTimeSubtotal += visaTotalCost;
   oneTimeSubtotal += meetingTotalCost;
 
-  // Total Estimate calculation (Monthly multiplied by lease duration + One-Time Fees)
-  const totalEstimate = (monthlySubtotal * duration) + oneTimeSubtotal;
+  const depositCost = selected.private_office
+    ? officeCost * 2
+    : selected.shared_office
+    ? 3000 * 2
+    : selected.corporate_affiliation
+    ? 23000 * 2
+    : 0;
+
+  // Total Estimate calculation (Monthly multiplied by lease duration + One-Time Fees + Refundable Deposit)
+  const totalEstimate = (monthlySubtotal * duration) + oneTimeSubtotal + depositCost;
 
   // Active savings list
   const activeDiscounts: string[] = [];
@@ -499,7 +507,8 @@ export default function PricingCalculator() {
       quoteText += `租期时长: ${duration} 个月\n`;
       quoteText += `月度租金总计: ฿${monthlySubtotal.toLocaleString()}/月\n`;
       quoteText += `一次性设立费用小计: ฿${oneTimeSubtotal.toLocaleString()}\n`;
-      quoteText += `预估报价合计金额: ฿${totalEstimate.toLocaleString()}\n`;
+      if (depositCost > 0) quoteText += `应付押金 (2个月租金，退还): ฿${depositCost.toLocaleString()}\n`;
+      quoteText += `预估报价合计金额 (含押金): ฿${totalEstimate.toLocaleString()}\n`;
     } else {
       quoteText = `Hello, I've generated an estimate from the pricing tool. Details below:\n`;
       quoteText += `-------------------------------------\n`;
@@ -527,7 +536,8 @@ export default function PricingCalculator() {
       quoteText += `Lease Term: ${duration} Months\n`;
       quoteText += `Monthly Fee Subtotal: ฿${monthlySubtotal.toLocaleString()}/mo\n`;
       quoteText += `One-time Fees Subtotal: ฿${oneTimeSubtotal.toLocaleString()}\n`;
-      quoteText += `Total Estimate: ฿${totalEstimate.toLocaleString()}\n`;
+      if (depositCost > 0) quoteText += `Refundable Security Deposit (2 months): ฿${depositCost.toLocaleString()}\n`;
+      quoteText += `Total Estimate (incl. deposit): ฿${totalEstimate.toLocaleString()}\n`;
     }
 
     // Insert into contact form
@@ -920,6 +930,12 @@ export default function PricingCalculator() {
                   <span>{t("pricingOneTimeSubtotal")}</span>
                   <span>฿{oneTimeSubtotal.toLocaleString()}</span>
                 </div>
+                {depositCost > 0 && (
+                  <div className="flex justify-between text-xs font-light text-neutral-600 dark:text-neutral-400">
+                    <span>{t("pricingRefundableDeposit")}</span>
+                    <span>฿{depositCost.toLocaleString()}</span>
+                  </div>
+                )}
                 <div className="flex justify-between items-end pt-2 border-t border-neutral-200 dark:border-neutral-800">
                   <span className="text-[13px] font-semibold text-neutral-800 dark:text-white uppercase tracking-wider">
                     {t("pricingTotalCost")}
