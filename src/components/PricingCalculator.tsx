@@ -48,6 +48,7 @@ export default function PricingCalculator() {
     annual_audit: false,
     visa_support: false,
     meeting_rental: false,
+    corporate_affiliation: false,
   });
 
   const [officeSize, setOfficeSize] = useState<"s" | "m" | "l">("s");
@@ -180,6 +181,15 @@ export default function PricingCalculator() {
       notesKey: "独立会客空间及中大型会议厅临时小时预约租用（本服务与长期办公及公司注册等入驻服务互斥）。",
       icon: <Clock className="w-4 h-4" />,
     },
+    {
+      id: "corporate_affiliation",
+      nameKey: "servicesAffiliation",
+      basePrice: 23000,
+      unitKey: "pricingMonth",
+      isMonthly: true,
+      notesKey: "挂靠我们已成立的泰国合规本土公司开展本地业务与电商开店（如 TikTok, Lazada 等）。月租 ฿23,000，押金 2 个月，支持按月结束挂靠，机动灵活。",
+      icon: <Building className="w-4 h-4" />,
+    },
   ];
 
   // Translations for new items
@@ -246,6 +256,28 @@ export default function PricingCalculator() {
       } else if (id !== "meeting_rental" && next[id]) {
         // If any other service is selected, deselect hourly meeting rental
         next.meeting_rental = false;
+      }
+
+      // 0.1 Corporate Affiliation Mutex
+      if (id === "corporate_affiliation" && next.corporate_affiliation) {
+        // Affiliation is mutually exclusive with registering one's own company items
+        next.company_registration = false;
+        next.shareholder_matching = false;
+        next.bank_account = false;
+        next.accounting_agent = false;
+        next.annual_audit = false;
+        next.virtual_address = false;
+      } else if (next.corporate_affiliation && (
+        id === "company_registration" ||
+        id === "shareholder_matching" ||
+        id === "bank_account" ||
+        id === "accounting_agent" ||
+        id === "annual_audit" ||
+        id === "virtual_address"
+      )) {
+        if (next[id]) {
+          next.corporate_affiliation = false;
+        }
       }
 
       // 1. Group A Workspace Mutual Exclusion (1, 2, 5)
@@ -394,6 +426,7 @@ export default function PricingCalculator() {
   monthlySubtotal += vpnCost;
   if (selected.mail_handling && !isMailFree) monthlySubtotal += 500;
   if (selected.accounting_agent) monthlySubtotal += 3000;
+  if (selected.corporate_affiliation) monthlySubtotal += 23000;
 
   let oneTimeSubtotal = 0;
   oneTimeSubtotal += registrationCost;
@@ -445,6 +478,7 @@ export default function PricingCalculator() {
       if (selected.private_office) quoteText += `- 独立办公室 (${officeSize.toUpperCase()} 户型): ฿${officeCost}/月\n`;
       if (selected.shared_office) quoteText += `- 共享办公室 (热租工位): ฿3,000/月\n`;
       if (selected.virtual_address) quoteText += `- 虚拟商区地址: ฿1,000/月\n`;
+      if (selected.corporate_affiliation) quoteText += `- 泰国公司资质挂靠与托管运营: ฿23,000/月\n`;
       if (selected.shared_vpn) quoteText += `- 共享 IP VPN 服务: ฿${selected.virtual_address || hasVpnPromo ? "0 (赠送)" : "200"}/月\n`;
       if (selected.dedicated_vpn) {
         const devNum = selected.private_office ? "2台设备, 赠送" : selected.shared_office ? "1台设备, 赠送" : hasVpnPromo ? "特惠 300" : "600";
@@ -472,6 +506,7 @@ export default function PricingCalculator() {
       if (selected.private_office) quoteText += `- Private Office (Size ${officeSize.toUpperCase()}): ฿${officeCost}/mo\n`;
       if (selected.shared_office) quoteText += `- Shared Workspace: ฿3,000/mo\n`;
       if (selected.virtual_address) quoteText += `- Virtual Business Address: ฿1,000/mo\n`;
+      if (selected.corporate_affiliation) quoteText += `- Corporate Affiliation & Credentials Hosting: ฿23,000/mo\n`;
       if (selected.shared_vpn) quoteText += `- Shared IP VPN: ฿${selected.virtual_address || hasVpnPromo ? "0 (Bundled)" : "200"}/mo\n`;
       if (selected.dedicated_vpn) {
         const descStr = selected.private_office ? "0 (Bundled 2 Dev)" : selected.shared_office ? "0 (Bundled 1 Dev)" : hasVpnPromo ? "300 (Promo)" : "600";
@@ -898,7 +933,7 @@ export default function PricingCalculator() {
               </div>
 
               {/* Security Deposit Note */}
-              {(selected.private_office || selected.shared_office) && (
+              {(selected.private_office || selected.shared_office || selected.corporate_affiliation) && (
                 <p className="text-[11px] text-amber-600/90 dark:text-amber-400/90 font-light text-center leading-relaxed bg-amber-500/5 p-2 rounded-lg border border-amber-500/10">
                   {t("pricingDepositNote")}
                 </p>
