@@ -41,6 +41,10 @@ export default function RootLayout({
             __html: `
               window._jsErrors = [];
               window.onerror = function(msg, url, line, col, error) {
+                // Ignore non-fatal React hydration mismatch errors (React 19 console warnings)
+                if (msg && (msg.indexOf('418') !== -1 || msg.indexOf('423') !== -1 || msg.indexOf('425') !== -1 || msg.indexOf('hydration') !== -1)) {
+                  return;
+                }
                 var errStr = 'Err: ' + msg + ' (' + url + ':' + line + ':' + col + ')';
                 window._jsErrors.push(errStr);
                 var div = document.getElementById('debug-error-log');
@@ -52,7 +56,12 @@ export default function RootLayout({
                 }
               };
               window.onunhandledrejection = function(event) {
-                var errStr = 'Unhandled rejection: ' + (event.reason ? (event.reason.message || event.reason) : 'Unknown');
+                var reason = event.reason ? (event.reason.message || event.reason) : 'Unknown';
+                // Ignore non-fatal React hydration mismatch errors
+                if (reason && (reason.indexOf('418') !== -1 || reason.indexOf('423') !== -1 || reason.indexOf('425') !== -1 || reason.indexOf('hydration') !== -1)) {
+                  return;
+                }
+                var errStr = 'Unhandled rejection: ' + reason;
                 window._jsErrors.push(errStr);
                 var div = document.getElementById('debug-error-log');
                 if (div) {
