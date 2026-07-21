@@ -62,6 +62,29 @@ export default function RootLayout({
                   div.querySelector('ul').appendChild(li);
                 }
               };
+              // Diagnostic fetch of the chunk file
+              fetch('/_next/static/chunks/17c2xufnf7-1b.js')
+                .then(function(res) {
+                  return res.text();
+                })
+                .then(function(text) {
+                  var div = document.getElementById('debug-error-log');
+                  if (div) {
+                    div.style.display = 'block';
+                    var li = document.createElement('li');
+                    li.textContent = 'Diagnostic Fetch Preview (first 120 chars): ' + text.slice(0, 120);
+                    div.querySelector('ul').appendChild(li);
+                  }
+                })
+                .catch(function(err) {
+                  var div = document.getElementById('debug-error-log');
+                  if (div) {
+                    div.style.display = 'block';
+                    var li = document.createElement('li');
+                    li.textContent = 'Diagnostic Fetch Error: ' + err.message;
+                    div.querySelector('ul').appendChild(li);
+                  }
+                });
             `,
           }}
         />
