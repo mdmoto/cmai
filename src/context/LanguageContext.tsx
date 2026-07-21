@@ -625,11 +625,20 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [language, setLanguageState] = useState<Language>("en");
 
   useEffect(() => {
-    const savedLang = localStorage.getItem("preferred_lang") as Language;
-    if (savedLang && translations[savedLang]) {
-      setLanguageState(savedLang);
-    } else {
-      // Try to detect browser language
+    try {
+      const savedLang = localStorage.getItem("preferred_lang") as Language;
+      if (savedLang && translations[savedLang]) {
+        setLanguageState(savedLang);
+      } else {
+        // Try to detect browser language
+        const browserLang = navigator.language.slice(0, 2);
+        if (browserLang === "zh" || browserLang === "th" || browserLang === "ja") {
+          setLanguageState(browserLang as Language);
+        }
+      }
+    } catch (e) {
+      console.warn("localStorage is blocked:", e);
+      // Fallback to browser language
       const browserLang = navigator.language.slice(0, 2);
       if (browserLang === "zh" || browserLang === "th" || browserLang === "ja") {
         setLanguageState(browserLang as Language);
@@ -639,7 +648,11 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);
-    localStorage.setItem("preferred_lang", lang);
+    try {
+      localStorage.setItem("preferred_lang", lang);
+    } catch (e) {
+      console.warn("localStorage write is blocked:", e);
+    }
   };
 
   const t = (key: string): string => {
