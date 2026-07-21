@@ -636,7 +636,8 @@ export default function PricingCalculator() {
                 return (
                   <div
                     key={item.id}
-                    className={`p-6 transition-colors ${
+                    onClick={() => handleToggle(item.id)}
+                    className={`p-6 transition-colors cursor-pointer select-none ${
                       isSelected
                         ? "bg-white dark:bg-[#121212]"
                         : "hover:bg-white/50 dark:hover:bg-[#121212]/30"
@@ -645,16 +646,15 @@ export default function PricingCalculator() {
                     <div className="flex items-start justify-between gap-4">
                       {/* Checkbox and details */}
                       <div className="flex items-start gap-4 w-full">
-                        <button
-                          onClick={() => handleToggle(item.id)}
-                          className={`mt-1 size-5 rounded-md border flex items-center justify-center transition-all ${
+                        <div
+                          className={`mt-1 size-5 rounded-md border flex items-center justify-center shrink-0 transition-all ${
                             isSelected
                               ? "bg-neutral-950 dark:bg-white border-neutral-950 dark:border-white text-white dark:text-neutral-950"
-                              : "border-neutral-300 dark:border-neutral-700 hover:border-neutral-400"
+                              : "border-neutral-300 dark:border-neutral-700"
                           }`}
                         >
                           {isSelected && <Check className="w-3.5 h-3.5 stroke-[3]" />}
-                        </button>
+                        </div>
 
                         <div className="space-y-1 w-full">
                           <div className="flex items-center gap-2">
@@ -672,7 +672,10 @@ export default function PricingCalculator() {
                               {(["s", "m", "l"] as const).map((size) => (
                                 <button
                                   key={size}
-                                  onClick={() => setOfficeSize(size)}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setOfficeSize(size);
+                                  }}
                                   className={`px-3 py-1 text-[11px] font-medium rounded-full border transition-all ${
                                     officeSize === size
                                       ? "bg-neutral-900 border-neutral-900 dark:bg-white dark:border-white text-white dark:text-neutral-950"
@@ -695,7 +698,10 @@ export default function PricingCalculator() {
                               </span>
                               <div className="flex items-center gap-1.5">
                                 <button
-                                  onClick={() => setVisaEmployees((prev) => Math.max(1, prev - 1))}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setVisaEmployees((prev) => Math.max(1, prev - 1));
+                                  }}
                                   className="w-5 h-5 border border-neutral-200 dark:border-neutral-800 rounded-full flex items-center justify-center text-xs hover:bg-neutral-100 dark:hover:bg-neutral-900 text-neutral-700 dark:text-neutral-300"
                                 >
                                   -
@@ -704,7 +710,10 @@ export default function PricingCalculator() {
                                   {visaEmployees}
                                 </span>
                                 <button
-                                  onClick={() => setVisaEmployees((prev) => Math.min(20, prev + 1))}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setVisaEmployees((prev) => Math.min(20, prev + 1));
+                                  }}
                                   className="w-5 h-5 border border-neutral-200 dark:border-neutral-800 rounded-full flex items-center justify-center text-xs hover:bg-neutral-100 dark:hover:bg-neutral-900 text-neutral-700 dark:text-neutral-300"
                                 >
                                   +
@@ -720,7 +729,10 @@ export default function PricingCalculator() {
                                 {(["s", "m", "l", "conf"] as const).map((size) => (
                                   <button
                                     key={size}
-                                    onClick={() => setMeetingRoomType(size)}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setMeetingRoomType(size);
+                                    }}
                                     className={`px-3 py-1 text-[11px] font-medium rounded-full border transition-all ${
                                       meetingRoomType === size
                                         ? "bg-neutral-900 border-neutral-900 dark:bg-white dark:border-white text-white dark:text-neutral-950"
@@ -740,7 +752,10 @@ export default function PricingCalculator() {
                                 </span>
                                 <div className="flex items-center gap-1.5">
                                   <button
-                                    onClick={() => setMeetingHours((prev) => Math.max(1, prev - 1))}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setMeetingHours((prev) => Math.max(1, prev - 1));
+                                    }}
                                     className="w-5 h-5 border border-neutral-200 dark:border-neutral-800 rounded-full flex items-center justify-center text-xs hover:bg-neutral-100 dark:hover:bg-neutral-900 text-neutral-700 dark:text-neutral-300"
                                   >
                                     -
@@ -749,7 +764,10 @@ export default function PricingCalculator() {
                                     {meetingHours}
                                   </span>
                                   <button
-                                    onClick={() => setMeetingHours((prev) => Math.min(100, prev + 1))}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setMeetingHours((prev) => Math.min(100, prev + 1));
+                                    }}
                                     className="w-5 h-5 border border-neutral-200 dark:border-neutral-800 rounded-full flex items-center justify-center text-xs hover:bg-neutral-100 dark:hover:bg-neutral-900 text-neutral-700 dark:text-neutral-300"
                                   >
                                     +
