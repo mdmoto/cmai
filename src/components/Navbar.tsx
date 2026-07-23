@@ -70,10 +70,12 @@ export default function Navbar() {
     >
       <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
         {/* Logo */}
-        <a href="#home" onClick={(e) => handleScrollTo(e, "#home")} className="flex items-center gap-1.5">
-          <span className="text-lg font-sans font-bold tracking-widest text-neutral-900 dark:text-white uppercase">
-            CMAI<span className="font-light text-neutral-400 dark:text-neutral-500">.</span>
-          </span>
+        <a href="#home" onClick={(e) => handleScrollTo(e, "#home")} className="flex items-center">
+          <img
+            src="/images/logo.png"
+            alt="CMAI Logo"
+            className="h-10 w-auto object-contain dark:invert"
+          />
         </a>
 
         {/* Desktop Navigation */}

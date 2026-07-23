@@ -18,6 +18,9 @@ export const metadata: Metadata = {
   description: "Chiang Mai AI Center is a premium business infrastructure platform offering high-quality private offices, enterprise networking, and landing services for AI startups and global tech teams in Thailand.",
   keywords: ["Chiang Mai", "AI Center", "Office Rental", "Business Address", "Company Registration", "Thailand Startup", "Tech Workspace"],
   authors: [{ name: "Chiang Mai AI Center" }],
+  icons: {
+    icon: "/images/logo.png",
+  },
   openGraph: {
     title: "Chiang Mai AI Center | Business Infrastructure in Thailand",
     description: "Premium private offices and landing support for AI startups and international tech teams in Chiang Mai.",
