@@ -23,7 +23,7 @@ export default function Footer() {
             <img
               src="/images/logo.png"
               alt="CMAI Logo"
-              className="h-10 w-auto object-contain opacity-90 hover:opacity-100 transition-opacity"
+              className="h-10 w-auto object-contain invert opacity-90 hover:opacity-100 transition-opacity"
             />
             <p className="text-[13px] text-neutral-500 font-light leading-relaxed max-w-sm">
               Chiang Mai AI Center is a premium business infrastructure platform, providing dedicated workspace, secure corporate networking, and local setup support for global tech teams.
