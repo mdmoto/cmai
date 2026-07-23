@@ -20,9 +20,11 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10 items-start mb-12">
           {/* Col 1: Brand */}
           <div className="md:col-span-2 space-y-4">
-            <span className="text-lg font-sans font-bold tracking-widest text-white uppercase">
-              CMAI<span className="font-light text-neutral-500">.</span>
-            </span>
+            <img
+              src="/images/logo.png"
+              alt="CMAI Logo"
+              className="h-10 w-auto object-contain opacity-90 hover:opacity-100 transition-opacity"
+            />
             <p className="text-[13px] text-neutral-500 font-light leading-relaxed max-w-sm">
               Chiang Mai AI Center is a premium business infrastructure platform, providing dedicated workspace, secure corporate networking, and local setup support for global tech teams.
             </p>
