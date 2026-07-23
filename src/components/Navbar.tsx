@@ -72,7 +72,7 @@ export default function Navbar() {
         {/* Logo */}
         <a href="#home" onClick={(e) => handleScrollTo(e, "#home")} className="flex items-center">
           <img
-            src="/images/logo.png"
+            src="/images/logo_building.png"
             alt="CMAI Logo"
             className="h-10 w-auto object-contain dark:invert"
           />

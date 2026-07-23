@@ -21,7 +21,7 @@ export default function Footer() {
           {/* Col 1: Brand */}
           <div className="md:col-span-2 space-y-4">
             <img
-              src="/images/logo.png"
+              src="/images/logo_building.png"
               alt="CMAI Logo"
               className="h-10 w-auto object-contain invert opacity-90 hover:opacity-100 transition-opacity"
             />
