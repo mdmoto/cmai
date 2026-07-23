@@ -350,12 +350,12 @@ export default function PricingCalculator() {
 
   // Keep constraints in sync when workspace selections change or duration slider is moved
   useEffect(() => {
-    if (selected.company_registration || selected.bank_account) {
+    if (selected.company_registration || selected.bank_account || selected.virtual_address) {
       if (duration < 12) {
         setDuration(12);
       }
     }
-  }, [selected.company_registration, selected.bank_account, duration]);
+  }, [selected.company_registration, selected.bank_account, selected.virtual_address, duration]);
 
   // Calculations
   const hasWorkspaceSelected = selected.private_office || selected.shared_office || selected.virtual_address;
@@ -861,16 +861,17 @@ export default function PricingCalculator() {
                 </div>
                 <input
                   type="range"
-                  min="1"
+                  min={selected.company_registration || selected.bank_account || selected.virtual_address ? 12 : 1}
                   max="24"
                   value={duration}
                   onChange={(e) => setDuration(parseInt(e.target.value))}
-                  disabled={selected.company_registration || selected.bank_account}
-                  className="w-full h-1 bg-neutral-200 dark:bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-neutral-900 dark:accent-white disabled:opacity-50 disabled:cursor-not-allowed"
+                  onPointerDown={(e) => e.stopPropagation()}
+                  onMouseDown={(e) => e.stopPropagation()}
+                  className="w-full h-1 bg-neutral-200 dark:bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-neutral-900 dark:accent-white"
                 />
-                {(selected.company_registration || selected.bank_account) && (
+                {(selected.company_registration || selected.bank_account || selected.virtual_address) && (
                   <p className="text-[10px] text-neutral-400 dark:text-neutral-500 font-light leading-none">
-                    * Lease locked to 12 months minimum due to company registration / banking requirements.
+                    * Lease locked to 12 months minimum due to registration / address / banking requirements.
                   </p>
                 )}
               </div>
