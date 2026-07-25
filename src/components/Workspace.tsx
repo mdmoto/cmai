@@ -13,6 +13,7 @@ interface OfficeUnit {
   area: string;
   price: string;
   status: "Available" | "Limited" | "Full";
+  features?: string;
 }
 
 export default function Workspace() {
@@ -38,13 +39,12 @@ export default function Workspace() {
       desc: t("workspaceFloor2Desc"),
       img: "/images/floor_2.png",
       units: [
-        { id: "B1", type: "Small", capacity: "1-2 Pax", area: "10 sqm", price: "Contact us", status: "Available" },
-        { id: "B2", type: "Small", capacity: "1-2 Pax", area: "10 sqm", price: "Contact us", status: "Available" },
-        { id: "B3", type: "Medium", capacity: "2-4 Pax", area: "14 sqm", price: "Contact us", status: "Limited" },
-        { id: "B4", type: "Medium", capacity: "2-4 Pax", area: "15 sqm", price: "Contact us", status: "Available" },
-        { id: "B5", type: "Large", capacity: "4-6 Pax", area: "24 sqm", price: "Contact us", status: "Full" },
-        { id: "B6", type: "Large", capacity: "4-6 Pax", area: "25 sqm", price: "Contact us", status: "Available" },
-        { id: "B7", type: "Small", capacity: "1-2 Pax", area: "11 sqm", price: "Contact us", status: "Available" },
+        { id: "B1-2", type: "Medium", capacity: "2-4 Pax", area: "20 sqm", price: "฿9,400/mo", features: "AC, Window", status: "Available" },
+        { id: "B3-4", type: "Medium", capacity: "2-4 Pax", area: "29 sqm", price: "฿7,300/mo", features: "AC, Window", status: "Available" },
+        { id: "B5", type: "Large", capacity: "4-6 Pax", area: "24 sqm", price: "฿8,700/mo", features: "AC, Window", status: "Full" },
+        { id: "B6", type: "Large", capacity: "4-6 Pax", area: "25 sqm", price: "฿3,700/mo", features: "W/o AC, W/o Window", status: "Available" },
+        { id: "B7", type: "Small", capacity: "1-2 Pax", area: "11 sqm", price: "฿3,100/mo", features: "W/o AC, Window", status: "Available" },
+        { id: "Common Room (CM)", type: "Large", capacity: "Co-working", area: "80 sqm", price: "฿22,600/mo", features: "AC, Window", status: "Available" },
       ] as OfficeUnit[],
     },
     {
@@ -53,9 +53,16 @@ export default function Workspace() {
       desc: t("workspaceFloor3Desc"),
       img: "/images/floor_3.png",
       units: [
-        { id: "C1 - C4", type: "Small", capacity: "1-2 Pax", area: "12 sqm ea.", price: "Contact us", status: "Available" },
-        { id: "C5 - C8", type: "Medium", capacity: "3-4 Pax", area: "18 sqm ea.", price: "Contact us", status: "Limited" },
-        { id: "C9 - C11", type: "Large", capacity: "4-6 Pax", area: "28 sqm ea.", price: "Contact us", status: "Available" },
+        { id: "C1-2", type: "Medium", capacity: "2-4 Pax", area: "24 sqm", price: "฿9,700/mo", features: "AC, Window", status: "Available" },
+        { id: "C3", type: "Small", capacity: "1-2 Pax", area: "12 sqm", price: "฿6,400/mo", features: "AC, Window", status: "Available" },
+        { id: "C4", type: "Small", capacity: "1-2 Pax", area: "12 sqm", price: "฿7,800/mo", features: "AC, Window", status: "Available" },
+        { id: "C5", type: "Medium", capacity: "3-4 Pax", area: "18 sqm", price: "฿4,700/mo", features: "AC, Window", status: "Limited" },
+        { id: "C6", type: "Medium", capacity: "3-4 Pax", area: "18 sqm", price: "฿1,800/mo", features: "W/o AC, W/o Window", status: "Available" },
+        { id: "C7-8", type: "Large", capacity: "4-6 Pax", area: "36 sqm", price: "฿5,800/mo", features: "AC, Window", status: "Limited" },
+        { id: "C9", type: "Large", capacity: "4-6 Pax", area: "28 sqm", price: "฿6,000/mo", features: "AC, Window", status: "Available" },
+        { id: "C10", type: "Large", capacity: "4-6 Pax", area: "28 sqm", price: "฿3,000/mo", features: "W/o AC, W/o Window", status: "Available" },
+        { id: "C11", type: "Large", capacity: "4-6 Pax", area: "28 sqm", price: "฿3,000/mo", features: "W/o AC, W/o Window", status: "Available" },
+        { id: "C12", type: "Small", capacity: "1-2 Pax", area: "10 sqm", price: "฿1,500/mo", features: "W/o AC, Window", status: "Available" },
       ] as OfficeUnit[],
     },
     {
@@ -64,9 +71,16 @@ export default function Workspace() {
       desc: t("workspaceFloor4Desc"),
       img: "/images/floor_4.png",
       units: [
-        { id: "D1 - D4", type: "Small", capacity: "1-2 Pax", area: "12 sqm ea.", price: "Contact us", status: "Available" },
-        { id: "D5 - D8", type: "Medium", capacity: "3-4 Pax", area: "18 sqm ea.", price: "Contact us", status: "Available" },
-        { id: "D9 - D11", type: "Large", capacity: "4-6 Pax", area: "28 sqm ea.", price: "Contact us", status: "Full" },
+        { id: "D1-2", type: "Medium", capacity: "2-4 Pax", area: "24 sqm", price: "฿9,700/mo", features: "AC, Window", status: "Available" },
+        { id: "D3", type: "Small", capacity: "1-2 Pax", area: "12 sqm", price: "฿6,400/mo", features: "AC, Window", status: "Available" },
+        { id: "D4", type: "Small", capacity: "1-2 Pax", area: "12 sqm", price: "฿7,800/mo", features: "AC, Window", status: "Available" },
+        { id: "D5", type: "Medium", capacity: "3-4 Pax", area: "18 sqm", price: "฿4,700/mo", features: "AC, Window", status: "Available" },
+        { id: "D6", type: "Medium", capacity: "3-4 Pax", area: "18 sqm", price: "฿1,800/mo", features: "W/o AC, W/o Window", status: "Available" },
+        { id: "D7-8", type: "Large", capacity: "4-6 Pax", area: "36 sqm", price: "฿5,400/mo", features: "AC, Window", status: "Available" },
+        { id: "D9", type: "Large", capacity: "4-6 Pax", area: "28 sqm", price: "฿7,000/mo", features: "AC, Window", status: "Full" },
+        { id: "D10", type: "Large", capacity: "4-6 Pax", area: "28 sqm", price: "฿2,400/mo", features: "W/o AC, W/o Window", status: "Available" },
+        { id: "D11", type: "Large", capacity: "4-6 Pax", area: "28 sqm", price: "฿3,200/mo", features: "W/o AC, W/o Window", status: "Available" },
+        { id: "D12", type: "Small", capacity: "1-2 Pax", area: "10 sqm", price: "฿1,500/mo", features: "W/o AC, Window", status: "Available" },
       ] as OfficeUnit[],
     },
     {
@@ -75,8 +89,13 @@ export default function Workspace() {
       desc: t("workspaceFloor5Desc"),
       img: "/images/floor_5.png",
       units: [
-        { id: "E1 - E4 (Penthouse)", type: "Large", capacity: "6-8 Pax", area: "35 sqm ea.", price: "Contact us", status: "Limited" },
-        { id: "E5 - E8 (Executive)", type: "Medium", capacity: "4-5 Pax", area: "22 sqm ea.", price: "Contact us", status: "Available" },
+        { id: "E1", type: "Large", capacity: "6-8 Pax", area: "35 sqm", price: "฿11,200/mo", features: "AC, Window", status: "Limited" },
+        { id: "E2", type: "Large", capacity: "6-8 Pax", area: "35 sqm", price: "฿5,600/mo", features: "W/o AC, Window", status: "Available" },
+        { id: "E3", type: "Large", capacity: "6-8 Pax", area: "35 sqm", price: "฿7,100/mo", features: "W/o AC, Window", status: "Available" },
+        { id: "E4", type: "Large", capacity: "6-8 Pax", area: "35 sqm", price: "฿4,500/mo", features: "W/o AC, Window", status: "Available" },
+        { id: "E5", type: "Medium", capacity: "4-5 Pax", area: "22 sqm", price: "฿4,800/mo", features: "W/o AC, Window", status: "Available" },
+        { id: "E6", type: "Medium", capacity: "4-5 Pax", area: "22 sqm", price: "฿3,000/mo", features: "W/o AC, W/o Window", status: "Available" },
+        { id: "E7-8", type: "Large", capacity: "6-8 Pax", area: "44 sqm", price: "฿8,000/mo", features: "AC, Window", status: "Available" },
       ] as OfficeUnit[],
     },
   ];
@@ -185,11 +204,13 @@ export default function Workspace() {
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="border-b border-neutral-200 dark:border-neutral-800/80 text-[10px] uppercase font-mono tracking-wider text-neutral-400 pb-3">
-                    <th className="py-3 font-semibold">Unit</th>
-                    <th className="py-3 font-semibold">Type</th>
-                    <th className="py-3 font-semibold">Capacity</th>
-                    <th className="py-3 font-semibold">Area</th>
-                    <th className="py-3 font-semibold text-right">Status</th>
+                    <th className="py-3 font-semibold">{t("workspaceUnit") || "Unit"}</th>
+                    <th className="py-3 font-semibold">{t("workspaceType") || "Type"}</th>
+                    <th className="py-3 font-semibold">{t("workspaceFeatures") || "Features"}</th>
+                    <th className="py-3 font-semibold">{t("workspaceCapacity")}</th>
+                    <th className="py-3 font-semibold">{t("workspaceArea")}</th>
+                    <th className="py-3 font-semibold">{t("workspacePricing")}</th>
+                    <th className="py-3 font-semibold text-right">{t("workspaceStatus")}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-neutral-100 dark:divide-neutral-900/60">
@@ -202,10 +223,39 @@ export default function Workspace() {
                         {unit.type}
                       </td>
                       <td className="py-3.5 text-neutral-500 dark:text-neutral-400 font-light">
+                        {unit.features ? (
+                          <div className="flex flex-wrap gap-1">
+                            {unit.features.split(", ").map((f, idx) => {
+                              const isNo = f.startsWith("W/o");
+                              return (
+                                <span
+                                  key={idx}
+                                  className={`px-1.5 py-0.5 rounded text-[10px] font-medium tracking-wide ${
+                                    isNo
+                                      ? "bg-neutral-100 text-neutral-400 dark:bg-neutral-900 dark:text-neutral-600"
+                                      : "bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400"
+                                  }`}
+                                >
+                                  {f === "AC" && (t("featureAC") || "A/C")}
+                                  {f === "Window" && (t("featureWindow") || "Window")}
+                                  {f === "W/o AC" && (t("featureNoAC") || "No A/C")}
+                                  {f === "W/o Window" && (t("featureNoWindow") || "No Window")}
+                                </span>
+                              );
+                            })}
+                          </div>
+                        ) : (
+                          <span className="text-neutral-300 dark:text-neutral-700">—</span>
+                        )}
+                      </td>
+                      <td className="py-3.5 text-neutral-500 dark:text-neutral-400 font-light">
                         {unit.capacity}
                       </td>
                       <td className="py-3.5 text-neutral-500 dark:text-neutral-400 font-light">
                         {unit.area}
+                      </td>
+                      <td className="py-3.5 text-neutral-900 dark:text-white font-medium">
+                        {unit.price}
                       </td>
                       <td className="py-3.5 text-right font-light">
                         {getStatusDot(unit.status)}
