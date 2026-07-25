@@ -75,8 +75,7 @@ const calculatorRooms: CalculatorRoom[] = [
   { id: "E1", floor: 5, price: 11200, features: "AC, Window", leased: true },
   { id: "E2", floor: 5, price: 5600, features: "W/o AC, Window", leased: false },
   { id: "E3", floor: 5, price: 7100, features: "W/o AC, Window", leased: false },
-  { id: "E4", floor: 5, price: 4500, features: "W/o AC, Window", leased: false },
-  { id: "E5", floor: 5, price: 4800, features: "W/o AC, Window", leased: false },
+  { id: "E4-5", floor: 5, price: 9300, features: "W/o AC, Window", leased: false },
   { id: "E6", floor: 5, price: 3000, features: "W/o AC, W/o Window", leased: false },
   { id: "E7-8", floor: 5, price: 8000, features: "AC, Window", leased: false }
 ];
