@@ -30,6 +30,57 @@ interface ServiceItem {
   icon: React.ReactNode;
 }
 
+interface CalculatorRoom {
+  id: string;
+  floor: number;
+  price: number;
+  features: string;
+  leased: boolean;
+}
+
+const calculatorRooms: CalculatorRoom[] = [
+  // Floor 2
+  { id: "B1-2", floor: 2, price: 9400, features: "AC, Window", leased: false },
+  { id: "B3-4", floor: 2, price: 7300, features: "AC, Window", leased: true },
+  { id: "B5", floor: 2, price: 8700, features: "AC, Window", leased: true },
+  { id: "B6", floor: 2, price: 3700, features: "W/o AC, W/o Window", leased: false },
+  { id: "B7", floor: 2, price: 3100, features: "W/o AC, Window", leased: false },
+  { id: "Common Room (CM)", floor: 2, price: 22600, features: "AC, Window", leased: true },
+  
+  // Floor 3
+  { id: "C1-2", floor: 3, price: 9700, features: "AC, Window", leased: false },
+  { id: "C3", floor: 3, price: 6400, features: "AC, Window", leased: true },
+  { id: "C4", floor: 3, price: 7800, features: "AC, Window", leased: false },
+  { id: "C5", floor: 3, price: 4700, features: "AC, Window", leased: false },
+  { id: "C6", floor: 3, price: 1800, features: "W/o AC, W/o Window", leased: false },
+  { id: "C7-8", floor: 3, price: 5800, features: "AC, Window", leased: false },
+  { id: "C9", floor: 3, price: 6000, features: "AC, Window", leased: false },
+  { id: "C10", floor: 3, price: 3000, features: "W/o AC, W/o Window", leased: true },
+  { id: "C11", floor: 3, price: 3000, features: "W/o AC, W/o Window", leased: false },
+  { id: "C12", floor: 3, price: 1500, features: "W/o AC, Window", leased: false },
+  
+  // Floor 4
+  { id: "D1-2", floor: 4, price: 9700, features: "AC, Window", leased: false },
+  { id: "D3", floor: 4, price: 6400, features: "AC, Window", leased: false },
+  { id: "D4", floor: 4, price: 7800, features: "AC, Window", leased: false },
+  { id: "D5", floor: 4, price: 4700, features: "AC, Window", leased: false },
+  { id: "D6", floor: 4, price: 1800, features: "W/o AC, W/o Window", leased: true },
+  { id: "D7-8", floor: 4, price: 5400, features: "AC, Window", leased: false },
+  { id: "D9", floor: 4, price: 7000, features: "AC, Window", leased: false },
+  { id: "D10", floor: 4, price: 2400, features: "W/o AC, W/o Window", leased: false },
+  { id: "D11", floor: 4, price: 3200, features: "W/o AC, W/o Window", leased: false },
+  { id: "D12", floor: 4, price: 1500, features: "W/o AC, Window", leased: true },
+  
+  // Floor 5
+  { id: "E1", floor: 5, price: 11200, features: "AC, Window", leased: true },
+  { id: "E2", floor: 5, price: 5600, features: "W/o AC, Window", leased: false },
+  { id: "E3", floor: 5, price: 7100, features: "W/o AC, Window", leased: false },
+  { id: "E4", floor: 5, price: 4500, features: "W/o AC, Window", leased: false },
+  { id: "E5", floor: 5, price: 4800, features: "W/o AC, Window", leased: false },
+  { id: "E6", floor: 5, price: 3000, features: "W/o AC, W/o Window", leased: false },
+  { id: "E7-8", floor: 5, price: 8000, features: "AC, Window", leased: false }
+];
+
 export default function PricingCalculator() {
   const { t, language } = useTranslation();
 
@@ -51,20 +102,60 @@ export default function PricingCalculator() {
     corporate_affiliation: false,
   });
 
-  const [officeSize, setOfficeSize] = useState<"s" | "m" | "l">("s");
+  const [selectedFloors, setSelectedFloors] = useState<number[]>([]);
+  const [selectedRooms, setSelectedRooms] = useState<string[]>([]);
   const [meetingRoomType, setMeetingRoomType] = useState<"s" | "m" | "l" | "conf">("s");
   const [meetingHours, setMeetingHours] = useState<number>(1);
   const [visaEmployees, setVisaEmployees] = useState<number>(1);
   const [duration, setDuration] = useState<number>(1);
   const [warningMessage, setWarningMessage] = useState<string>("");
 
+  useEffect(() => {
+    if (!selected.private_office) {
+      setSelectedFloors([]);
+      setSelectedRooms([]);
+    }
+  }, [selected.private_office]);
+
+  const handleFloorToggle = (floor: number) => {
+    setSelectedFloors((prev) => {
+      const exists = prev.includes(floor);
+      if (exists) {
+        const roomsToKeep = selectedRooms.filter((r) => {
+          const roomObj = calculatorRooms.find((cr) => cr.id === r);
+          return roomObj ? roomObj.floor !== floor : true;
+        });
+        setSelectedRooms(roomsToKeep);
+        return prev.filter((f) => f !== floor);
+      } else {
+        return [...prev, floor];
+      }
+    });
+  };
+
+  const handleRoomToggle = (roomId: string) => {
+    setSelectedRooms((prev) => {
+      const exists = prev.includes(roomId);
+      if (exists) {
+        return prev.filter((r) => r !== roomId);
+      } else {
+        return [...prev, roomId];
+      }
+    });
+  };
+
+  const getFloorName = (floor: number) => {
+    if (language === "zh") return `${floor}楼`;
+    if (language === "th") return `ชั้น ${floor}`;
+    if (language === "ja") return `${floor}階`;
+    return `Floor ${floor}`;
+  };
+
   const items: ServiceItem[] = [
     {
       id: "private_office",
       nameKey: "servicesPrivateOffices",
-      basePrice: 5000,
-      mPrice: 7500,
-      lPrice: 10000,
+      basePrice: 0,
       unitKey: "pricingMonth",
       isMonthly: true,
       notesKey: "尊享独立高档办公空间。租用即免费赠送专属 IP VPN（支持 2 台设备）。",
@@ -399,12 +490,13 @@ export default function PricingCalculator() {
     }
   }
 
-  // 5. Private Office Pricing based on size S, M, L
+  // 5. Private Office Pricing based on selected rooms
   let officeCost = 0;
   if (selected.private_office) {
-    if (officeSize === "s") officeCost = 5000;
-    else if (officeSize === "m") officeCost = 7500;
-    else if (officeSize === "l") officeCost = 10000;
+    officeCost = selectedRooms.reduce((acc, roomId) => {
+      const room = calculatorRooms.find((cr) => cr.id === roomId);
+      return acc + (room ? room.price : 0);
+    }, 0);
   }
 
   // 6. Meeting Room Hour-based pricing
@@ -483,7 +575,9 @@ export default function PricingCalculator() {
     if (language === "zh") {
       quoteText = `您好，我从网站估算了配置报价，预算详情如下：\n`;
       quoteText += `-------------------------------------\n`;
-      if (selected.private_office) quoteText += `- 独立办公室 (${officeSize.toUpperCase()} 户型): ฿${officeCost}/月\n`;
+      if (selected.private_office) {
+        quoteText += `- 独立办公室 (房间: ${selectedRooms.length > 0 ? selectedRooms.join(", ") : "未选择"}): ฿${officeCost}/月\n`;
+      }
       if (selected.shared_office) quoteText += `- 共享办公室 (热租工位): ฿3,000/月\n`;
       if (selected.virtual_address) quoteText += `- 虚拟商区地址: ฿1,000/月\n`;
       if (selected.corporate_affiliation) quoteText += `- 泰国公司资质挂靠与托管运营: ฿23,000/月\n`;
@@ -512,7 +606,9 @@ export default function PricingCalculator() {
     } else {
       quoteText = `Hello, I've generated an estimate from the pricing tool. Details below:\n`;
       quoteText += `-------------------------------------\n`;
-      if (selected.private_office) quoteText += `- Private Office (Size ${officeSize.toUpperCase()}): ฿${officeCost}/mo\n`;
+      if (selected.private_office) {
+        quoteText += `- Private Office (Rooms: ${selectedRooms.length > 0 ? selectedRooms.join(", ") : "None Selected"}): ฿${officeCost}/mo\n`;
+      }
       if (selected.shared_office) quoteText += `- Shared Workspace: ฿3,000/mo\n`;
       if (selected.virtual_address) quoteText += `- Virtual Business Address: ฿1,000/mo\n`;
       if (selected.corporate_affiliation) quoteText += `- Corporate Affiliation & Credentials Hosting: ฿23,000/mo\n`;
@@ -594,9 +690,10 @@ export default function PricingCalculator() {
                 const isSelected = selected[item.id];
                 let displayPrice = item.basePrice;
                 if (item.id === "private_office") {
-                  if (officeSize === "s") displayPrice = 5000;
-                  else if (officeSize === "m") displayPrice = 7500;
-                  else if (officeSize === "l") displayPrice = 10000;
+                  displayPrice = selectedRooms.reduce((acc, roomId) => {
+                    const room = calculatorRooms.find((cr) => cr.id === roomId);
+                    return acc + (room ? room.price : 0);
+                  }, 0);
                 } else if (item.id === "meeting_rental") {
                   if (meetingRoomType === "s") displayPrice = 200;
                   else if (meetingRoomType === "m") displayPrice = 400;
@@ -666,27 +763,89 @@ export default function PricingCalculator() {
                             </h4>
                           </div>
 
-                          {/* Private Office Sub-Selector */}
+                          {/* Private Office Sub-Selector (Floor and Room check boxes) */}
                           {item.id === "private_office" && isSelected && (
-                            <div className="flex items-center gap-2 pt-2">
-                              {(["s", "m", "l"] as const).map((size) => (
-                                <button
-                                  key={size}
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setOfficeSize(size);
-                                  }}
-                                  className={`px-3 py-1 text-[11px] font-medium rounded-full border transition-all ${
-                                    officeSize === size
-                                      ? "bg-neutral-900 border-neutral-900 dark:bg-white dark:border-white text-white dark:text-neutral-950"
-                                      : "border-neutral-200 hover:border-neutral-300 dark:border-neutral-800 dark:hover:border-neutral-700 text-neutral-600 dark:text-neutral-400"
-                                  }`}
-                                >
-                                  {size === "s" && t("pricingOfficeSizeS")}
-                                  {size === "m" && t("pricingOfficeSizeM")}
-                                  {size === "l" && t("pricingOfficeSizeL")}
-                                </button>
-                              ))}
+                            <div className="pt-3 space-y-4 w-full" onClick={(e) => e.stopPropagation()}>
+                              {/* Floor Selectors */}
+                              <div className="flex flex-wrap gap-2">
+                                {[2, 3, 4, 5].map((fl) => {
+                                  const isFlSelected = selectedFloors.includes(fl);
+                                  return (
+                                    <label
+                                      key={fl}
+                                      className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-[11px] font-medium cursor-pointer transition-all ${
+                                        isFlSelected
+                                          ? "bg-neutral-900 border-neutral-900 dark:bg-white dark:border-white text-white dark:text-neutral-950 font-semibold"
+                                          : "border-neutral-200 hover:border-neutral-300 dark:border-neutral-800 dark:hover:border-neutral-700 text-neutral-600 dark:text-neutral-400"
+                                      }`}
+                                    >
+                                      <input
+                                        type="checkbox"
+                                        checked={isFlSelected}
+                                        onChange={() => handleFloorToggle(fl)}
+                                        className="sr-only"
+                                      />
+                                      <span>{getFloorName(fl)}</span>
+                                    </label>
+                                  );
+                                })}
+                              </div>
+
+                              {/* Room Selectors grouped by selected floors */}
+                              {selectedFloors.length > 0 && (
+                                <div className="space-y-4 p-4 bg-neutral-50 dark:bg-neutral-900/40 rounded-xl border border-neutral-100 dark:border-neutral-900/60 w-full max-w-full">
+                                  {selectedFloors.map((fl) => {
+                                    const floorRooms = calculatorRooms.filter((r) => r.floor === fl);
+                                    return (
+                                      <div key={fl} className="space-y-2">
+                                        <div className="text-[10px] font-mono uppercase tracking-wider text-neutral-400 font-semibold">
+                                          {getFloorName(fl)}
+                                        </div>
+                                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                                          {floorRooms.map((room) => {
+                                            const isRoomSelected = selectedRooms.includes(room.id);
+                                            const statusText = room.leased
+                                              ? language === "zh"
+                                                ? "已出租"
+                                                : language === "th"
+                                                ? "เช่าแล้ว"
+                                                : language === "ja"
+                                                ? "契約済"
+                                                : "Leased"
+                                              : `฿${room.price.toLocaleString()}`;
+
+                                            return (
+                                              <button
+                                                key={room.id}
+                                                type="button"
+                                                disabled={room.leased}
+                                                onClick={() => handleRoomToggle(room.id)}
+                                                className={`px-3 py-2 rounded-lg border text-left flex flex-col justify-between h-14 transition-all relative ${
+                                                  room.leased
+                                                    ? "bg-neutral-100/50 dark:bg-neutral-900/20 border-neutral-200/40 dark:border-neutral-850/40 opacity-40 cursor-not-allowed text-neutral-400 dark:text-neutral-600"
+                                                    : isRoomSelected
+                                                    ? "bg-blue-50/50 dark:bg-blue-950/20 border-blue-500 text-blue-900 dark:text-blue-200"
+                                                    : "bg-white dark:bg-black/40 border-neutral-200 hover:border-neutral-300 dark:border-neutral-850 dark:hover:border-neutral-700 text-neutral-800 dark:text-neutral-200"
+                                                }`}
+                                              >
+                                                <span className="text-[11px] font-semibold tracking-wide">
+                                                  {room.id}
+                                                </span>
+                                                <span className="text-[10px] font-mono opacity-80 mt-1">
+                                                  {statusText}
+                                                </span>
+                                                {isRoomSelected && !room.leased && (
+                                                  <span className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-blue-500" />
+                                                )}
+                                              </button>
+                                            );
+                                          })}
+                                        </div>
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              )}
                             </div>
                           )}
 
@@ -886,9 +1045,10 @@ export default function PricingCalculator() {
                     if (!selected[item.id]) return null;
                     let displayPrice = item.basePrice;
                     if (item.id === "private_office") {
-                      if (officeSize === "s") displayPrice = 5000;
-                      else if (officeSize === "m") displayPrice = 7500;
-                      else if (officeSize === "l") displayPrice = 10000;
+                      displayPrice = selectedRooms.reduce((acc, roomId) => {
+                        const room = calculatorRooms.find((cr) => cr.id === roomId);
+                        return acc + (room ? room.price : 0);
+                      }, 0);
                     }
 
                     // Apply discounts on receipt list
@@ -911,7 +1071,7 @@ export default function PricingCalculator() {
                       <div key={item.id} className="flex justify-between items-start text-[13px] font-light">
                         <span className="text-neutral-600 dark:text-neutral-400">
                           {getItemName(item)}{" "}
-                          {item.id === "private_office" && `(${officeSize.toUpperCase()})`}{" "}
+                          {item.id === "private_office" && selectedRooms.length > 0 && `(${selectedRooms.join(", ")})`}{" "}
                           {item.id === "meeting_rental" && `(${meetingHours}h)`}{" "}
                           {item.id === "visa_support" && `(${visaEmployees} pax)`}{" "}
                           {item.isMonthly && `(x${duration} mo)`}
