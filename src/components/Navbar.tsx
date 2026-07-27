@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useTranslation, Language } from "@/context/LanguageContext";
-import { Menu, X, Globe, ChevronDown } from "lucide-react";
+import { Menu, X, Globe, ChevronDown, ArrowUpRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function Navbar() {
@@ -27,6 +27,7 @@ export default function Navbar() {
     { label: t("navHome"), href: "#home" },
     { label: t("navWorkspace"), href: "#workspace" },
     { label: t("navServices"), href: "#services" },
+    { label: t("navAiPlatform"), href: "https://ai.lazzor.com", isExternal: true },
     { label: t("pricingSectionTitle"), href: "#pricing" },
     { label: t("navGallery"), href: "#gallery" },
     { label: t("navFaq"), href: "#faq" },
@@ -84,7 +85,9 @@ export default function Navbar() {
             <a
               key={item.href}
               href={item.href}
-              onClick={(e) => handleScrollTo(e, item.href)}
+              onClick={(e) => !item.isExternal && handleScrollTo(e, item.href)}
+              target={item.isExternal ? "_blank" : undefined}
+              rel={item.isExternal ? "noopener noreferrer" : undefined}
               className="text-[14px] font-medium text-neutral-600 hover:text-neutral-950 dark:text-neutral-400 dark:hover:text-white transition-colors"
             >
               {item.label}
@@ -139,6 +142,19 @@ export default function Navbar() {
               )}
             </AnimatePresence>
           </div>
+
+          <a
+            href="https://ai.lazzor.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-[13px] font-medium rounded-full transition-all shadow-md shadow-blue-500/10 flex items-center gap-1.5"
+          >
+            <span>CMAI AI</span>
+            <span className="flex h-1.5 w-1.5 relative">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-blue-300"></span>
+            </span>
+          </a>
 
           <a
             href="#contact"
@@ -216,10 +232,13 @@ export default function Navbar() {
                 <a
                   key={item.href}
                   href={item.href}
-                  onClick={(e) => handleScrollTo(e, item.href)}
-                  className="text-[16px] font-medium text-neutral-800 dark:text-neutral-200 hover:text-neutral-950 dark:hover:text-white py-1 transition-colors"
+                  onClick={(e) => !item.isExternal && handleScrollTo(e, item.href)}
+                  target={item.isExternal ? "_blank" : undefined}
+                  rel={item.isExternal ? "noopener noreferrer" : undefined}
+                  className="text-[16px] font-medium text-neutral-800 dark:text-neutral-200 hover:text-neutral-950 dark:hover:text-white py-1 transition-colors flex items-center gap-1.5"
                 >
-                  {item.label}
+                  <span>{item.label}</span>
+                  {item.isExternal && <ArrowUpRight className="w-3.5 h-3.5 opacity-60" />}
                 </a>
               ))}
               <a

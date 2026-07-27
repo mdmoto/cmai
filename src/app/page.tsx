@@ -3,6 +3,7 @@ import Hero from "@/components/Hero";
 import About from "@/components/About";
 import Workspace from "@/components/Workspace";
 import Services from "@/components/Services";
+import AiCenter from "@/components/AiCenter";
 import PricingCalculator from "@/components/PricingCalculator";
 import Gallery from "@/components/Gallery";
 import FAQ from "@/components/FAQ";
@@ -18,6 +19,7 @@ export default function Home() {
         <About />
         <Workspace />
         <Services />
+        <AiCenter />
         <PricingCalculator />
         <Gallery />
         <FAQ />

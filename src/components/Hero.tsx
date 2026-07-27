@@ -5,7 +5,7 @@ import { useTranslation } from "@/context/LanguageContext";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function Hero() {
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const [currentBg, setCurrentBg] = useState(0);
 
   const bgImages = [
@@ -100,7 +100,7 @@ export default function Hero() {
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.3 }}
-            className="flex flex-row items-center gap-6"
+            className="flex flex-wrap items-center gap-4"
           >
             <button
               onClick={(e) => handleScrollTo(e, "#workspace")}
@@ -108,6 +108,20 @@ export default function Hero() {
             >
               {t("heroCTAExplore")}
             </button>
+            
+            <a
+              href="https://ai.lazzor.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-[13px] font-medium rounded-full shadow-lg shadow-blue-500/20 flex items-center gap-2 transition-all"
+            >
+              <span>{language === "zh" ? "启动 AI 决策" : language === "th" ? "เปิดตัวแพลตฟอร์ม AI" : language === "ja" ? "AI 意思決定システム" : "Launch AI Platform"}</span>
+              <span className="flex h-2 w-2 relative">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-300"></span>
+              </span>
+            </a>
+
             <button
               onClick={(e) => handleScrollTo(e, "#contact")}
               className="px-6 py-3 bg-transparent hover:bg-white/5 border border-white/20 hover:border-white/40 text-white text-[13px] font-medium rounded-full transition-colors"
