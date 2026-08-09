@@ -116,7 +116,7 @@ export default function Hero() {
               href="https://ai.lazzor.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="px-6 py-3 bg-white/10 hover:bg-white/20 border border-white/20 hover:border-white/40 text-white text-[13px] font-medium rounded-full transition-colors shadow-sm"
+              className="px-6 py-3 bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-[13px] font-medium rounded-full transition-all shadow-md shadow-blue-500/20"
             >
               {language === "zh" ? "AI决策商业沙盘" : language === "th" ? "การจำลองการตัดสินใจทางธุรกิจ AI" : language === "ja" ? "AI意思決定サンドボックス" : "AI Business Sandbox"}
             </a>

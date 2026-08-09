@@ -144,12 +144,12 @@ export default function Navbar() {
               )}
             </AnimatePresence>
           </div>
-            {/* AI Decision Sandbox Direct Link */}
+          {/* AI Decision Sandbox Direct Link */}
           <a
             href="https://ai.lazzor.com"
             target="_blank"
             rel="noopener noreferrer"
-            className="px-4 py-2 bg-neutral-900 hover:bg-neutral-800 dark:bg-white dark:hover:bg-neutral-100 text-white dark:text-neutral-950 text-[13px] font-medium rounded-full transition-colors shadow-sm"
+            className="px-4 py-2 bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-[13px] font-medium rounded-full transition-all shadow-md shadow-blue-500/20"
           >
             {language === "zh" ? "AI决策商业沙盘" : language === "th" ? "การจำลองการตัดสินใจทางธุรกิจ AI" : language === "ja" ? "AI意思決定サンドボックス" : "AI Business Sandbox"}
           </a>
@@ -157,7 +157,7 @@ export default function Navbar() {
           <a
             href="#contact"
             onClick={(e) => handleScrollTo(e, "#contact")}
-            className="px-5 py-2 bg-transparent hover:bg-neutral-100 dark:hover:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 text-neutral-900 dark:text-white text-[13px] font-medium rounded-full transition-colors"
+            className="px-5 py-2 bg-neutral-950 hover:bg-neutral-800 dark:bg-white dark:hover:bg-neutral-100 text-white dark:text-neutral-950 text-[13px] font-medium rounded-full transition-colors shadow-sm"
           >
             {t("navBookVisit")}
           </a>
@@ -170,7 +170,7 @@ export default function Navbar() {
             href="https://ai.lazzor.com"
             target="_blank"
             rel="noopener noreferrer"
-            className="px-3 py-1.5 bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 text-[11px] font-medium rounded-full shadow-sm"
+            className="px-3 py-1.5 bg-[#2563eb] text-white text-[11px] font-medium rounded-full shadow-sm"
           >
             {language === "zh" ? "AI决策商业沙盘" : "Sandbox"}
           </a>
@@ -240,7 +240,7 @@ export default function Navbar() {
                 href="https://ai.lazzor.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full py-3 bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 text-center font-medium text-[14px] rounded-2xl shadow-sm"
+                className="w-full py-3 bg-[#2563eb] text-white text-center font-medium text-[14px] rounded-2xl shadow-sm"
               >
                 {language === "zh" ? "AI决策商业沙盘" : "AI Business Sandbox"}
               </a>
