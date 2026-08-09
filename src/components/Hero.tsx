@@ -4,10 +4,9 @@ import React, { useState, useEffect } from "react";
 import { useTranslation } from "@/context/LanguageContext";
 import { useSandbox } from "@/context/SandboxContext";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles } from "lucide-react";
 
 export default function Hero() {
-  const { t, language } = useTranslation();
+  const { t } = useTranslation();
   const { openSandbox } = useSandbox();
   const [currentBg, setCurrentBg] = useState(0);
 
@@ -27,7 +26,7 @@ export default function Hero() {
 
   const handleScrollTo = (e: React.MouseEvent<HTMLButtonElement>, href: string) => {
     e.preventDefault();
-    const target = document.querySelector(href);
+    const target = document.body ? document.querySelector(href) : null;
     if (target) {
       const offset = 80;
       const bodyRect = document.body.getBoundingClientRect().top;
@@ -107,23 +106,22 @@ export default function Hero() {
           >
             <button
               onClick={(e) => handleScrollTo(e, "#workspace")}
-              className="px-6 py-3 bg-[#f5f5f7] hover:bg-white text-[#1d1d1f] text-[13px] font-medium rounded-full transition-colors shadow-sm"
+              className="px-6 py-3 bg-[#f5f5f7] hover:bg-white text-[#1d1d1f] text-[13px] font-medium rounded-full transition-colors shadow-sm cursor-pointer"
             >
               {t("heroCTAExplore")}
             </button>
 
-            <a
-              href="https://ai.lazzor.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-6 py-3 bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-[13px] font-medium rounded-full transition-all shadow-md shadow-blue-500/20"
+            {/* AI Decision Sandbox Trigger Button */}
+            <button
+              onClick={openSandbox}
+              className="px-6 py-3 bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-[13px] font-semibold rounded-full transition-all shadow-lg shadow-blue-500/30 cursor-pointer hover:scale-105 active:scale-95"
             >
-              {language === "zh" ? "AI决策商业沙盘" : language === "th" ? "การจำลองการตัดสินใจทางธุรกิจ AI" : language === "ja" ? "AI意思決定サンドボックス" : "AI Business Sandbox"}
-            </a>
+              AI决策商业沙盘
+            </button>
 
             <button
               onClick={(e) => handleScrollTo(e, "#contact")}
-              className="px-6 py-3 bg-transparent hover:bg-white/5 border border-white/20 hover:border-white/40 text-white text-[13px] font-medium rounded-full transition-colors"
+              className="px-6 py-3 bg-transparent hover:bg-white/5 border border-white/20 hover:border-white/40 text-white text-[13px] font-medium rounded-full transition-colors cursor-pointer"
             >
               {t("heroCTABook")}
             </button>

@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useTranslation, Language } from "@/context/LanguageContext";
 import { useSandbox } from "@/context/SandboxContext";
-import { Menu, X, Globe, ChevronDown, ArrowUpRight, Sparkles } from "lucide-react";
+import { Menu, X, Globe, ChevronDown, ArrowUpRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function Navbar() {
@@ -15,22 +15,21 @@ export default function Navbar() {
 
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 10) {
+      if (window.scrollY > 20) {
         setIsScrolled(true);
       } else {
         setIsScrolled(false);
       }
     };
+
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const navItems = [
-    { label: t("navHome"), href: "#home" },
     { label: t("navWorkspace"), href: "#workspace" },
     { label: t("navServices"), href: "#services" },
-    { label: t("navAiPlatform"), href: "https://ai.lazzor.com", isExternal: true },
-    { label: t("pricingSectionTitle"), href: "#pricing" },
+    { label: t("navPricing"), href: "#pricing" },
     { label: t("navGallery"), href: "#gallery" },
     { label: t("navFaq"), href: "#faq" },
     { label: t("navContact"), href: "#contact" },
@@ -43,7 +42,7 @@ export default function Navbar() {
     { code: "ja", label: "日本語" },
   ];
 
-  const currentLanguageLabel = languages.find((l) => l.code === language)?.label || "English";
+  const currentLanguageLabel = languages.find((l) => l.code === language)?.label || "中文";
 
   const handleScrollTo = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     e.preventDefault();
@@ -87,10 +86,8 @@ export default function Navbar() {
             <a
               key={item.href}
               href={item.href}
-              onClick={(e) => !item.isExternal && handleScrollTo(e, item.href)}
-              target={item.isExternal ? "_blank" : undefined}
-              rel={item.isExternal ? "noopener noreferrer" : undefined}
-              className="text-[14px] font-medium text-neutral-600 hover:text-neutral-950 dark:text-neutral-400 dark:hover:text-white transition-colors"
+              onClick={(e) => handleScrollTo(e, item.href)}
+              className="text-[13px] font-medium tracking-tight text-neutral-600 hover:text-neutral-950 dark:text-neutral-400 dark:hover:text-white transition-colors"
             >
               {item.label}
             </a>
@@ -99,29 +96,29 @@ export default function Navbar() {
 
         {/* Desktop Actions */}
         <div className="hidden md:flex items-center gap-4">
-          {/* Language Selector */}
+          {/* Language Switcher */}
           <div className="relative">
             <button
               onClick={() => setShowLangMenu(!showLangMenu)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-neutral-200 hover:border-neutral-400 dark:border-neutral-800 dark:hover:border-neutral-600 text-[13px] font-medium text-neutral-700 dark:text-neutral-300 transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-neutral-200 hover:border-neutral-300 dark:border-neutral-800 dark:hover:border-neutral-700 text-[12px] font-medium text-neutral-700 dark:text-neutral-300 transition-colors"
             >
               <Globe className="w-3.5 h-3.5" />
               <span>{currentLanguageLabel}</span>
-              <ChevronDown className="w-3 h-3 text-neutral-400" />
+              <ChevronDown className="w-3 h-3 opacity-60" />
             </button>
 
             <AnimatePresence>
               {showLangMenu && (
                 <>
-                  {/* Backdrop to close */}
-                  <div className="fixed inset-0 z-10" onClick={() => setShowLangMenu(false)} />
-                  
+                  <div
+                    className="fixed inset-0 z-40"
+                    onClick={() => setShowLangMenu(false)}
+                  />
                   <motion.div
-                    initial={{ opacity: 0, y: 5, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 5, scale: 0.95 }}
-                    transition={{ duration: 0.15 }}
-                    className="absolute right-0 mt-2 w-40 bg-white dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 rounded-lg shadow-lg py-1 z-20"
+                    initial={{ opacity: 0, y: 5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 5 }}
+                    className="absolute right-0 mt-2 w-32 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl shadow-lg py-1 z-50 overflow-hidden"
                   >
                     {languages.map((lang) => (
                       <button
@@ -130,10 +127,10 @@ export default function Navbar() {
                           setLanguage(lang.code);
                           setShowLangMenu(false);
                         }}
-                        className={`w-full text-left px-4 py-2 text-[13px] hover:bg-neutral-50 dark:hover:bg-neutral-900 transition-colors ${
+                        className={`w-full text-left px-4 py-2 text-[12px] transition-colors ${
                           language === lang.code
-                            ? "text-neutral-900 dark:text-white font-semibold bg-neutral-50 dark:bg-neutral-900"
-                            : "text-neutral-600 dark:text-neutral-400"
+                            ? "bg-neutral-100 dark:bg-neutral-800 text-neutral-950 dark:text-white font-semibold"
+                            : "text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-800/50"
                         }`}
                       >
                         {lang.label}
@@ -144,15 +141,14 @@ export default function Navbar() {
               )}
             </AnimatePresence>
           </div>
-          {/* AI Decision Sandbox Direct Link */}
-          <a
-            href="https://ai.lazzor.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-4 py-2 bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-[13px] font-medium rounded-full transition-all shadow-md shadow-blue-500/20"
+
+          {/* AI Decision Sandbox Trigger Button */}
+          <button
+            onClick={openSandbox}
+            className="px-4 py-2 bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-[13px] font-semibold rounded-full transition-all shadow-md shadow-blue-500/20 cursor-pointer hover:scale-105 active:scale-95"
           >
-            {language === "zh" ? "AI决策商业沙盘" : language === "th" ? "การจำลองการตัดสินใจทางธุรกิจ AI" : language === "ja" ? "AI意思決定サンドボックス" : "AI Business Sandbox"}
-          </a>
+            AI决策商业沙盘
+          </button>
 
           <a
             href="#contact"
@@ -166,14 +162,12 @@ export default function Navbar() {
         {/* Mobile Menu Button */}
         <div className="flex items-center gap-3 md:hidden">
           {/* Mobile AI Sandbox Trigger */}
-          <a
-            href="https://ai.lazzor.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-3 py-1.5 bg-[#2563eb] text-white text-[11px] font-medium rounded-full shadow-sm"
+          <button
+            onClick={openSandbox}
+            className="px-3 py-1.5 bg-[#2563eb] text-white text-[11px] font-semibold rounded-full shadow-sm"
           >
-            {language === "zh" ? "AI决策商业沙盘" : "Sandbox"}
-          </a>
+            AI决策商业沙盘
+          </button>
 
           {/* Mobile Language Trigger */}
           <button
@@ -193,11 +187,14 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Mobile Language Dropdown Overlay */}
+      {/* Mobile Language Dropdown */}
       <AnimatePresence>
         {showLangMenu && (
           <div className="md:hidden">
-            <div className="fixed inset-0 z-40 bg-black/20" onClick={() => setShowLangMenu(false)} />
+            <div
+              className="fixed inset-0 z-40 bg-black/20"
+              onClick={() => setShowLangMenu(false)}
+            />
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -236,26 +233,24 @@ export default function Navbar() {
             className="md:hidden bg-white dark:bg-black border-b border-neutral-200 dark:border-neutral-800"
           >
             <div className="px-6 py-6 flex flex-col gap-4">
-              <a
-                href="https://ai.lazzor.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full py-3 bg-[#2563eb] text-white text-center font-medium text-[14px] rounded-2xl shadow-sm"
+              <button
+                onClick={() => {
+                  setIsOpen(false);
+                  openSandbox();
+                }}
+                className="w-full py-3 bg-[#2563eb] text-white text-center font-semibold text-[14px] rounded-2xl shadow-md shadow-blue-500/20"
               >
-                {language === "zh" ? "AI决策商业沙盘" : "AI Business Sandbox"}
-              </a>
+                AI决策商业沙盘
+              </button>
               
               {navItems.map((item) => (
                 <a
                   key={item.href}
                   href={item.href}
-                  onClick={(e) => !item.isExternal && handleScrollTo(e, item.href)}
-                  target={item.isExternal ? "_blank" : undefined}
-                  rel={item.isExternal ? "noopener noreferrer" : undefined}
+                  onClick={(e) => handleScrollTo(e, item.href)}
                   className="text-[16px] font-medium text-neutral-800 dark:text-neutral-200 hover:text-neutral-950 dark:hover:text-white py-1 transition-colors flex items-center gap-1.5"
                 >
                   <span>{item.label}</span>
-                  {item.isExternal && <ArrowUpRight className="w-3.5 h-3.5 opacity-60" />}
                 </a>
               ))}
               <a

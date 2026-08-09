@@ -22,19 +22,22 @@ export default function Home() {
   return (
     <div
       className="relative w-full min-h-screen bg-black overflow-x-hidden"
-      style={{ perspective: "2400px" }}
+      style={{ perspective: "2000px" }}
     >
       <motion.div
         animate={{ rotateY: isSandboxOpen ? 180 : 0 }}
-        transition={{ duration: 0.9, ease: [0.4, 0, 0.2, 1] }}
+        transition={{ duration: 0.85, ease: [0.32, 0.72, 0, 1] }}
         style={{ transformStyle: "preserve-3d" }}
         className="relative w-full min-h-screen"
       >
-        {/* Front Face: CMAI Official Physical & Digital Hub */}
+        {/* Front Face (0°): CMAI Official Hub */}
         <div
-          style={{ backfaceVisibility: "hidden" }}
+          style={{
+            backfaceVisibility: "hidden",
+            WebkitBackfaceVisibility: "hidden",
+          }}
           className={`w-full min-h-screen flex flex-col bg-white dark:bg-black transition-colors ${
-            isSandboxOpen ? "pointer-events-none select-none invisible" : ""
+            isSandboxOpen ? "pointer-events-none" : ""
           }`}
         >
           <Navbar />
@@ -56,10 +59,11 @@ export default function Home() {
         <div
           style={{
             backfaceVisibility: "hidden",
+            WebkitBackfaceVisibility: "hidden",
             transform: "rotateY(180deg)",
           }}
           className={`absolute inset-0 w-full min-h-screen bg-[#070709] ${
-            !isSandboxOpen ? "pointer-events-none select-none invisible" : ""
+            !isSandboxOpen ? "pointer-events-none" : ""
           }`}
         >
           <AiSandboxPortal onClose={closeSandbox} />
