@@ -38,6 +38,11 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased scroll-smooth`}
     >
+      <head>
+        <link rel="dns-prefetch" href="https://ai.lazzor.com" />
+        <link rel="preconnect" href="https://ai.lazzor.com" crossOrigin="anonymous" />
+        <link rel="prefetch" href="https://ai.lazzor.com" />
+      </head>
       <body className="min-h-full flex flex-col bg-white dark:bg-black text-neutral-900 dark:text-neutral-100 transition-colors duration-300">
         <LanguageProvider>{children}</LanguageProvider>
       </body>

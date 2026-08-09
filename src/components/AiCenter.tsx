@@ -16,9 +16,10 @@ import {
 
 interface AiCenterProps {
   onOpenSandbox?: () => void;
+  onPreheat?: () => void;
 }
 
-export default function AiCenter({ onOpenSandbox }: AiCenterProps) {
+export default function AiCenter({ onOpenSandbox, onPreheat }: AiCenterProps) {
   const { language } = useTranslation();
 
   const localT = {
@@ -27,7 +28,7 @@ export default function AiCenter({ onOpenSandbox }: AiCenterProps) {
       titlePre: "进入泰国市场前",
       titlePost: "先比较产品、价格与竞品情景",
       desc: "Chiang Mai AI Center 专门面向进入泰国市场的品牌与线下商业。利用版本化人口模型、离散选择算法和情景模拟，科学预判商业选择概率，规避盲目投资风险。",
-      ctaLaunch: "AI决策商业沙盘",
+      ctaLaunch: "AI 商业决策沙盘",
       ctaMethod: "查看方法与数据",
       card1Title: "消费品验证",
       card1Desc: "比较新品的购买概率、目标人群、价格弹性与竞品替代。",
@@ -47,7 +48,7 @@ export default function AiCenter({ onOpenSandbox }: AiCenterProps) {
       titlePre: "Before entering Thailand",
       titlePost: "Compare products, pricing, and scenarios first",
       desc: "Tailored for brands and offline businesses entering Thailand. CMAI uses demographic calibration, discrete choice models, and scenario simulations to quantify decision probabilities and reduce investment risks.",
-      ctaLaunch: "AI决策商业沙盘",
+      ctaLaunch: "AI 商业决策沙盘",
       ctaMethod: "Methodology & Data",
       card1Title: "Product Validation",
       card1Desc: "Compare purchase probabilities, target demographics, and substitution effects.",
@@ -67,7 +68,7 @@ export default function AiCenter({ onOpenSandbox }: AiCenterProps) {
       titlePre: "ก่อนเข้าสู่ตลาดประเทศไทย",
       titlePost: "เปรียบเทียบผลิตภัณฑ์ ราคา และคู่แข่งก่อน",
       desc: "ออกแบบมาสำหรับแบรนด์และธุรกิจออฟไลน์ที่กำลังเข้าสู่ตลาดไทย CMAI ใช้แบบจำลองประชากร อัลกอริทึมการเลือก และการจำลองสถานการณ์ เพื่อวัดความน่าจะเป็นในการตัดสินใจและลดความเสี่ยงในการลงทุน",
-      ctaLaunch: "AI决策商业沙盘",
+      ctaLaunch: "AI 商业决策沙盘",
       ctaMethod: "ระเบียบวิธีและข้อมูล",
       card1Title: "การตรวจสอบผลิตภัณฑ์",
       card1Desc: "เปรียบเทียบความน่าจะเป็นในการซื้อ ประชากรเป้าหมาย และผลกระทบของการทดแทน",
@@ -87,7 +88,7 @@ export default function AiCenter({ onOpenSandbox }: AiCenterProps) {
       titlePre: "タイ市場に参入する前に",
       titlePost: "製品・価格・競合シナリオを事前シミュレーション",
       desc: "タイ市場への参入を図るブランドや店舗ビジネスに。統計的ユーザーモデル、離散選択アルゴリズム、シナリオシミュレーションを通じて、不確実な参入リスクを科学的に評価します。",
-      ctaLaunch: "AI决策商业沙盘",
+      ctaLaunch: "AI 商业决策沙盘",
       ctaMethod: "手法とデータ解説",
       card1Title: "消費財プロダクト検証",
       card1Desc: "製品の購入確率、ペルソナ分析、価格弾力性、競合スイッチを比較。",
@@ -160,7 +161,9 @@ export default function AiCenter({ onOpenSandbox }: AiCenterProps) {
             <div className="flex flex-wrap gap-4 pt-2">
               <button
                 onClick={() => handleSandboxClick()}
-                className="px-6 py-2.5 bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-[13px] font-semibold rounded-full transition-all shadow-md shadow-blue-500/20 flex items-center gap-1.5 cursor-pointer hover:scale-105 active:scale-95"
+                onMouseEnter={onPreheat}
+                onTouchStart={onPreheat}
+                className="px-6 py-2.5 bg-neutral-900 hover:bg-neutral-800 dark:bg-white dark:hover:bg-neutral-100 text-white dark:text-neutral-950 text-[13px] font-medium rounded-full transition-all shadow-sm flex items-center gap-1.5 cursor-pointer hover:scale-105 active:scale-95"
               >
                 <span>{text.ctaLaunch}</span>
                 <ArrowUpRight className="w-3.5 h-3.5 opacity-80" />
@@ -182,6 +185,8 @@ export default function AiCenter({ onOpenSandbox }: AiCenterProps) {
             <motion.div
               key={idx}
               onClick={() => handleSandboxClick(card.href)}
+              onMouseEnter={onPreheat}
+              onTouchStart={onPreheat}
               initial={{ opacity: 0, y: 10 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}

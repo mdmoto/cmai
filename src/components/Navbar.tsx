@@ -7,9 +7,10 @@ import { motion, AnimatePresence } from "framer-motion";
 
 interface NavbarProps {
   onOpenSandbox?: () => void;
+  onPreheat?: () => void;
 }
 
-export default function Navbar({ onOpenSandbox }: NavbarProps) {
+export default function Navbar({ onOpenSandbox, onPreheat }: NavbarProps) {
   const { t, language, setLanguage } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -152,12 +153,14 @@ export default function Navbar({ onOpenSandbox }: NavbarProps) {
             </AnimatePresence>
           </div>
 
-          {/* AI Decision Sandbox In-place 3D Flip Trigger */}
+          {/* Frosted Glass AI Decision Sandbox Button */}
           <button
             onClick={handleSandboxClick}
-            className="px-4 py-2 bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-[13px] font-semibold rounded-full transition-all shadow-md shadow-blue-500/20 cursor-pointer hover:scale-105 active:scale-95"
+            onMouseEnter={onPreheat}
+            onTouchStart={onPreheat}
+            className="bg-white/[0.08] hover:bg-white/[0.16] border border-white/20 text-neutral-900 dark:text-neutral-200 backdrop-blur-md rounded-full px-3.5 py-1.5 text-xs sm:text-[13px] font-medium transition-all cursor-pointer shadow-sm"
           >
-            AI决策商业沙盘
+            AI 商业决策沙盘
           </button>
 
           <a
@@ -174,9 +177,10 @@ export default function Navbar({ onOpenSandbox }: NavbarProps) {
           {/* Mobile AI Sandbox Trigger */}
           <button
             onClick={handleSandboxClick}
-            className="px-3 py-1.5 bg-[#2563eb] text-white text-[11px] font-semibold rounded-full shadow-sm cursor-pointer"
+            onTouchStart={onPreheat}
+            className="bg-white/[0.08] hover:bg-white/[0.16] border border-white/20 text-neutral-900 dark:text-neutral-200 backdrop-blur-md rounded-full px-3 py-1.5 text-[11px] font-medium shadow-sm cursor-pointer"
           >
-            AI决策商业沙盘
+            AI 商业决策沙盘
           </button>
 
           {/* Mobile Language Trigger */}
@@ -248,9 +252,10 @@ export default function Navbar({ onOpenSandbox }: NavbarProps) {
                   setIsOpen(false);
                   handleSandboxClick();
                 }}
-                className="w-full py-3 bg-[#2563eb] text-white text-center font-semibold text-[14px] rounded-2xl shadow-md shadow-blue-500/20 cursor-pointer"
+                onTouchStart={onPreheat}
+                className="w-full py-3 bg-white/[0.08] hover:bg-white/[0.16] border border-white/20 text-neutral-900 dark:text-neutral-200 backdrop-blur-md text-center font-medium text-[14px] rounded-2xl shadow-sm cursor-pointer"
               >
-                AI决策商业沙盘
+                AI 商业决策沙盘
               </button>
               
               {navItems.map((item) => (

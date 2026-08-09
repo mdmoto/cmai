@@ -6,9 +6,10 @@ import { motion, AnimatePresence } from "framer-motion";
 
 interface HeroProps {
   onOpenSandbox?: () => void;
+  onPreheat?: () => void;
 }
 
-export default function Hero({ onOpenSandbox }: HeroProps) {
+export default function Hero({ onOpenSandbox, onPreheat }: HeroProps) {
   const { t } = useTranslation();
   const [currentBg, setCurrentBg] = useState(0);
 
@@ -121,12 +122,14 @@ export default function Hero({ onOpenSandbox }: HeroProps) {
               {t("heroCTAExplore")}
             </button>
 
-            {/* AI Decision Sandbox Direct In-place 3D Flip Trigger */}
+            {/* AI Decision Sandbox Frosted Glass Capsule Button */}
             <button
               onClick={handleSandboxClick}
-              className="px-6 py-3 bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-[13px] font-semibold rounded-full transition-all shadow-lg shadow-blue-500/25 cursor-pointer hover:scale-105 active:scale-95"
+              onMouseEnter={onPreheat}
+              onTouchStart={onPreheat}
+              className="px-6 py-3 bg-white/[0.08] hover:bg-white/[0.16] border border-white/20 text-neutral-100 backdrop-blur-md rounded-full text-[13px] font-medium transition-all cursor-pointer shadow-sm hover:scale-105 active:scale-95"
             >
-              AI决策商业沙盘
+              AI 商业决策沙盘
             </button>
 
             <button
