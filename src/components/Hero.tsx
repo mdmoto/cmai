@@ -2,12 +2,10 @@
 
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "@/context/LanguageContext";
-import { useSandbox } from "@/context/SandboxContext";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function Hero() {
   const { t } = useTranslation();
-  const { openSandbox } = useSandbox();
   const [currentBg, setCurrentBg] = useState(0);
 
   const bgImages = [
@@ -111,13 +109,15 @@ export default function Hero() {
               {t("heroCTAExplore")}
             </button>
 
-            {/* AI Decision Sandbox Trigger Button */}
-            <button
-              onClick={openSandbox}
-              className="px-6 py-3 bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-[13px] font-semibold rounded-full transition-all shadow-lg shadow-blue-500/30 cursor-pointer hover:scale-105 active:scale-95"
+            {/* AI Decision Sandbox Direct Link */}
+            <a
+              href="https://ai.lazzor.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-6 py-3 bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-[13px] font-semibold rounded-full transition-all shadow-lg shadow-blue-500/25"
             >
               AI决策商业沙盘
-            </button>
+            </a>
 
             <button
               onClick={(e) => handleScrollTo(e, "#contact")}

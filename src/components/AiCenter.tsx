@@ -2,7 +2,6 @@
 
 import React from "react";
 import { useTranslation } from "@/context/LanguageContext";
-import { useSandbox } from "@/context/SandboxContext";
 import { motion } from "framer-motion";
 import {
   Package,
@@ -12,13 +11,11 @@ import {
   Target,
   Compass,
   ArrowRight,
-  ArrowUpRight,
-  Sparkles
+  ArrowUpRight
 } from "lucide-react";
 
 export default function AiCenter() {
   const { language } = useTranslation();
-  const { openSandbox } = useSandbox();
 
   const localT = {
     zh: {
@@ -26,7 +23,7 @@ export default function AiCenter() {
       titlePre: "进入泰国市场前",
       titlePost: "先比较产品、价格与竞品情景",
       desc: "Chiang Mai AI Center 专门面向进入泰国市场的品牌与线下商业。利用版本化人口模型、离散选择算法和情景模拟，科学预判商业选择概率，规避盲目投资风险。",
-      ctaLaunch: "访问决策平台",
+      ctaLaunch: "AI决策商业沙盘",
       ctaMethod: "查看方法与数据",
       card1Title: "消费品验证",
       card1Desc: "比较新品的购买概率、目标人群、价格弹性与竞品替代。",
@@ -46,7 +43,7 @@ export default function AiCenter() {
       titlePre: "Before entering Thailand",
       titlePost: "Compare products, pricing, and scenarios first",
       desc: "Tailored for brands and offline businesses entering Thailand. CMAI uses demographic calibration, discrete choice models, and scenario simulations to quantify decision probabilities and reduce investment risks.",
-      ctaLaunch: "Launch AI Platform",
+      ctaLaunch: "AI决策商业沙盘",
       ctaMethod: "Methodology & Data",
       card1Title: "Product Validation",
       card1Desc: "Compare purchase probabilities, target demographics, and substitution effects.",
@@ -66,7 +63,7 @@ export default function AiCenter() {
       titlePre: "ก่อนเข้าสู่ตลาดประเทศไทย",
       titlePost: "เปรียบเทียบผลิตภัณฑ์ ราคา และคู่แข่งก่อน",
       desc: "ออกแบบมาสำหรับแบรนด์และธุรกิจออฟไลน์ที่กำลังเข้าสู่ตลาดไทย CMAI ใช้แบบจำลองประชากร อัลกอริทึมการเลือก และการจำลองสถานการณ์ เพื่อวัดความน่าจะเป็นในการตัดสินใจและลดความเสี่ยงในการลงทุน",
-      ctaLaunch: "เปิดตัวแพลตฟอร์ม AI",
+      ctaLaunch: "AI决策商业沙盘",
       ctaMethod: "ระเบียบวิธีและข้อมูล",
       card1Title: "การตรวจสอบผลิตภัณฑ์",
       card1Desc: "เปรียบเทียบความน่าจะเป็นในการซื้อ ประชากรเป้าหมาย และผลกระทบของการทดแทน",
@@ -86,7 +83,7 @@ export default function AiCenter() {
       titlePre: "タイ市場に参入する前に",
       titlePost: "製品・価格・競合シナリオを事前シミュレーション",
       desc: "タイ市場への参入を図るブランドや店舗ビジネスに。統計的ユーザーモデル、離散選択アルゴリズム、シナリオシミュレーションを通じて、不確実な参入リスクを科学的に評価します。",
-      ctaLaunch: "AI プラットフォームを起動",
+      ctaLaunch: "AI决策商业沙盘",
       ctaMethod: "手法とデータ解説",
       card1Title: "消費財プロダクト検証",
       card1Desc: "製品の購入確率、ペルソナ分析、価格弾力性、競合スイッチを比較。",
@@ -103,15 +100,15 @@ export default function AiCenter() {
     }
   };
 
-  const text = localT[language as keyof typeof localT] || localT.en;
+  const text = localT[language as keyof typeof localT] || localT.zh;
 
   const cardData = [
-    { title: text.card1Title, desc: text.card1Desc, icon: <Package className="w-4 h-4 text-neutral-700 dark:text-neutral-300" /> },
-    { title: text.card2Title, desc: text.card2Desc, icon: <Coins className="w-4 h-4 text-neutral-700 dark:text-neutral-300" /> },
-    { title: text.card3Title, desc: text.card3Desc, icon: <Store className="w-4 h-4 text-neutral-700 dark:text-neutral-300" /> },
-    { title: text.card4Title, desc: text.card4Desc, icon: <MapPin className="w-4 h-4 text-neutral-700 dark:text-neutral-300" /> },
-    { title: text.card5Title, desc: text.card5Desc, icon: <Target className="w-4 h-4 text-neutral-700 dark:text-neutral-300" /> },
-    { title: text.card6Title, desc: text.card6Desc, icon: <Compass className="w-4 h-4 text-neutral-700 dark:text-neutral-300" /> }
+    { title: text.card1Title, desc: text.card1Desc, icon: <Package className="w-4 h-4 text-neutral-700 dark:text-neutral-300" />, href: "https://ai.lazzor.com/studies/new/?type=PRODUCT_VALIDATION" },
+    { title: text.card2Title, desc: text.card2Desc, icon: <Coins className="w-4 h-4 text-neutral-700 dark:text-neutral-300" />, href: "https://ai.lazzor.com/studies/new/?type=PRICING_STUDY" },
+    { title: text.card3Title, desc: text.card3Desc, icon: <Store className="w-4 h-4 text-neutral-700 dark:text-neutral-300" />, href: "https://ai.lazzor.com/studies/new/?type=VENUE_STUDY" },
+    { title: text.card4Title, desc: text.card4Desc, icon: <MapPin className="w-4 h-4 text-neutral-700 dark:text-neutral-300" />, href: "https://ai.lazzor.com/studies/new/?type=SITE_COMPARISON" },
+    { title: text.card5Title, desc: text.card5Desc, icon: <Target className="w-4 h-4 text-neutral-700 dark:text-neutral-300" />, href: "https://ai.lazzor.com/studies/new/?type=CREATIVE_TEST" },
+    { title: text.card6Title, desc: text.card6Desc, icon: <Compass className="w-4 h-4 text-neutral-700 dark:text-neutral-300" />, href: "https://ai.lazzor.com/studies/new/?type=OPERATING_SCENARIO" }
   ];
 
   return (
@@ -153,10 +150,10 @@ export default function AiCenter() {
                 href="https://ai.lazzor.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-6 py-2.5 bg-neutral-950 hover:bg-neutral-800 dark:bg-white dark:hover:bg-neutral-100 text-white dark:text-neutral-950 text-[13px] font-medium rounded-full transition-colors flex items-center gap-1.5 shadow-sm"
+                className="px-6 py-2.5 bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-[13px] font-semibold rounded-full transition-all shadow-md shadow-blue-500/20 flex items-center gap-1.5"
               >
-                <span>{language === "zh" ? "AI决策商业沙盘" : text.ctaLaunch}</span>
-                <ArrowUpRight className="w-3.5 h-3.5 opacity-70" />
+                <span>{text.ctaLaunch}</span>
+                <ArrowUpRight className="w-3.5 h-3.5 opacity-80" />
               </a>
               <a
                 href="https://ai.lazzor.com/methodology/"
@@ -174,9 +171,11 @@ export default function AiCenter() {
         {/* Clean 6 Study Cards Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pt-4 border-t border-neutral-200 dark:border-neutral-800/80">
           {cardData.map((card, idx) => (
-            <motion.div
+            <motion.a
               key={idx}
-              onClick={openSandbox}
+              href={card.href}
+              target="_blank"
+              rel="noopener noreferrer"
               initial={{ opacity: 0, y: 10 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
@@ -197,7 +196,7 @@ export default function AiCenter() {
                   {card.desc}
                 </p>
               </div>
-            </motion.div>
+            </motion.a>
           ))}
         </div>
 
