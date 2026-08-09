@@ -144,20 +144,20 @@ export default function Navbar() {
               )}
             </AnimatePresence>
           </div>
-
-          {/* AI Sandbox 3D Flip Trigger Button */}
-          <button
-            onClick={openSandbox}
-            className="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-[12px] font-semibold rounded-full hover:scale-105 active:scale-95 transition-all shadow-md shadow-blue-500/20 flex items-center gap-1.5 cursor-pointer"
+            {/* AI Decision Sandbox Direct Link */}
+          <a
+            href="https://ai.lazzor.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-4 py-2 bg-neutral-900 hover:bg-neutral-800 dark:bg-white dark:hover:bg-neutral-100 text-white dark:text-neutral-950 text-[13px] font-medium rounded-full transition-colors shadow-sm"
           >
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>{language === "zh" ? "🪐 AI 沙盘系统" : language === "th" ? "🪐 ระบบจำลอง AI" : language === "ja" ? "🪐 AIサンドボックス" : "🪐 AI Sandbox"}</span>
-          </button>
+            {language === "zh" ? "AI决策商业沙盘" : language === "th" ? "การจำลองการตัดสินใจทางธุรกิจ AI" : language === "ja" ? "AI意思決定サンドボックス" : "AI Business Sandbox"}
+          </a>
 
           <a
             href="#contact"
             onClick={(e) => handleScrollTo(e, "#contact")}
-            className="px-5 py-2 bg-neutral-950 hover:bg-neutral-800 dark:bg-white dark:hover:bg-neutral-100 text-white dark:text-neutral-950 text-[13px] font-medium rounded-full transition-colors shadow-sm"
+            className="px-5 py-2 bg-transparent hover:bg-neutral-100 dark:hover:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 text-neutral-900 dark:text-white text-[13px] font-medium rounded-full transition-colors"
           >
             {t("navBookVisit")}
           </a>
@@ -166,13 +166,14 @@ export default function Navbar() {
         {/* Mobile Menu Button */}
         <div className="flex items-center gap-3 md:hidden">
           {/* Mobile AI Sandbox Trigger */}
-          <button
-            onClick={openSandbox}
-            className="px-3 py-1.5 bg-blue-600 text-white text-[11px] font-semibold rounded-full flex items-center gap-1 shadow-sm"
+          <a
+            href="https://ai.lazzor.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-3 py-1.5 bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 text-[11px] font-medium rounded-full shadow-sm"
           >
-            <Sparkles className="w-3 h-3" />
-            <span>{language === "zh" ? "AI 沙盘" : "Sandbox"}</span>
-          </button>
+            {language === "zh" ? "AI决策商业沙盘" : "Sandbox"}
+          </a>
 
           {/* Mobile Language Trigger */}
           <button
@@ -235,16 +236,14 @@ export default function Navbar() {
             className="md:hidden bg-white dark:bg-black border-b border-neutral-200 dark:border-neutral-800"
           >
             <div className="px-6 py-6 flex flex-col gap-4">
-              <button
-                onClick={() => {
-                  setIsOpen(false);
-                  openSandbox();
-                }}
-                className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold text-[14px] rounded-2xl flex items-center justify-center gap-2 shadow-md shadow-blue-500/20"
+              <a
+                href="https://ai.lazzor.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full py-3 bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 text-center font-medium text-[14px] rounded-2xl shadow-sm"
               >
-                <Sparkles className="w-4 h-4" />
-                <span>{language === "zh" ? "🪐 翻转进入 AI 沙盘系统" : "Launch 3D AI Sandbox"}</span>
-              </button>
+                {language === "zh" ? "AI决策商业沙盘" : "AI Business Sandbox"}
+              </a>
               
               {navItems.map((item) => (
                 <a

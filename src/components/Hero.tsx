@@ -112,13 +112,14 @@ export default function Hero() {
               {t("heroCTAExplore")}
             </button>
 
-            <button
-              onClick={openSandbox}
-              className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-[13px] font-medium rounded-full shadow-lg shadow-blue-500/20 flex items-center gap-2 transition-all hover:scale-105 active:scale-95 cursor-pointer"
+            <a
+              href="https://ai.lazzor.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-6 py-3 bg-white/10 hover:bg-white/20 border border-white/20 hover:border-white/40 text-white text-[13px] font-medium rounded-full transition-colors shadow-sm"
             >
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>{language === "zh" ? "🪐 翻转进入 AI 沙盘系统" : language === "th" ? "🪐 หมุนสู่ระบบจำลอง AI" : language === "ja" ? "🪐 3D AIサンドボックス" : "🪐 Launch 3D AI Sandbox"}</span>
-            </button>
+              {language === "zh" ? "AI决策商业沙盘" : language === "th" ? "การจำลองการตัดสินใจทางธุรกิจ AI" : language === "ja" ? "AI意思決定サンドボックス" : "AI Business Sandbox"}
+            </a>
 
             <button
               onClick={(e) => handleScrollTo(e, "#contact")}

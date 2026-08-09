@@ -149,13 +149,15 @@ export default function AiCenter() {
             </motion.p>
 
             <div className="flex flex-wrap gap-4 pt-2">
-              <button
-                onClick={openSandbox}
-                className="px-6 py-2.5 bg-neutral-950 hover:bg-neutral-800 dark:bg-white dark:hover:bg-neutral-100 text-white dark:text-neutral-950 text-[13px] font-medium rounded-full transition-all flex items-center gap-2 shadow-sm cursor-pointer hover:scale-105 active:scale-95"
+              <a
+                href="https://ai.lazzor.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-6 py-2.5 bg-neutral-950 hover:bg-neutral-800 dark:bg-white dark:hover:bg-neutral-100 text-white dark:text-neutral-950 text-[13px] font-medium rounded-full transition-colors flex items-center gap-1.5 shadow-sm"
               >
-                <Sparkles className="w-3.5 h-3.5 text-blue-500" />
-                <span>{language === "zh" ? "🪐 翻转进入 3D AI 沙盘推演" : text.ctaLaunch}</span>
-              </button>
+                <span>{language === "zh" ? "AI决策商业沙盘" : text.ctaLaunch}</span>
+                <ArrowUpRight className="w-3.5 h-3.5 opacity-70" />
+              </a>
               <a
                 href="https://ai.lazzor.com/methodology/"
                 target="_blank"
