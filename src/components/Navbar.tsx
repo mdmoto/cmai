@@ -144,19 +144,6 @@ export default function Navbar() {
           </div>
 
           <a
-            href="https://ai.lazzor.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-[13px] font-medium rounded-full transition-all shadow-md shadow-blue-500/10 flex items-center gap-1.5"
-          >
-            <span>CMAI AI</span>
-            <span className="flex h-1.5 w-1.5 relative">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-blue-300"></span>
-            </span>
-          </a>
-
-          <a
             href="#contact"
             onClick={(e) => handleScrollTo(e, "#contact")}
             className="px-5 py-2 bg-neutral-950 hover:bg-neutral-800 dark:bg-white dark:hover:bg-neutral-100 text-white dark:text-neutral-950 text-[13px] font-medium rounded-full transition-colors shadow-sm"
