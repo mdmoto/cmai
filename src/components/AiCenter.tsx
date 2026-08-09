@@ -2,6 +2,7 @@
 
 import React from "react";
 import { useTranslation } from "@/context/LanguageContext";
+import { useSandbox } from "@/context/SandboxContext";
 import { motion } from "framer-motion";
 import {
   Package,
@@ -11,11 +12,13 @@ import {
   Target,
   Compass,
   ArrowRight,
-  ArrowUpRight
+  ArrowUpRight,
+  Sparkles
 } from "lucide-react";
 
 export default function AiCenter() {
   const { language } = useTranslation();
+  const { openSandbox } = useSandbox();
 
   const localT = {
     zh: {
@@ -146,22 +149,21 @@ export default function AiCenter() {
             </motion.p>
 
             <div className="flex flex-wrap gap-4 pt-2">
-              <a
-                href="https://ai.lazzor.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-6 py-2.5 bg-neutral-950 hover:bg-neutral-800 dark:bg-white dark:hover:bg-neutral-100 text-white dark:text-neutral-950 text-[13px] font-medium rounded-full transition-colors flex items-center gap-1.5 shadow-sm"
+              <button
+                onClick={openSandbox}
+                className="px-6 py-2.5 bg-neutral-950 hover:bg-neutral-800 dark:bg-white dark:hover:bg-neutral-100 text-white dark:text-neutral-950 text-[13px] font-medium rounded-full transition-all flex items-center gap-2 shadow-sm cursor-pointer hover:scale-105 active:scale-95"
               >
-                <span>{text.ctaLaunch}</span>
-                <ArrowUpRight className="w-3.5 h-3.5 opacity-70" />
-              </a>
+                <Sparkles className="w-3.5 h-3.5 text-blue-500" />
+                <span>{language === "zh" ? "🪐 翻转进入 3D AI 沙盘推演" : text.ctaLaunch}</span>
+              </button>
               <a
                 href="https://ai.lazzor.com/methodology/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-6 py-2.5 bg-transparent hover:bg-neutral-100 dark:hover:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 text-neutral-800 dark:text-neutral-200 text-[13px] font-medium rounded-full transition-colors"
+                className="px-6 py-2.5 bg-transparent hover:bg-neutral-100 dark:hover:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 text-neutral-800 dark:text-neutral-200 text-[13px] font-medium rounded-full transition-colors flex items-center gap-1.5"
               >
                 <span>{text.ctaMethod}</span>
+                <ArrowUpRight className="w-3.5 h-3.5 opacity-70" />
               </a>
             </div>
           </div>
@@ -170,16 +172,14 @@ export default function AiCenter() {
         {/* Clean 6 Study Cards Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pt-4 border-t border-neutral-200 dark:border-neutral-800/80">
           {cardData.map((card, idx) => (
-            <motion.a
+            <motion.div
               key={idx}
-              href="https://ai.lazzor.com"
-              target="_blank"
-              rel="noopener noreferrer"
+              onClick={openSandbox}
               initial={{ opacity: 0, y: 10 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
               transition={{ duration: 0.5, delay: idx * 0.05 }}
-              className="p-6 rounded-2xl bg-white dark:bg-[#121212] border border-neutral-200/80 dark:border-neutral-800/80 hover:border-neutral-400 dark:hover:border-neutral-600 transition-colors group flex flex-col justify-between"
+              className="p-6 rounded-2xl bg-white dark:bg-[#121212] border border-neutral-200/80 dark:border-neutral-800/80 hover:border-neutral-400 dark:hover:border-neutral-600 transition-colors group flex flex-col justify-between cursor-pointer"
             >
               <div>
                 <div className="flex justify-between items-center mb-4">
@@ -195,7 +195,7 @@ export default function AiCenter() {
                   {card.desc}
                 </p>
               </div>
-            </motion.a>
+            </motion.div>
           ))}
         </div>
 

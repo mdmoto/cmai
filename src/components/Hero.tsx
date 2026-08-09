@@ -2,10 +2,13 @@
 
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "@/context/LanguageContext";
+import { useSandbox } from "@/context/SandboxContext";
 import { motion, AnimatePresence } from "framer-motion";
+import { Sparkles } from "lucide-react";
 
 export default function Hero() {
   const { t, language } = useTranslation();
+  const { openSandbox } = useSandbox();
   const [currentBg, setCurrentBg] = useState(0);
 
   const bgImages = [
@@ -100,7 +103,7 @@ export default function Hero() {
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.3 }}
-            className="flex flex-row items-center gap-6"
+            className="flex flex-wrap items-center gap-4"
           >
             <button
               onClick={(e) => handleScrollTo(e, "#workspace")}
@@ -108,6 +111,15 @@ export default function Hero() {
             >
               {t("heroCTAExplore")}
             </button>
+
+            <button
+              onClick={openSandbox}
+              className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-[13px] font-medium rounded-full shadow-lg shadow-blue-500/20 flex items-center gap-2 transition-all hover:scale-105 active:scale-95 cursor-pointer"
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>{language === "zh" ? "🪐 翻转进入 AI 沙盘系统" : language === "th" ? "🪐 หมุนสู่ระบบจำลอง AI" : language === "ja" ? "🪐 3D AIサンドボックス" : "🪐 Launch 3D AI Sandbox"}</span>
+            </button>
+
             <button
               onClick={(e) => handleScrollTo(e, "#contact")}
               className="px-6 py-3 bg-transparent hover:bg-white/5 border border-white/20 hover:border-white/40 text-white text-[13px] font-medium rounded-full transition-colors"

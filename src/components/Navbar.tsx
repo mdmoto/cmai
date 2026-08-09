@@ -2,11 +2,13 @@
 
 import React, { useState, useEffect } from "react";
 import { useTranslation, Language } from "@/context/LanguageContext";
-import { Menu, X, Globe, ChevronDown, ArrowUpRight } from "lucide-react";
+import { useSandbox } from "@/context/SandboxContext";
+import { Menu, X, Globe, ChevronDown, ArrowUpRight, Sparkles } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function Navbar() {
   const { t, language, setLanguage } = useTranslation();
+  const { openSandbox } = useSandbox();
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [showLangMenu, setShowLangMenu] = useState(false);
@@ -143,6 +145,15 @@ export default function Navbar() {
             </AnimatePresence>
           </div>
 
+          {/* AI Sandbox 3D Flip Trigger Button */}
+          <button
+            onClick={openSandbox}
+            className="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-[12px] font-semibold rounded-full hover:scale-105 active:scale-95 transition-all shadow-md shadow-blue-500/20 flex items-center gap-1.5 cursor-pointer"
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>{language === "zh" ? "🪐 AI 沙盘系统" : language === "th" ? "🪐 ระบบจำลอง AI" : language === "ja" ? "🪐 AIサンドボックス" : "🪐 AI Sandbox"}</span>
+          </button>
+
           <a
             href="#contact"
             onClick={(e) => handleScrollTo(e, "#contact")}
@@ -154,6 +165,15 @@ export default function Navbar() {
 
         {/* Mobile Menu Button */}
         <div className="flex items-center gap-3 md:hidden">
+          {/* Mobile AI Sandbox Trigger */}
+          <button
+            onClick={openSandbox}
+            className="px-3 py-1.5 bg-blue-600 text-white text-[11px] font-semibold rounded-full flex items-center gap-1 shadow-sm"
+          >
+            <Sparkles className="w-3 h-3" />
+            <span>{language === "zh" ? "AI 沙盘" : "Sandbox"}</span>
+          </button>
+
           {/* Mobile Language Trigger */}
           <button
             onClick={() => setShowLangMenu(!showLangMenu)}
@@ -215,6 +235,17 @@ export default function Navbar() {
             className="md:hidden bg-white dark:bg-black border-b border-neutral-200 dark:border-neutral-800"
           >
             <div className="px-6 py-6 flex flex-col gap-4">
+              <button
+                onClick={() => {
+                  setIsOpen(false);
+                  openSandbox();
+                }}
+                className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold text-[14px] rounded-2xl flex items-center justify-center gap-2 shadow-md shadow-blue-500/20"
+              >
+                <Sparkles className="w-4 h-4" />
+                <span>{language === "zh" ? "🪐 翻转进入 AI 沙盘系统" : "Launch 3D AI Sandbox"}</span>
+              </button>
+              
               {navItems.map((item) => (
                 <a
                   key={item.href}
