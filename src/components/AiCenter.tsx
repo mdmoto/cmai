@@ -14,7 +14,11 @@ import {
   ArrowUpRight
 } from "lucide-react";
 
-export default function AiCenter() {
+interface AiCenterProps {
+  onOpenSandbox?: () => void;
+}
+
+export default function AiCenter({ onOpenSandbox }: AiCenterProps) {
   const { language } = useTranslation();
 
   const localT = {
@@ -102,6 +106,14 @@ export default function AiCenter() {
 
   const text = localT[language as keyof typeof localT] || localT.zh;
 
+  const handleSandboxClick = (targetUrl?: string) => {
+    if (onOpenSandbox) {
+      onOpenSandbox();
+    } else {
+      window.location.href = targetUrl || "https://ai.lazzor.com";
+    }
+  };
+
   const cardData = [
     { title: text.card1Title, desc: text.card1Desc, icon: <Package className="w-4 h-4 text-neutral-700 dark:text-neutral-300" />, href: "https://ai.lazzor.com/studies/new/?type=PRODUCT_VALIDATION" },
     { title: text.card2Title, desc: text.card2Desc, icon: <Coins className="w-4 h-4 text-neutral-700 dark:text-neutral-300" />, href: "https://ai.lazzor.com/studies/new/?type=PRICING_STUDY" },
@@ -146,20 +158,16 @@ export default function AiCenter() {
             </motion.p>
 
             <div className="flex flex-wrap gap-4 pt-2">
-              <a
-                href="https://ai.lazzor.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-6 py-2.5 bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-[13px] font-semibold rounded-full transition-all shadow-md shadow-blue-500/20 flex items-center gap-1.5"
+              <button
+                onClick={() => handleSandboxClick()}
+                className="px-6 py-2.5 bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-[13px] font-semibold rounded-full transition-all shadow-md shadow-blue-500/20 flex items-center gap-1.5 cursor-pointer hover:scale-105 active:scale-95"
               >
                 <span>{text.ctaLaunch}</span>
                 <ArrowUpRight className="w-3.5 h-3.5 opacity-80" />
-              </a>
+              </button>
               <a
                 href="https://ai.lazzor.com/methodology/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-6 py-2.5 bg-transparent hover:bg-neutral-100 dark:hover:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 text-neutral-800 dark:text-neutral-200 text-[13px] font-medium rounded-full transition-colors flex items-center gap-1.5"
+                className="px-6 py-2.5 bg-transparent hover:bg-neutral-100 dark:hover:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 text-neutral-800 dark:text-neutral-200 text-[13px] font-medium rounded-full transition-colors flex items-center gap-1.5 cursor-pointer"
               >
                 <span>{text.ctaMethod}</span>
                 <ArrowUpRight className="w-3.5 h-3.5 opacity-70" />
@@ -171,11 +179,9 @@ export default function AiCenter() {
         {/* Clean 6 Study Cards Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pt-4 border-t border-neutral-200 dark:border-neutral-800/80">
           {cardData.map((card, idx) => (
-            <motion.a
+            <motion.div
               key={idx}
-              href={card.href}
-              target="_blank"
-              rel="noopener noreferrer"
+              onClick={() => handleSandboxClick(card.href)}
               initial={{ opacity: 0, y: 10 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
@@ -196,7 +202,7 @@ export default function AiCenter() {
                   {card.desc}
                 </p>
               </div>
-            </motion.a>
+            </motion.div>
           ))}
         </div>
 

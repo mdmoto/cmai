@@ -5,7 +5,11 @@ import { useTranslation, Language } from "@/context/LanguageContext";
 import { Menu, X, Globe, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-export default function Navbar() {
+interface NavbarProps {
+  onOpenSandbox?: () => void;
+}
+
+export default function Navbar({ onOpenSandbox }: NavbarProps) {
   const { t, language, setLanguage } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -57,6 +61,14 @@ export default function Navbar() {
         top: offsetPosition,
         behavior: "smooth",
       });
+    }
+  };
+
+  const handleSandboxClick = () => {
+    if (onOpenSandbox) {
+      onOpenSandbox();
+    } else {
+      window.location.href = "https://ai.lazzor.com";
     }
   };
 
@@ -140,15 +152,13 @@ export default function Navbar() {
             </AnimatePresence>
           </div>
 
-          {/* AI Decision Sandbox Direct Link */}
-          <a
-            href="https://ai.lazzor.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-4 py-2 bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-[13px] font-semibold rounded-full transition-all shadow-md shadow-blue-500/20"
+          {/* AI Decision Sandbox In-place 3D Flip Trigger */}
+          <button
+            onClick={handleSandboxClick}
+            className="px-4 py-2 bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-[13px] font-semibold rounded-full transition-all shadow-md shadow-blue-500/20 cursor-pointer hover:scale-105 active:scale-95"
           >
             AI决策商业沙盘
-          </a>
+          </button>
 
           <a
             href="#contact"
@@ -161,15 +171,13 @@ export default function Navbar() {
 
         {/* Mobile Menu Button */}
         <div className="flex items-center gap-3 md:hidden">
-          {/* Mobile AI Sandbox Direct Link */}
-          <a
-            href="https://ai.lazzor.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-3 py-1.5 bg-[#2563eb] text-white text-[11px] font-semibold rounded-full shadow-sm"
+          {/* Mobile AI Sandbox Trigger */}
+          <button
+            onClick={handleSandboxClick}
+            className="px-3 py-1.5 bg-[#2563eb] text-white text-[11px] font-semibold rounded-full shadow-sm cursor-pointer"
           >
             AI决策商业沙盘
-          </a>
+          </button>
 
           {/* Mobile Language Trigger */}
           <button
@@ -235,14 +243,15 @@ export default function Navbar() {
             className="md:hidden bg-white dark:bg-black border-b border-neutral-200 dark:border-neutral-800"
           >
             <div className="px-6 py-6 flex flex-col gap-4">
-              <a
-                href="https://ai.lazzor.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full py-3 bg-[#2563eb] text-white text-center font-semibold text-[14px] rounded-2xl shadow-md shadow-blue-500/20"
+              <button
+                onClick={() => {
+                  setIsOpen(false);
+                  handleSandboxClick();
+                }}
+                className="w-full py-3 bg-[#2563eb] text-white text-center font-semibold text-[14px] rounded-2xl shadow-md shadow-blue-500/20 cursor-pointer"
               >
                 AI决策商业沙盘
-              </a>
+              </button>
               
               {navItems.map((item) => (
                 <a
