@@ -41,7 +41,7 @@ export default function RootLayout({
       <head>
         <link rel="dns-prefetch" href="https://ai.lazzor.com" />
         <link rel="preconnect" href="https://ai.lazzor.com" crossOrigin="anonymous" />
-        <link rel="prefetch" href="https://ai.lazzor.com" />
+        <link rel="prefetch" href="https://ai.lazzor.com" as="document" />
       </head>
       <body className="min-h-full flex flex-col bg-white dark:bg-black text-neutral-900 dark:text-neutral-100 transition-colors duration-300">
         <LanguageProvider>{children}</LanguageProvider>

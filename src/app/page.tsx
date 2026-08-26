@@ -53,16 +53,16 @@ export default function Home() {
   return (
     <div
       className="relative w-full min-h-screen bg-black overflow-x-hidden"
-      style={{ perspective: "2000px" }}
+      style={isNavigating ? { perspective: "2000px" } : undefined}
     >
       <motion.div
         animate={
           isNavigating
             ? { rotateY: 90, scale: 0.92, opacity: 0.15 }
-            : { rotateY: 0, scale: 1, opacity: 1 }
+            : undefined
         }
         transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
-        style={{ transformStyle: "preserve-3d" }}
+        style={isNavigating ? { transformStyle: "preserve-3d" } : undefined}
         className="relative w-full min-h-screen flex flex-col bg-white dark:bg-black transition-colors"
       >
         <Navbar onOpenSandbox={handleTriggerNavigation} onPreheat={handlePreheat} />

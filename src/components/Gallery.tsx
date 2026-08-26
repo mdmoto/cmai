@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { useTranslation } from "@/context/LanguageContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, X, Image as ImageIcon } from "lucide-react";
@@ -16,6 +17,23 @@ export default function Gallery() {
   const { t } = useTranslation();
   const [filter, setFilter] = useState<string>("all");
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Lock body scroll when lightbox is open
+  useEffect(() => {
+    if (lightboxIndex !== null) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [lightboxIndex]);
 
   const items: GalleryItem[] = [
     // Exterior (1)
@@ -146,76 +164,80 @@ export default function Gallery() {
       </div>
 
       {/* Lightbox Modal */}
-      <AnimatePresence>
-        {lightboxIndex !== null && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            {/* Backdrop */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setLightboxIndex(null)}
-              className="absolute inset-0 bg-black/95 backdrop-blur-md"
-            />
-
-            {/* Content Container */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="relative max-w-5xl w-full h-[70vh] z-10 flex items-center justify-center"
-            >
-              {/* Close Button */}
-              <button
-                onClick={() => setLightboxIndex(null)}
-                className="absolute -top-12 right-0 p-2 text-white hover:text-neutral-300 transition-colors"
-                title="Close"
-              >
-                <X className="w-6 h-6" />
-              </button>
-
-              {/* Prev Button */}
-              <button
-                onClick={handlePrev}
-                className="absolute left-0 p-3 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm transition-all -translate-x-6 md:-translate-x-12"
-                title="Previous"
-              >
-                <ChevronLeft className="w-5 h-5" />
-              </button>
-
-              {/* Image viewport */}
-              <div className="relative w-full h-full">
-                <Image
-                  src={filteredItems[lightboxIndex].src}
-                  alt={filteredItems[lightboxIndex].title}
-                  fill
-                  className="object-contain"
-                  priority
+      {mounted &&
+        createPortal(
+          <AnimatePresence>
+            {lightboxIndex !== null && (
+              <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+                {/* Backdrop */}
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  onClick={() => setLightboxIndex(null)}
+                  className="fixed inset-0 bg-black/95 backdrop-blur-md"
                 />
-              </div>
 
-              {/* Next Button */}
-              <button
-                onClick={handleNext}
-                className="absolute right-0 p-3 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm transition-all translate-x-6 md:translate-x-12"
-                title="Next"
-              >
-                <ChevronRight className="w-5 h-5" />
-              </button>
+                {/* Content Container */}
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  className="relative max-w-5xl w-full h-[70vh] z-10 flex items-center justify-center"
+                >
+                  {/* Close Button */}
+                  <button
+                    onClick={() => setLightboxIndex(null)}
+                    className="absolute -top-12 right-0 p-2 text-white hover:text-neutral-300 transition-colors"
+                    title="Close"
+                  >
+                    <X className="w-6 h-6" />
+                  </button>
 
-              {/* Bottom Info bar */}
-              <div className="absolute -bottom-14 left-0 right-0 text-center text-white">
-                <p className="text-sm font-medium tracking-tight">
-                  {filteredItems[lightboxIndex].title}
-                </p>
-                <p className="text-[11px] text-neutral-400 font-mono mt-1">
-                  {lightboxIndex + 1} / {filteredItems.length}
-                </p>
+                  {/* Prev Button */}
+                  <button
+                    onClick={handlePrev}
+                    className="absolute left-0 p-3 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm transition-all -translate-x-6 md:-translate-x-12"
+                    title="Previous"
+                  >
+                    <ChevronLeft className="w-5 h-5" />
+                  </button>
+
+                  {/* Image viewport */}
+                  <div className="relative w-full h-full">
+                    <Image
+                      src={filteredItems[lightboxIndex].src}
+                      alt={filteredItems[lightboxIndex].title}
+                      fill
+                      className="object-contain"
+                      priority
+                    />
+                  </div>
+
+                  {/* Next Button */}
+                  <button
+                    onClick={handleNext}
+                    className="absolute right-0 p-3 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm transition-all translate-x-6 md:translate-x-12"
+                    title="Next"
+                  >
+                    <ChevronRight className="w-5 h-5" />
+                  </button>
+
+                  {/* Bottom Info bar */}
+                  <div className="absolute -bottom-14 left-0 right-0 text-center text-white">
+                    <p className="text-sm font-medium tracking-tight">
+                      {filteredItems[lightboxIndex].title}
+                    </p>
+                    <p className="text-[11px] text-neutral-400 font-mono mt-1">
+                      {lightboxIndex + 1} / {filteredItems.length}
+                    </p>
+                  </div>
+                </motion.div>
               </div>
-            </motion.div>
-          </div>
+            )}
+          </AnimatePresence>,
+          document.body
         )}
-      </AnimatePresence>
     </section>
   );
 }

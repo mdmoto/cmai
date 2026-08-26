@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { useTranslation, Language } from "@/context/LanguageContext";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -26,6 +27,23 @@ interface DetailedDoc {
 export default function Services() {
   const { t, language } = useTranslation();
   const [activeService, setActiveService] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Lock body scroll when modal is open
+  useEffect(() => {
+    if (activeService) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [activeService]);
 
   // Close modal on escape key
   useEffect(() => {
@@ -534,64 +552,68 @@ export default function Services() {
       </div>
 
       {/* Elegant Service Details Modal */}
-      <AnimatePresence>
-        {activeService && selectedDoc && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            {/* Backdrop */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setActiveService(null)}
-              className="absolute inset-0 bg-black/60 backdrop-blur-md"
-            />
+      {mounted &&
+        createPortal(
+          <AnimatePresence>
+            {activeService && selectedDoc && (
+              <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+                {/* Backdrop */}
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  onClick={() => setActiveService(null)}
+                  className="fixed inset-0 bg-black/60 backdrop-blur-md"
+                />
 
-            {/* Modal Body */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.98, y: 10 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.98, y: 10 }}
-              transition={{ duration: 0.25, ease: "easeOut" }}
-              className="relative max-w-2xl w-full bg-white dark:bg-black border border-neutral-200 dark:border-neutral-800 rounded-3xl p-8 sm:p-10 shadow-2xl z-10 overflow-hidden"
-            >
-              {/* Close Button */}
-              <button
-                onClick={() => setActiveService(null)}
-                className="absolute top-6 right-6 p-1.5 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-900 text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors"
-                title="Close"
-              >
-                <X className="w-4 h-4" />
-              </button>
+                {/* Modal Body */}
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.98, y: 10 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.98, y: 10 }}
+                  transition={{ duration: 0.25, ease: "easeOut" }}
+                  className="relative max-w-2xl w-full bg-white dark:bg-black border border-neutral-200 dark:border-neutral-800 rounded-3xl p-8 sm:p-10 shadow-2xl z-10 overflow-hidden max-h-[90vh] overflow-y-auto"
+                >
+                  {/* Close Button */}
+                  <button
+                    onClick={() => setActiveService(null)}
+                    className="absolute top-6 right-6 p-1.5 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-900 text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors"
+                    title="Close"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
 
-              {/* Header */}
-              <div className="mb-8">
-                <span className="text-[10px] font-sans tracking-[0.2em] text-[#86868b] uppercase font-semibold block mb-1">
-                  {selectedDoc.subtitle}
-                </span>
-                <h3 className="text-2xl font-semibold text-[#1d1d1f] dark:text-white tracking-tight">
-                  {selectedDoc.title}
-                </h3>
+                  {/* Header */}
+                  <div className="mb-8">
+                    <span className="text-[10px] font-sans tracking-[0.2em] text-[#86868b] uppercase font-semibold block mb-1">
+                      {selectedDoc.subtitle}
+                    </span>
+                    <h3 className="text-2xl font-semibold text-[#1d1d1f] dark:text-white tracking-tight">
+                      {selectedDoc.title}
+                    </h3>
+                  </div>
+
+                  {/* Content Paragraphs */}
+                  <div className="space-y-4 text-[14px] text-[#515154] dark:text-[#86868b] leading-relaxed font-light mb-10">
+                    {selectedDoc.content.map((p, i) => (
+                      <p key={i}>{p}</p>
+                    ))}
+                  </div>
+
+                  {/* Inquire CTA Button */}
+                  <button
+                    onClick={handleInquire}
+                    className="w-full flex items-center justify-center gap-2 py-3.5 bg-neutral-950 hover:bg-neutral-800 dark:bg-white dark:hover:bg-neutral-100 text-white dark:text-neutral-950 text-[13px] font-semibold rounded-full transition-colors shadow-sm group"
+                  >
+                    <span>Inquire About This Service</span>
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </button>
+                </motion.div>
               </div>
-
-              {/* Content Paragraphs */}
-              <div className="space-y-4 text-[14px] text-[#515154] dark:text-[#86868b] leading-relaxed font-light mb-10">
-                {selectedDoc.content.map((p, i) => (
-                  <p key={i}>{p}</p>
-                ))}
-              </div>
-
-              {/* Inquire CTA Button */}
-              <button
-                onClick={handleInquire}
-                className="w-full flex items-center justify-center gap-2 py-3.5 bg-neutral-950 hover:bg-neutral-800 dark:bg-white dark:hover:bg-neutral-100 text-white dark:text-neutral-950 text-[13px] font-semibold rounded-full transition-colors shadow-sm group"
-              >
-                <span>Inquire About This Service</span>
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </button>
-            </motion.div>
-          </div>
+            )}
+          </AnimatePresence>,
+          document.body
         )}
-      </AnimatePresence>
     </section>
   );
 }

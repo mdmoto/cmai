@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { useTranslation } from "@/context/LanguageContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { Layers, Search } from "lucide-react";
@@ -21,6 +22,23 @@ export default function Workspace() {
   const { t } = useTranslation();
   const [activeFloor, setActiveFloor] = useState<number>(2); // Default to Floor 2 (Workspace)
   const [zoomImage, setZoomImage] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Lock body scroll when floor plan is zoomed
+  useEffect(() => {
+    if (zoomImage !== null) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [zoomImage]);
 
   const floors = [
     {
@@ -268,41 +286,45 @@ export default function Workspace() {
       </div>
 
       {/* Lightbox */}
-      <AnimatePresence>
-        {zoomImage && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setZoomImage(null)}
-              className="absolute inset-0 bg-black/95 backdrop-blur-md"
-            />
-            <motion.div
-              initial={{ opacity: 0, scale: 0.98 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.98 }}
-              className="relative max-w-5xl w-full aspect-[4/3] bg-white dark:bg-black p-4 rounded-xl shadow-2xl z-10 flex items-center justify-center"
-            >
-              <button
-                onClick={() => setZoomImage(null)}
-                className="absolute top-4 right-4 p-2 text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors"
-              >
-                ✕
-              </button>
-              <div className="relative w-full h-full">
-                <Image
-                  src={zoomImage}
-                  alt="Expanded floor plan"
-                  fill
-                  className="object-contain"
-                  priority
+      {mounted &&
+        createPortal(
+          <AnimatePresence>
+            {zoomImage && (
+              <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  onClick={() => setZoomImage(null)}
+                  className="fixed inset-0 bg-black/95 backdrop-blur-md"
                 />
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.98 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.98 }}
+                  className="relative max-w-5xl w-full aspect-[4/3] bg-white dark:bg-black p-4 rounded-xl shadow-2xl z-10 flex items-center justify-center"
+                >
+                  <button
+                    onClick={() => setZoomImage(null)}
+                    className="absolute top-4 right-4 p-2 text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors"
+                  >
+                    ✕
+                  </button>
+                  <div className="relative w-full h-full">
+                    <Image
+                      src={zoomImage}
+                      alt="Expanded floor plan"
+                      fill
+                      className="object-contain"
+                      priority
+                    />
+                  </div>
+                </motion.div>
               </div>
-            </motion.div>
-          </div>
+            )}
+          </AnimatePresence>,
+          document.body
         )}
-      </AnimatePresence>
     </section>
   );
 }
