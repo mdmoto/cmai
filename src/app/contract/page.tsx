@@ -739,7 +739,7 @@ function ContractContent() {
                 </span>
               </div>
               <p className="text-[11px] text-neutral-500 font-mono hidden sm:block">
-                Ref: {contractSerial || "CMAI-2026-LEASE"} · Colasola Co., Ltd.
+                Ref: {contractSerial || "CMAI-2026-LEASE"} · Chiang Mai AI Center (Colasola Co., Ltd.)
               </p>
             </div>
           </div>
@@ -1271,7 +1271,7 @@ function ContractContent() {
                     Colasola Co., Ltd. (บริษัท โคล่าโซล่า จำกัด)
                   </div>
                   <div className="text-[10px] text-neutral-500 font-mono">
-                    Tax ID: 0505566006478 · P.Work Co-Space, Chiang Mai
+                    Tax ID: 0505566006478 · Chiang Mai AI Center, Chiang Mai
                   </div>
                 </div>
               </div>
@@ -1306,9 +1306,9 @@ function ContractContent() {
           {/* Agreement Parties */}
           <div className="space-y-3.5 text-xs sm:text-[12.5px] leading-relaxed mb-6">
             <p>
-              <strong>Between / ระหว่าง:</strong> Colasola Co., Ltd. (บริษัท โคล่าโซล่า จำกัด)<br />
+              <strong>Between / ระหว่าง:</strong> Chiang Mai AI Center (Colasola Co., Ltd. / บริษัท โคล่าโซล่า จำกัด)<br />
               <strong>Company Registration No. / Tax ID / ทะเบียนนิติบุคคลเลขที่:</strong> 0505566006478<br />
-              <strong>Address / ที่อยู่:</strong> 236/105 P.Work Co-Space Chiang Mai, Moo 6, Mahidol Road, Nong Hoi, Mueang Chiang Mai, Chiang Mai 50000<br />
+              <strong>Address / ที่อยู่:</strong> 236/105 Chiang Mai AI Center, Moo 6, Mahidol Road, Nong Hoi, Mueang Chiang Mai, Chiang Mai 50000 (บ้านเลขที่ 236/105 หมู่ 6 ถ.มหิดล ตำบลหนองหอย อำเภอเมืองเชียงใหม่ จังหวัดเชียงใหม่ 50000)<br />
               hereinafter referred to as the <strong>Landlord</strong> / ซึ่งในที่นี้เรียกว่า <strong>“ผู้ให้เช่า”</strong>
             </p>
 
@@ -1349,10 +1349,10 @@ function ContractContent() {
               The Landlord agrees to let and the Tenant agrees to rent the property with furniture and fixtures hereinafter known as <strong>The Premises</strong> at the address:
             </p>
             <p className="pl-4 font-semibold text-neutral-900">
-              Room {selectedRoomId} ({currentRoomObj?.floor || 2}F), 236/105 P.Work Co-Space Chiang Mai, Moo 6, Mahidol Road, Nong Hoi Subdistrict, Mueang Chiang Mai District, Chiang Mai 50000.
+              Room {selectedRoomId} ({currentRoomObj?.floor || 2}F), 236/105 Chiang Mai AI Center, Moo 6, Mahidol Road, Nong Hoi Subdistrict, Mueang Chiang Mai District, Chiang Mai 50000.
             </p>
             <p className="text-neutral-600 pl-4 text-[11.5px]">
-              ผู้ให้เช่าตกลงให้เช่าและผู้เช่าตกลงเช่าสถานที่ รวมทั้งเฟอร์นิเจอร์ ณ ห้อง {selectedRoomId} ({currentRoomObj?.floor || 2}F) P.Work Co-Space Chiang Mai บ้านเลขที่ 236/105 หมู่ 6 ถ.มหิดล ตำบลหนองหอย อำเภอเมือง จังหวัดเชียงใหม่ 50000
+              ผู้ให้เช่าตกลงให้เช่าและผู้เช่าตกลงเช่าสถานที่ รวมทั้งเฟอร์นิเจอร์ ณ ห้อง {selectedRoomId} ({currentRoomObj?.floor || 2}F) Chiang Mai AI Center บ้านเลขที่ 236/105 หมู่ 6 ถ.มหิดล ตำบลหนองหอย อำเภอเมืองเชียงใหม่ จังหวัดเชียงใหม่ 50000
             </p>
             <p className="p-2 bg-blue-50/60 rounded border border-blue-100">
               <strong>Term of Lease / ระยะเวลาการเช่า:</strong><br />
@@ -1494,7 +1494,7 @@ function ContractContent() {
             <div className="space-y-2">
               <p className="font-bold uppercase">
                 ผู้ให้เช่า / LANDLORD:<br />
-                <span className="text-blue-950 font-semibold">Colasola Co., Ltd. (บริษัท โคล่าโซล่า จำกัด)</span>
+                <span className="text-blue-950 font-semibold">Chiang Mai AI Center (Colasola Co., Ltd. / บริษัท โคล่าโซล่า จำกัด)</span>
               </p>
               
               <div className="h-20 border-b border-black flex items-center justify-start relative py-1">
