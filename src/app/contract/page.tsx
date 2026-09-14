@@ -507,44 +507,89 @@ function ContractContent() {
         ? `Promo Code: ${appliedPromo.code.toUpperCase()} (${appliedPromo.percentOff}% OFF, saving ฿${monthlySavings.toLocaleString()}/mo)`
         : "Standard Rate (No Promo Code)";
 
-      const res = await fetch("/api/contract/send-email", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contractSerial,
-          contractHash,
-          roomId: currentRoomObj.id,
-          roomFloor: currentRoomObj.floor,
-          roomFeatures: currentRoomObj.features,
-          finalMonthlyRent,
-          standardRoomPrice,
-          discountAppliedText: promoText,
-          securityDeposit,
-          advanceRent,
-          totalInitialPayment,
-          isThreeMonthsNoDeposit,
-          startDate,
-          endDate,
-          durationText: durationEngText,
-          tenantType,
-          tenantName: effectiveTenantName,
-          companyName: tenantType === "company" ? companyName : undefined,
-          signatoryName: tenantType === "company" ? signatoryName : undefined,
-          signatoryTitle: tenantType === "company" ? signatoryTitle : undefined,
-          tenantIdNumber,
-          tenantPhone,
-          tenantEmail: tenantEmail.trim(),
-          tenantAddress,
-          signedAt: record.signedAt,
-          bot_honeypot: honeypot,
-        }),
-      });
+      const payloadBody = {
+        contractSerial,
+        contractHash,
+        roomId: currentRoomObj.id,
+        roomFloor: currentRoomObj.floor,
+        roomFeatures: currentRoomObj.features,
+        finalMonthlyRent,
+        standardRoomPrice,
+        discountAppliedText: promoText,
+        securityDeposit,
+        advanceRent,
+        totalInitialPayment,
+        isThreeMonthsNoDeposit,
+        startDate,
+        endDate,
+        durationText: durationEngText,
+        tenantType,
+        tenantName: effectiveTenantName,
+        companyName: tenantType === "company" ? companyName : undefined,
+        signatoryName: tenantType === "company" ? signatoryName : undefined,
+        signatoryTitle: tenantType === "company" ? signatoryTitle : undefined,
+        tenantIdNumber,
+        tenantPhone,
+        tenantEmail: tenantEmail.trim(),
+        tenantAddress,
+        signedAt: record.signedAt,
+        bot_honeypot: honeypot,
+      };
 
-      const resData = await res.json();
-      if (res.ok && resData.success) {
-        emailSentSuccessfully = true;
-      } else {
-        emailErrorMessage = resData.error || resData.message || `Dispatch server returned error ${res.status}`;
+      // 1. Try Cloudflare Pages / Server API route
+      try {
+        const res = await fetch("/api/contract/send-email", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payloadBody),
+        });
+
+        if (res.ok) {
+          const resData = await res.json();
+          if (resData.success) {
+            emailSentSuccessfully = true;
+          }
+        }
+      } catch {}
+
+      // 2. If server function is unreachable (e.g. pure static CDN preview), seamlessly fallback to direct Web3Forms dispatch
+      if (!emailSentSuccessfully) {
+        const accessKey = process.env.NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY || "87a78bc8-e588-4925-bc58-7546e77afa45";
+        const fallbackRes = await fetch("https://api.web3forms.com/submit", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Accept: "application/json" },
+          body: JSON.stringify({
+            access_key: accessKey,
+            name: effectiveTenantName,
+            email: tenantEmail.trim(),
+            replyto: tenantEmail.trim(),
+            from_name: "Chiang Mai AI Center (Colasola Co., Ltd.)",
+            subject: `[SIGNED LEASE AGREEMENT] Room ${currentRoomObj.id} - ${effectiveTenantName} (${contractSerial})`,
+            "Contract Reference": contractSerial,
+            "Digital Hash Checksum": contractHash,
+            "Lease Room Unit": `Room ${currentRoomObj.id} (${currentRoomObj.floor}F)`,
+            "Monthly Rent": `฿${finalMonthlyRent.toLocaleString()} THB / month`,
+            "Security Deposit": isThreeMonthsNoDeposit ? "฿0 THB (No Deposit Required)" : `฿${securityDeposit.toLocaleString()} THB (2 Months)`,
+            "Total Initial Payment": `฿${totalInitialPayment.toLocaleString()} THB`,
+            "Lease Term": `${startDate} to ${endDate} (${durationEngText})`,
+            "Tenant Legal Name": effectiveTenantName,
+            "Authorized Signatory": `${effectiveSignatoryDisplay} (${effectiveSignatoryTitle})`,
+            "Tenant ID or Tax No": tenantIdNumber,
+            "Tenant Phone": tenantPhone,
+            "Tenant Email": tenantEmail.trim(),
+            "Registered Address": tenantAddress,
+            "Discount Applied": promoText,
+            "Signed Timestamp": record.signedAt,
+            message: `Official Lease Agreement Signed:\n- Ref: ${contractSerial}\n- Hash: ${contractHash}\n- Tenant: ${effectiveTenantName}\n- Signatory: ${effectiveSignatoryDisplay} (${effectiveSignatoryTitle})\n- ID/Tax: ${tenantIdNumber}\n- Phone: ${tenantPhone}\n- Email: ${tenantEmail}\n- Address: ${tenantAddress}\n- Room: ${currentRoomObj.id} (${currentRoomObj.floor}F)\n- Discount: ${promoText}\n- Monthly Rent: ฿${finalMonthlyRent.toLocaleString()}\n- Deposit: ${isThreeMonthsNoDeposit ? "฿0" : `฿${securityDeposit.toLocaleString()}`}\n- Total Initial: ฿${totalInitialPayment.toLocaleString()}\n- Period: ${startDate} to ${endDate} (${durationEngText})\n- Signed At: ${record.signedAt}`,
+          }),
+        });
+
+        const fallbackData = await fallbackRes.json();
+        if (fallbackRes.ok && fallbackData.success) {
+          emailSentSuccessfully = true;
+        } else {
+          emailErrorMessage = fallbackData.message || "Failed to dispatch agreement notification.";
+        }
       }
     } catch (err: any) {
       emailErrorMessage = err?.message || "Network error. Please check your internet connection.";
