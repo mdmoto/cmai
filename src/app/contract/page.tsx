@@ -1344,15 +1344,17 @@ function ContractContent() {
                 <span className="text-blue-950 font-semibold">Colasola Co., Ltd. (บริษัท โคล่าโซล่า จำกัด)</span>
               </p>
               
-              <div className="h-16 border-b border-black flex items-end pb-1">
-                <span className="text-neutral-500 font-serif italic text-xs">
-                  [ Authorized Corporate Stamp & Signatory ]
-                </span>
+              <div className="h-20 border-b border-black flex items-center justify-start relative py-1">
+                <img
+                  src="/images/colasola_stamp.png"
+                  alt="Official Corporate Seal - Colasola Co., Ltd."
+                  className="h-24 w-24 object-contain opacity-95 pointer-events-none select-none -my-2"
+                />
               </div>
 
               <div className="space-y-0.5 text-[10.5px]">
                 <p><strong>Written Name / ชื่อเต็ม:</strong> Authorized Director</p>
-                <p><strong>Title / ตำแหน่ง:</strong> Managing Director</p>
+                <p><strong>Title / ตำแหน่ง:</strong> Managing Director (ผู้มีอำนาจลงนามและประทับตราสำคัญ)</p>
                 <p><strong>Date / วันที่:</strong> {formatEngDate(signingDateIso)}</p>
                 <p><strong>Phone / เบอร์โทร:</strong> +66 62 345 8238</p>
               </div>
