@@ -480,8 +480,11 @@ function ContractContent() {
         headers: { "Content-Type": "application/json", Accept: "application/json" },
         body: JSON.stringify({
           access_key: accessKey,
+          name: effectiveTenantName,
+          email: tenantEmail || "no-email-provided@cmai.org",
+          replyto: tenantEmail || undefined,
           subject: `[SIGNED LEASE AGREEMENT] Room ${selectedRoomId} - ${effectiveTenantName} (${contractSerial})`,
-          from_name: "CMAI Online Lease System",
+          from_name: "Chiang Mai AI Center Lease System",
           message: `Official Lease Agreement Signed:\n- Ref: ${contractSerial}\n- Hash: ${contractHash}\n- Tenant: ${effectiveTenantName}\n- Signatory: ${effectiveSignatoryDisplay} (${effectiveSignatoryTitle})\n- ID/Tax: ${tenantIdNumber}\n- Phone: ${tenantPhone}\n- Email: ${tenantEmail}\n- Address: ${tenantAddress}\n- Room: ${selectedRoomId} (${currentRoomObj?.floor}F)\n- Discount: ${promoText}\n- Monthly Rent: ฿${finalMonthlyRent.toLocaleString()} (Standard: ฿${standardRoomPrice.toLocaleString()})\n- Deposit: ฿${securityDeposit.toLocaleString()}\n- Total Initial: ฿${totalInitialPayment.toLocaleString()}\n- Period: ${startDate} to ${endDate} (${durationMonths} mos)\n- Signed At: ${record.signedAt}`,
         }),
       });
