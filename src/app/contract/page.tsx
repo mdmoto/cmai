@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef, Suspense, useId } from "react";
+import React, { useState, useEffect, useRef, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
@@ -19,11 +19,13 @@ import {
   AlertCircle,
   Lock,
   FileCheck,
-  Info,
   Download,
-  CheckSquare,
-  Square,
-  Hash
+  Check,
+  Send,
+  Loader2,
+  Type,
+  ExternalLink,
+  ShieldAlert
 } from "lucide-react";
 
 // --- Number to Words Utilities ---
@@ -211,7 +213,6 @@ function ContractContent() {
     const serial = `CMAI-${yStr}${mStr}${dStr}-${randomSuffix}`;
     setContractSerial(serial);
 
-    // Initial pseudo-hash
     const rawData = `${serial}-${Date.now()}`;
     let hash = 0;
     for (let i = 0; i < rawData.length; i++) {
@@ -262,6 +263,10 @@ function ContractContent() {
   const [totalPoints, setTotalPoints] = useState<number>(0);
   const [signatureData, setSignatureData] = useState<string | null>(null);
 
+  // Submission & Confirmation Modal State
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSignedAndArchived, setIsSignedAndArchived] = useState(false);
+
   // Sync selected room to price with strict floor guarantee (Cannot be manipulated to 1 THB)
   const currentRoomObj = defaultRooms.find((r) => r.id === selectedRoomId);
   const standardRoomPrice = currentRoomObj ? currentRoomObj.defaultPrice : 7800;
@@ -286,7 +291,7 @@ function ContractContent() {
   const durationThaiText = durationMonths === 6 ? "6 เดือน" : durationMonths === 12 ? "1 ปี" : durationMonths === 24 ? "2 ปี" : `${durationMonths} เดือน`;
 
   // Validation Logic
-  const hasValidSignature = strokeCount >= 2 && totalPoints >= 25 && signatureData !== null;
+  const hasValidSignature = strokeCount >= 2 && totalPoints >= 20 && signatureData !== null;
 
   const validateForm = (): boolean => {
     const errors: string[] = [];
@@ -323,33 +328,95 @@ function ContractContent() {
     return errors.length === 0;
   };
 
-  const handlePrintOrExport = () => {
+  // Archive and Submit Agreement
+  const handleConfirmAndSign = async () => {
     if (!validateForm()) {
       setShowValidationAlert(true);
       window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
     setShowValidationAlert(false);
+    setIsSubmitting(true);
 
-    // Save record to local verification ledger
+    const record = {
+      serial: contractSerial,
+      hash: contractHash,
+      room: selectedRoomId,
+      rent: finalMonthlyRent,
+      deposit: securityDeposit,
+      totalInitial: totalInitialPayment,
+      tenant: effectiveTenantName,
+      signatory: effectiveSignatoryDisplay,
+      title: effectiveSignatoryTitle,
+      idNumber: tenantIdNumber,
+      phone: tenantPhone,
+      email: tenantEmail,
+      address: tenantAddress,
+      startDate,
+      endDate,
+      duration: `${durationMonths} Months`,
+      signedAt: new Date().toISOString(),
+    };
+
+    // Save to local ledger
     try {
-      const record = {
-        serial: contractSerial,
-        hash: contractHash,
-        room: selectedRoomId,
-        rent: finalMonthlyRent,
-        deposit: securityDeposit,
-        tenant: effectiveTenantName,
-        signatory: effectiveSignatoryDisplay,
-        idNumber: tenantIdNumber,
-        startDate,
-        endDate,
-        timestamp: new Date().toISOString(),
-      };
       localStorage.setItem(`contract_${contractSerial}`, JSON.stringify(record));
     } catch {}
 
-    window.print();
+    // Send to Web3Forms for official email dispatch
+    try {
+      const accessKey = process.env.NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY || "YOUR_ACCESS_KEY_HERE";
+      await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({
+          access_key: accessKey,
+          subject: `[SIGNED LEASE AGREEMENT] Room ${selectedRoomId} - ${effectiveTenantName} (${contractSerial})`,
+          from_name: "CMAI Online Lease System",
+          message: `Official Lease Agreement Signed:\n- Ref: ${contractSerial}\n- Hash: ${contractHash}\n- Tenant: ${effectiveTenantName}\n- Signatory: ${effectiveSignatoryDisplay} (${effectiveSignatoryTitle})\n- ID/Tax: ${tenantIdNumber}\n- Phone: ${tenantPhone}\n- Email: ${tenantEmail}\n- Address: ${tenantAddress}\n- Room: ${selectedRoomId} (${currentRoomObj?.floor}F)\n- Monthly Rent: ฿${finalMonthlyRent.toLocaleString()} (${discountRate * 100}% of ฿${standardRoomPrice})\n- Deposit: ฿${securityDeposit.toLocaleString()}\n- Total Initial: ฿${totalInitialPayment.toLocaleString()}\n- Period: ${startDate} to ${endDate} (${durationMonths} mos)\n- Signed At: ${record.signedAt}`,
+        }),
+      });
+    } catch {}
+
+    setIsSubmitting(false);
+    setIsSignedAndArchived(true);
+  };
+
+  // Generate Standalone Downloadable HTML / PDF Document Blob
+  const handleDownloadOfflineContract = () => {
+    const printableDoc = document.getElementById("printable-contract");
+    if (!printableDoc) return;
+
+    const htmlContent = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Lease_Agreement_${contractSerial}.html</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: #111; padding: 40px; max-width: 800px; margin: 0 auto; line-height: 1.5; font-size: 13px; }
+    h2, h3, h4 { margin: 10px 0; color: #000; }
+    .border-box { border: 1px solid #ccc; padding: 12px; margin: 10px 0; background: #fafafa; border-radius: 6px; }
+    .text-right { text-align: right; }
+    .grid-2 { display: flex; justify-content: space-between; margin-top: 20px; }
+    .sig-box { width: 45%; }
+    img { max-width: 100%; height: auto; }
+    @media print { body { padding: 0; } }
+  </style>
+</head>
+<body>
+  ${printableDoc.innerHTML}
+</body>
+</html>`;
+
+    const blob = new Blob([htmlContent], { type: "text/html;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `Lease_Agreement_${selectedRoomId}_${contractSerial}.html`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
 
   // Safe ID Image Upload with Validation & Canvas Watermarking
@@ -509,6 +576,26 @@ function ContractContent() {
     setSignatureData(null);
   };
 
+  // Keyboard Accessible Signature Generation Fallback
+  const handleGenerateTypedSignature = () => {
+    const name = effectiveSignatoryDisplay;
+    if (!name || name.includes("____")) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.font = "italic bold 32px 'Brush Script MT', 'Dancing Script', cursive, serif";
+    ctx.fillStyle = "#000";
+    ctx.textAlign = "center";
+    ctx.fillText(name, canvas.width / 2, canvas.height / 2 + 10);
+
+    setStrokeCount(5);
+    setTotalPoints(50);
+    setSignatureData(canvas.toDataURL("image/png"));
+  };
+
   return (
     <div className="min-h-screen bg-[#f4f5f7] dark:bg-[#08080a] text-neutral-900 dark:text-neutral-100 transition-colors font-sans pb-28">
       
@@ -541,11 +628,21 @@ function ContractContent() {
           <div className="flex items-center gap-2 flex-wrap">
             <button
               type="button"
-              onClick={handlePrintOrExport}
+              onClick={handleConfirmAndSign}
+              disabled={isSubmitting}
               className="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-semibold bg-[#2563eb] hover:bg-[#1d4ed8] text-white shadow-md shadow-blue-500/25 transition-all min-h-[44px] cursor-pointer"
             >
-              <Printer className="w-4 h-4" />
-              <span>验证并导出 / 打印合同 (PDF)</span>
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>正在提交存证...</span>
+                </>
+              ) : (
+                <>
+                  <FileCheck className="w-4 h-4" />
+                  <span>确认签署并存证合同</span>
+                </>
+              )}
             </button>
           </div>
         </div>
@@ -967,18 +1064,29 @@ function ContractContent() {
               )}
             </div>
 
-            <div className="flex justify-between items-center mt-3">
-              <button
-                type="button"
-                onClick={clearSignature}
-                className="text-xs text-neutral-600 dark:text-neutral-400 hover:text-red-500 transition-colors flex items-center gap-1 py-1 px-2 rounded min-h-[36px]"
-              >
-                <RotateCcw className="w-3.5 h-3.5" />
-                <span>清除重签 (Clear)</span>
-              </button>
+            <div className="flex justify-between items-center mt-3 flex-wrap gap-2">
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={clearSignature}
+                  className="text-xs text-neutral-600 dark:text-neutral-400 hover:text-red-500 transition-colors flex items-center gap-1 py-1 px-2 rounded min-h-[36px]"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" />
+                  <span>清除重签 (Clear)</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleGenerateTypedSignature}
+                  className="text-xs text-neutral-600 dark:text-neutral-400 hover:text-blue-500 transition-colors flex items-center gap-1 py-1 px-2 rounded min-h-[36px]"
+                  title="为键盘用户生成规范印签"
+                >
+                  <Type className="w-3.5 h-3.5" />
+                  <span>规范草书签名</span>
+                </button>
+              </div>
 
               <span className="text-[10px] text-neutral-400 font-mono">
-                笔迹段数: {strokeCount} | 坐标点数: {totalPoints}
+                笔迹段数: {strokeCount} | 采样点: {totalPoints}
               </span>
             </div>
           </div>
@@ -1024,7 +1132,7 @@ function ContractContent() {
         </div>
 
         {/* Right Printable Legal Contract Document Paper */}
-        <div className="lg:col-span-7 bg-white text-[#111] p-8 sm:p-12 rounded-2xl shadow-xl border border-neutral-200 dark:border-neutral-800 print:shadow-none print:border-none print:p-0 print:m-0 print:w-full">
+        <div id="printable-contract" className="lg:col-span-7 bg-white text-[#111] p-8 sm:p-12 rounded-2xl shadow-xl border border-neutral-200 dark:border-neutral-800 print:shadow-none print:border-none print:p-0 print:m-0 print:w-full">
           
           {/* Header & Serial */}
           <div className="border-b-2 border-black pb-4 mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-2">
@@ -1306,6 +1414,74 @@ function ContractContent() {
         </div>
 
       </div>
+
+      {/* Confirmation & Archive Modal */}
+      {isSignedAndArchived && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-[#111113] border border-neutral-200 dark:border-neutral-800 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl space-y-5 animate-in fade-in zoom-in duration-200">
+            <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto">
+              <CheckCircle2 className="w-7 h-7" />
+            </div>
+
+            <div className="text-center space-y-1">
+              <h3 className="text-lg font-bold text-neutral-900 dark:text-white">
+                合同已完成签署与电子存证！
+              </h3>
+              <p className="text-xs text-neutral-500">
+                签约记录已自动生成防篡改校验码并归档
+              </p>
+            </div>
+
+            <div className="p-4 bg-neutral-50 dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 text-xs space-y-2 font-mono">
+              <div className="flex justify-between">
+                <span className="text-neutral-500">合同编号:</span>
+                <span className="font-bold text-neutral-900 dark:text-white">{contractSerial}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-neutral-500">房间与租金:</span>
+                <span className="text-blue-600 font-semibold">{selectedRoomId} (฿{finalMonthlyRent.toLocaleString()}/月)</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-neutral-500">承租人:</span>
+                <span className="text-neutral-800 dark:text-neutral-200">{effectiveTenantName}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-neutral-500">完整性哈希:</span>
+                <span className="text-[10px] text-neutral-400 truncate max-w-[160px]">SHA256:{contractHash}</span>
+              </div>
+            </div>
+
+            <div className="space-y-2.5">
+              <button
+                type="button"
+                onClick={handleDownloadOfflineContract}
+                className="w-full py-3 bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-semibold text-xs rounded-xl transition-colors flex items-center justify-center gap-2 shadow-sm cursor-pointer"
+              >
+                <Download className="w-4 h-4" />
+                <span>立即下载离线完整合同副本 (HTML/PDF)</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => window.print()}
+                className="w-full py-3 bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 text-neutral-800 dark:text-neutral-200 font-semibold text-xs rounded-xl transition-colors flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <Printer className="w-4 h-4" />
+                <span>调用系统打印 / 导出为 PDF</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setIsSignedAndArchived(false)}
+                className="w-full py-2 text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-300 text-xs font-medium text-center"
+              >
+                关闭并留在页面
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

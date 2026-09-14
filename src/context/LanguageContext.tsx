@@ -715,13 +715,17 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   useEffect(() => {
     try {
       const savedLang = localStorage.getItem("preferred_lang") as Language;
-      if (savedLang && translations[savedLang]) {
+      if (savedLang && (savedLang === "en" || savedLang === "zh" || savedLang === "th" || savedLang === "ja")) {
         setLanguageState(savedLang);
+        document.documentElement.lang = savedLang === "zh" ? "zh-Hans" : savedLang;
       } else {
         // Try to detect browser language
         const browserLang = navigator.language.slice(0, 2);
         if (browserLang === "zh" || browserLang === "th" || browserLang === "ja") {
           setLanguageState(browserLang as Language);
+          document.documentElement.lang = browserLang === "zh" ? "zh-Hans" : browserLang;
+        } else {
+          document.documentElement.lang = "en";
         }
       }
     } catch (e) {
@@ -730,12 +734,18 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       const browserLang = navigator.language.slice(0, 2);
       if (browserLang === "zh" || browserLang === "th" || browserLang === "ja") {
         setLanguageState(browserLang as Language);
+        document.documentElement.lang = browserLang === "zh" ? "zh-Hans" : browserLang;
+      } else {
+        document.documentElement.lang = "en";
       }
     }
   }, []);
 
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);
+    if (typeof document !== "undefined") {
+      document.documentElement.lang = lang === "zh" ? "zh-Hans" : lang;
+    }
     try {
       localStorage.setItem("preferred_lang", lang);
     } catch (e) {
