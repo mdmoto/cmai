@@ -1013,35 +1013,6 @@ function ContractContent() {
                     )}
                   </div>
                 )}
-
-                {/* Quick Selection Chips for Official Codes */}
-                <div className="pt-1">
-                  <div className="text-[11px] text-neutral-500 mb-1.5 font-medium">
-                    Available Special Promotions (Click to apply):
-                  </div>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
-                    {[
-                      { code: "newcome2026", label: "8折 (20% OFF)", desc: "newcome2026" },
-                      { code: "festival2026", label: "85折 (15% OFF)", desc: "festival2026" },
-                      { code: "colasola20206", label: "9折 (10% OFF)", desc: "colasola20206" },
-                      { code: "cmai2026", label: "95折 (5% OFF)", desc: "cmai2026" },
-                    ].map((item) => (
-                      <button
-                        key={item.code}
-                        type="button"
-                        onClick={() => handleVerifyPromo(item.code)}
-                        className={`p-2 rounded-lg text-left border transition-all cursor-pointer ${
-                          appliedPromo?.code === item.code
-                            ? "bg-blue-50 dark:bg-blue-950/40 border-blue-500 text-blue-700 dark:text-blue-300 font-semibold shadow-xs"
-                            : "bg-neutral-50/70 dark:bg-neutral-900/50 border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-400 hover:border-neutral-400"
-                        }`}
-                      >
-                        <div className="font-bold text-[11px]">{item.label}</div>
-                        <div className="font-mono text-[9.5px] opacity-75 truncate">{item.desc}</div>
-                      </button>
-                    ))}
-                  </div>
-                </div>
               </div>
 
               {/* Final Cost Summary Badge */}

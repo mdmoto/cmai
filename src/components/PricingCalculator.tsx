@@ -1147,18 +1147,18 @@ export default function PricingCalculator() {
 
               {/* Generate Online Lease Contract Action */}
               <Link
-                href={`/contract?room=${selectedRooms.length > 0 ? selectedRooms[0] : "C4"}&code=newcome2026`}
+                href={`/contract?room=${selectedRooms.length > 0 ? selectedRooms[0] : "C4"}`}
                 className="w-full flex items-center justify-center gap-2 py-3.5 bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-[13px] font-semibold rounded-full transition-all shadow-md shadow-blue-500/20 group text-center"
               >
                 <FileSpreadsheet className="w-4 h-4" />
                 <span>
                   {language === "zh"
-                    ? "签署在线租赁合同 (8折特惠)"
+                    ? "签署在线租赁合同"
                     : language === "th"
-                    ? "สร้างสัญญาเช่าออนไลน์ (ลด 20%)"
+                    ? "สร้างสัญญาเช่าออนไลน์"
                     : language === "ja"
-                    ? "オンライン賃貸契約書を作成 (20%OFF)"
-                    : "Sign Online Lease Agreement (20% OFF)"}
+                    ? "オンライン賃貸契約書を作成"
+                    : "Sign Online Lease Agreement"}
                 </span>
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Link>
