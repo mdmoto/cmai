@@ -286,30 +286,30 @@ export async function POST(req: Request) {
         </div>
       `;
 
-      // Send customer copy
-      await transporter.sendMail({
-        from: fromAddress,
-        to: cleanEmail,
-        replyTo: adminEmail,
-        subject: `[Application Received] Chiang Mai AI Center - Office Lease Application for Room ${roomId} (${contractSerial})`,
-        html: tenantHtml,
-      });
-
-      // Send admin notification
-      await transporter.sendMail({
-        from: fromAddress,
-        to: adminEmail,
-        replyTo: cleanEmail,
-        subject: `[ACTION REQUIRED / 待收款复核] New Lease Application - Room ${roomId} - ${effectiveTenant} (${contractSerial})`,
-        html: adminHtml,
-        attachments: pdfBase64 ? [
-          {
-            filename: `Lease_Agreement_${roomId}_${contractSerial}.pdf`,
-            content: Buffer.from(pdfBase64, "base64"),
-            contentType: "application/pdf",
-          }
-        ] : [],
-      });
+      // Send customer copy and admin notification concurrently
+      await Promise.all([
+        transporter.sendMail({
+          from: fromAddress,
+          to: cleanEmail,
+          replyTo: adminEmail,
+          subject: `[Application Received] Chiang Mai AI Center - Office Lease Application for Room ${roomId} (${contractSerial})`,
+          html: tenantHtml,
+        }),
+        transporter.sendMail({
+          from: fromAddress,
+          to: adminEmail,
+          replyTo: cleanEmail,
+          subject: `[ACTION REQUIRED / 待收款复核] New Lease Application - Room ${roomId} - ${effectiveTenant} (${contractSerial})`,
+          html: adminHtml,
+          attachments: pdfBase64 ? [
+            {
+              filename: `Lease_Agreement_${roomId}_${contractSerial}.pdf`,
+              content: Buffer.from(pdfBase64, "base64"),
+              contentType: "application/pdf",
+            }
+          ] : [],
+        }),
+      ]);
 
       return NextResponse.json({
         success: true,

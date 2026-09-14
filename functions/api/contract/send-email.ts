@@ -124,13 +124,21 @@ async function sendSmtpOverSocket(opts: SmtpOptions) {
       mime += `Content-Type: ${opts.attachment.contentType}; name="${opts.attachment.filename}"\r\n`;
       mime += `Content-Disposition: attachment; filename="${opts.attachment.filename}"\r\n`;
       mime += `Content-Transfer-Encoding: base64\r\n\r\n`;
-      const cleanAtt = opts.attachment.content.replace(/\s+/g, "").replace(/(.{76})/g, "$1\r\n");
-      mime += `${cleanAtt}\r\n\r\n`;
+      const cleanAtt = opts.attachment.content.replace(/[\r\n\s]+/g, "");
+      const attLines: string[] = [];
+      for (let i = 0; i < cleanAtt.length; i += 76) {
+        attLines.push(cleanAtt.substring(i, i + 76));
+      }
+      mime += attLines.join("\r\n") + "\r\n\r\n";
     }
 
     mime += `--${boundary}--\r\n.\r\n`;
 
-    await writer.write(encoder.encode(mime));
+    const encodedMime = encoder.encode(mime);
+    const CHUNK_SIZE = 64 * 1024;
+    for (let offset = 0; offset < encodedMime.length; offset += CHUNK_SIZE) {
+      await writer.write(encodedMime.subarray(offset, offset + CHUNK_SIZE));
+    }
     const dataRes = await readReply();
     if (dataRes.code !== 250) throw new Error(`Failed to send data: ${dataRes.text}`);
 
@@ -320,36 +328,37 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
     let smtpErrorDetails = "";
 
     try {
-      // 1. Send customer confirmation copy to Tenant (English)
-      await sendSmtpOverSocket({
-        host: smtpHost,
-        port: smtpPort,
-        user: smtpUser,
-        pass: smtpPass,
-        from: fromAddress,
-        to: cleanEmail,
-        replyTo: adminEmail,
-        subject: `[Application Received] Chiang Mai AI Center - Office Lease Application for Room ${roomId} (${contractSerial})`,
-        html: tenantHtml,
-      });
-
-      // 2. Send admin notification with attached full PDF
-      await sendSmtpOverSocket({
-        host: smtpHost,
-        port: smtpPort,
-        user: smtpUser,
-        pass: smtpPass,
-        from: fromAddress,
-        to: adminEmail,
-        replyTo: cleanEmail,
-        subject: `[ACTION REQUIRED / 待收款复核] New Lease Application - Room ${roomId} - ${effectiveTenant} (${contractSerial})`,
-        html: adminHtml,
-        attachment: pdfBase64 ? {
-          filename: `Lease_Agreement_${roomId}_${contractSerial}.pdf`,
-          content: pdfBase64,
-          contentType: "application/pdf",
-        } : undefined,
-      });
+      await Promise.all([
+        // 1. Send customer confirmation copy to Tenant (English)
+        sendSmtpOverSocket({
+          host: smtpHost,
+          port: smtpPort,
+          user: smtpUser,
+          pass: smtpPass,
+          from: fromAddress,
+          to: cleanEmail,
+          replyTo: adminEmail,
+          subject: `[Application Received] Chiang Mai AI Center - Office Lease Application for Room ${roomId} (${contractSerial})`,
+          html: tenantHtml,
+        }),
+        // 2. Send admin notification with attached full PDF
+        sendSmtpOverSocket({
+          host: smtpHost,
+          port: smtpPort,
+          user: smtpUser,
+          pass: smtpPass,
+          from: fromAddress,
+          to: adminEmail,
+          replyTo: cleanEmail,
+          subject: `[ACTION REQUIRED / 待收款复核] New Lease Application - Room ${roomId} - ${effectiveTenant} (${contractSerial})`,
+          html: adminHtml,
+          attachment: pdfBase64 ? {
+            filename: `Lease_Agreement_${roomId}_${contractSerial}.pdf`,
+            content: pdfBase64,
+            contentType: "application/pdf",
+          } : undefined,
+        }),
+      ]);
 
       smtpSuccess = true;
     } catch (err: any) {

@@ -273,10 +273,14 @@ function ContractContent() {
     const rawData = `${serial}-${Date.now()}`;
     let hash = 0;
     for (let i = 0; i < rawData.length; i++) {
-      hash = ((hash << 5) - hash) + rawData.charCodeAt(i);
+      hash = (hash << 5) - hash + rawData.charCodeAt(i);
       hash |= 0;
     }
-    setContractHash(Math.abs(hash).toString(16).padStart(12, "0").toUpperCase());
+    setContractHash(Math.abs(hash).toString(16).padStart(8, "0"));
+
+    // Preload landlord official seal in memory cache for smooth PDF generation
+    const sealImg = new Image();
+    sealImg.src = "/images/colasola_stamp.png";
   }, []);
 
   // Initial query values with strict whitelist validation
@@ -529,17 +533,30 @@ function ContractContent() {
             }
           }
 
+          // Ensure stamp image is loaded
+          const stampImg = document.getElementById("official-stamp-img") as HTMLImageElement;
+          if (stampImg && !stampImg.complete) {
+            await new Promise((res) => {
+              stampImg.onload = res;
+              stampImg.onerror = res;
+              setTimeout(res, 500);
+            });
+          }
+
+          // Allow DOM to settle
+          await new Promise((r) => setTimeout(r, 100));
+
           const { jsPDF } = await import("jspdf");
-          const html2canvas = (await import("html2canvas")).default;
+          const html2canvas = (await import("html2canvas-pro")).default;
 
           const canvas = await html2canvas(printableDoc, {
-            scale: 1.5,
+            scale: 1.3,
             useCORS: true,
             logging: false,
             windowWidth: 1024,
           });
 
-          const imgData = canvas.toDataURL("image/jpeg", 0.88);
+          const imgData = canvas.toDataURL("image/jpeg", 0.82);
           const pdf = new jsPDF("p", "mm", "a4");
           const imgWidth = 210;
           const pageHeight = 297;
@@ -561,9 +578,10 @@ function ContractContent() {
           if (rawDataUri.includes(",")) {
             pdfBase64 = rawDataUri.split(",")[1];
           }
+          console.log("[Client PDF Generation]", pdfBase64 ? `OK (${Math.round(pdfBase64.length / 1024)} KB)` : "Empty");
         }
       } catch (pdfErr) {
-        console.warn("Could not generate client-side PDF:", pdfErr);
+        console.error("[Client PDF Generation Error]:", pdfErr);
       } finally {
         // Always restore Landlord block back to pending verification for the on-screen visitor
         if (pendingStampEl && officialStampEl && landlordDateEl) {
