@@ -195,51 +195,51 @@ export async function POST(req: Request) {
         },
       });
 
-      // 1. Email to Tenant (Customer Copy)
+      // 1. Email to Tenant (Customer Copy - English)
       const tenantHtml = `
         <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 640px; margin: 0 auto; color: #111; line-height: 1.6; border: 1px solid #e5e5e5; border-radius: 12px; overflow: hidden;">
           <div style="background-color: #0f172a; padding: 24px; color: #fff;">
             <h2 style="margin: 0 0 4px 0; font-size: 20px; font-weight: 800; letter-spacing: 0.5px;">CHIANG MAI AI CENTER</h2>
-            <p style="margin: 0; font-size: 12px; color: #94a3b8;">Colasola Co., Ltd. · 办公室租赁申请确认 / Lease Application Notice</p>
+            <p style="margin: 0; font-size: 12px; color: #94a3b8;">Colasola Co., Ltd. · Office Lease Application Confirmation</p>
           </div>
           <div style="padding: 24px;">
             <div style="background-color: #ecfdf5; border: 1.5px solid #10b981; border-radius: 8px; padding: 16px 18px; margin-bottom: 20px;">
               <h3 style="margin: 0 0 6px 0; color: #065f46; font-size: 16px; font-weight: 800;">
-                ✓ 提交成功，待资金支付成功后会发送合同邮件
+                ✓ Application Submitted Successfully
               </h3>
               <p style="margin: 0; font-size: 13px; color: #047857; line-height: 1.5;">
-                Application submitted successfully. Once your initial payment is verified, the official countersigned lease agreement will be sent to your email.
+                Your office lease application has been successfully submitted. The official executed lease agreement will be dispatched upon receipt and confirmation of your initial payment.
               </p>
             </div>
 
-            <p style="font-size: 14px; margin-top: 0;">尊敬的 / Dear <strong>${effectiveTenant}</strong>,</p>
+            <p style="font-size: 14px; margin-top: 0;">Dear <strong>${effectiveTenant}</strong>,</p>
             <p style="font-size: 13px; color: #334155; line-height: 1.6;">
-              感谢您提交清迈 AI 中心（Chiang Mai AI Center）的办公室租赁申请。我们已收到您的申请资料并已归档，工作人员正在进行人工校验。<br/>
-              <strong>请注意：待资金支付成功并经人工核验后，出租方将正式盖章并向您发送正式具有法律效力的合同邮件。</strong>
+              Thank you for submitting your office lease application with Chiang Mai AI Center. Your application details and verification documents have been securely registered in our system and are currently undergoing human verification.<br/><br/>
+              <strong>Important Notice:</strong> Once your initial payment is received and confirmed by our accounting team, the Landlord (Colasola Co., Ltd.) will formally countersign and stamp the agreement, and the officially executed Lease Agreement will be dispatched directly to your email.
             </p>
             
             <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin: 20px 0; font-size: 13px;">
               <div style="font-weight: bold; margin-bottom: 10px; color: #0f172a; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px;">
-                申请详情 / Application Summary
+                Application Summary
               </div>
               <table style="width: 100%; border-collapse: collapse;">
-                <tr><td style="padding: 5px 0; color: #64748b; width: 140px;">申请编号 / Ref:</td><td style="padding: 5px 0; font-family: monospace; font-weight: bold; color: #0f172a;">${contractSerial}</td></tr>
-                <tr><td style="padding: 5px 0; color: #64748b;">校验哈希 / Hash:</td><td style="padding: 5px 0; font-family: monospace; font-size: 11px; color: #475569;">${contractHash}</td></tr>
-                <tr><td style="padding: 5px 0; color: #64748b;">申请房间 / Unit:</td><td style="padding: 5px 0; font-weight: bold; color: #2563eb;">Room ${roomId} (${roomFloor}F)${roomFeatures ? ` · ${roomFeatures}` : ""}</td></tr>
-                <tr><td style="padding: 5px 0; color: #64748b;">租期 / Term:</td><td style="padding: 5px 0; font-weight: bold;">${startDate} to ${endDate} (${durationText})</td></tr>
-                <tr><td style="padding: 5px 0; color: #64748b;">月租金 / Monthly Rent:</td><td style="padding: 5px 0; font-weight: bold; color: #0f172a;">฿${finalMonthlyRent.toLocaleString()} THB / mo ${discountAppliedText ? `<span style="color: #059669; font-size: 11px;">(${discountAppliedText})</span>` : ""}</td></tr>
-                <tr><td style="padding: 5px 0; color: #64748b;">押金 / Deposit:</td><td style="padding: 5px 0; font-weight: bold;">${isThreeMonthsNoDeposit ? "฿0 (无需押金 / No Deposit)" : `฿${securityDeposit.toLocaleString()} THB (2个月)`}</td></tr>
-                <tr><td style="padding: 5px 0; color: #64748b;">首期应付款 / Total Initial:</td><td style="padding: 5px 0; font-weight: 800; color: #059669; font-size: 16px;">฿${totalInitialPayment.toLocaleString()} THB</td></tr>
-                <tr><td style="padding: 5px 0; color: #64748b;">承租方 / Tenant:</td><td style="padding: 5px 0;">${effectiveTenant}</td></tr>
-                <tr><td style="padding: 5px 0; color: #64748b;">证件号 / ID or Tax:</td><td style="padding: 5px 0; font-family: monospace;">${tenantIdNumber}</td></tr>
-                <tr><td style="padding: 5px 0; color: #64748b;">联系电话 / Phone:</td><td style="padding: 5px 0;">${tenantPhone}</td></tr>
-                <tr><td style="padding: 5px 0; color: #64748b;">提交时间 / Timestamp:</td><td style="padding: 5px 0; font-size: 12px; color: #64748b;">${signedAt}</td></tr>
+                <tr><td style="padding: 5px 0; color: #64748b; width: 160px;">Application Ref:</td><td style="padding: 5px 0; font-family: monospace; font-weight: bold; color: #0f172a;">${contractSerial}</td></tr>
+                <tr><td style="padding: 5px 0; color: #64748b;">Digital Hash:</td><td style="padding: 5px 0; font-family: monospace; font-size: 11px; color: #475569;">SHA256:${contractHash}</td></tr>
+                <tr><td style="padding: 5px 0; color: #64748b;">Selected Unit:</td><td style="padding: 5px 0; font-weight: bold; color: #2563eb;">Room ${roomId} (${roomFloor}F)${roomFeatures ? ` · ${roomFeatures}` : ""}</td></tr>
+                <tr><td style="padding: 5px 0; color: #64748b;">Lease Term:</td><td style="padding: 5px 0; font-weight: bold;">${startDate} to ${endDate} (${durationText})</td></tr>
+                <tr><td style="padding: 5px 0; color: #64748b;">Monthly Rent:</td><td style="padding: 5px 0; font-weight: bold; color: #0f172a;">฿${finalMonthlyRent.toLocaleString()} THB / month ${discountAppliedText ? `<span style="color: #059669; font-size: 11px;">(${discountAppliedText})</span>` : ""}</td></tr>
+                <tr><td style="padding: 5px 0; color: #64748b;">Security Deposit:</td><td style="padding: 5px 0; font-weight: bold;">${isThreeMonthsNoDeposit ? "฿0 (No Deposit Required)" : `฿${securityDeposit.toLocaleString()} THB (2 Months)`}</td></tr>
+                <tr><td style="padding: 5px 0; color: #64748b;">Total Initial Payment:</td><td style="padding: 5px 0; font-weight: 800; color: #059669; font-size: 16px;">฿${totalInitialPayment.toLocaleString()} THB</td></tr>
+                <tr><td style="padding: 5px 0; color: #64748b;">Tenant Name:</td><td style="padding: 5px 0;">${effectiveTenant}</td></tr>
+                <tr><td style="padding: 5px 0; color: #64748b;">ID / Tax Number:</td><td style="padding: 5px 0; font-family: monospace;">${tenantIdNumber}</td></tr>
+                <tr><td style="padding: 5px 0; color: #64748b;">Contact Phone:</td><td style="padding: 5px 0;">${tenantPhone}</td></tr>
+                <tr><td style="padding: 5px 0; color: #64748b;">Submission Time:</td><td style="padding: 5px 0; font-size: 12px; color: #64748b;">${signedAt}</td></tr>
               </table>
             </div>
 
             <div style="background-color: #fffbeb; border: 1px solid #fef3c7; border-radius: 8px; padding: 14px; margin: 16px 0; font-size: 12px; color: #92400e;">
-              <strong>⚠️ 温馨提示 / Next Steps:</strong><br/>
-              本邮件仅作为租赁意向与申请资料提交确认。工作人员正在进行人工核验。待首期款项支付成功并经人工核验后，出租方将正式盖章并向您发送正式生效合同邮件。如有任何疑问，请随时回复此邮件或致电联系管理员：<strong>+66 62 345 8238</strong>。
+              <strong>⚠️ Next Steps & Payment Verification:</strong><br/>
+              Please retain this confirmation and your Application Reference (<strong>${contractSerial}</strong>) for your tenancy records. Once your payment transfer is verified by our administration, the officially countersigned lease agreement will be emailed to you. For any move-in assistance or billing inquiries, feel free to reply directly to this email or reach us at <strong>+66 62 345 8238</strong>.
             </div>
             
             <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid #e2e8f0; font-size: 11px; color: #94a3b8; text-align: center;">
@@ -291,7 +291,7 @@ export async function POST(req: Request) {
         from: fromAddress,
         to: cleanEmail,
         replyTo: adminEmail,
-        subject: `[提交成功 / Application Received] Chiang Mai AI Center - Lease Application for Room ${roomId} (${contractSerial})`,
+        subject: `[Application Received] Chiang Mai AI Center - Office Lease Application for Room ${roomId} (${contractSerial})`,
         html: tenantHtml,
       });
 
