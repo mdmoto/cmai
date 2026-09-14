@@ -410,6 +410,9 @@ function ContractContent() {
     if (!tenantPhone.trim()) {
       errors.push("Please enter a valid Phone / WhatsApp Number.");
     }
+    if (!tenantEmail.trim() || !tenantEmail.includes("@") || !tenantEmail.includes(".")) {
+      errors.push("Please enter a valid Email Address to receive the official signed contract copy.");
+    }
     if (!tenantAddress.trim()) {
       errors.push("Please enter Legal / Registered Residential Address.");
     }
@@ -481,10 +484,25 @@ function ContractContent() {
         body: JSON.stringify({
           access_key: accessKey,
           name: effectiveTenantName,
-          email: tenantEmail || "no-email-provided@cmai.org",
-          replyto: tenantEmail || undefined,
+          email: tenantEmail.trim(),
+          replyto: tenantEmail.trim(),
+          from_name: "Chiang Mai AI Center (Colasola Co., Ltd.)",
           subject: `[SIGNED LEASE AGREEMENT] Room ${selectedRoomId} - ${effectiveTenantName} (${contractSerial})`,
-          from_name: "Chiang Mai AI Center Lease System",
+          "Contract Reference": contractSerial,
+          "Digital Hash Checksum": contractHash,
+          "Lease Room Unit": `Room ${selectedRoomId} (${currentRoomObj?.floor || 2}F)`,
+          "Monthly Rent": `฿${finalMonthlyRent.toLocaleString()} THB / month`,
+          "Security Deposit (2 Months)": `฿${securityDeposit.toLocaleString()} THB`,
+          "Total Initial Payment": `฿${totalInitialPayment.toLocaleString()} THB`,
+          "Lease Term": `${startDate} to ${endDate} (${durationMonths} Months)`,
+          "Tenant Legal Name": effectiveTenantName,
+          "Authorized Signatory": `${effectiveSignatoryDisplay} (${effectiveSignatoryTitle})`,
+          "Tenant ID or Tax No": tenantIdNumber,
+          "Tenant Phone": tenantPhone,
+          "Tenant Email": tenantEmail.trim(),
+          "Registered Address": tenantAddress,
+          "Discount Applied": promoText,
+          "Signed Timestamp": record.signedAt,
           message: `Official Lease Agreement Signed:\n- Ref: ${contractSerial}\n- Hash: ${contractHash}\n- Tenant: ${effectiveTenantName}\n- Signatory: ${effectiveSignatoryDisplay} (${effectiveSignatoryTitle})\n- ID/Tax: ${tenantIdNumber}\n- Phone: ${tenantPhone}\n- Email: ${tenantEmail}\n- Address: ${tenantAddress}\n- Room: ${selectedRoomId} (${currentRoomObj?.floor}F)\n- Discount: ${promoText}\n- Monthly Rent: ฿${finalMonthlyRent.toLocaleString()} (Standard: ฿${standardRoomPrice.toLocaleString()})\n- Deposit: ฿${securityDeposit.toLocaleString()}\n- Total Initial: ฿${totalInitialPayment.toLocaleString()}\n- Period: ${startDate} to ${endDate} (${durationMonths} mos)\n- Signed At: ${record.signedAt}`,
         }),
       });
@@ -1182,11 +1200,12 @@ function ContractContent() {
                 </div>
                 <div>
                   <label htmlFor="email-address" className="block text-neutral-600 dark:text-neutral-400 font-medium mb-1">
-                    Email Address (Optional)
+                    Email Address (To Receive Signed Contract Copy) *
                   </label>
                   <input
                     id="email-address"
                     type="email"
+                    required
                     placeholder="name@domain.com"
                     value={tenantEmail}
                     onChange={(e) => setTenantEmail(e.target.value)}
