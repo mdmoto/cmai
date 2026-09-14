@@ -33,6 +33,7 @@ export interface ContractEmailPayload {
   pdfError?: string;
   signatureData?: string;
   idImage?: string;
+  contractHtml?: string;
 }
 
 // Allowed Room Whitelist
@@ -67,26 +68,28 @@ function generateStandaloneContractHtml(data: {
   signedAt: string;
   signatureData?: string;
   idImage?: string;
+  contractHtml?: string;
 }): string {
-  const isThreeMonths = data.isThreeMonthsNoDeposit || data.durationText.includes("3 months");
-  const depositText = isThreeMonths ? "฿0 (Prepaid in Full · No Deposit)" : `฿${Number(data.securityDeposit || 0).toLocaleString()} THB (2 Months)`;
+  if (data.contractHtml) return data.contractHtml;
+
+  const isThreeMonths = data.isThreeMonthsNoDeposit || data.durationText.includes("3 months") || data.durationText.includes("3-month");
 
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lease_Agreement_${data.roomId}_${data.contractSerial}</title>
+  <title>Lease_Agreement_${data.roomId}_${data.contractSerial}.html</title>
   <style>
-    *, *::before, *::after { box-sizing: border-box; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      margin: 0;
-      padding: 24px 16px;
-      background-color: #f1f5f9;
-      color: #0f172a;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      color: #111;
+      padding: 36px 40px;
+      max-width: 820px;
+      margin: 0 auto;
       line-height: 1.5;
       font-size: 12px;
+      background: #ffffff;
     }
     .action-bar {
       position: sticky;
@@ -118,143 +121,104 @@ function generateStandaloneContractHtml(data: {
       transition: background 0.15s;
     }
     .action-btn:hover { background: #1d4ed8; }
-    .contract-page {
-      max-width: 820px;
-      margin: 0 auto;
-      background: #fff;
-      padding: 40px;
-      border-radius: 12px;
-      border: 1px solid #cbd5e1;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-    }
-    .header-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      border-bottom: 2px solid #0f172a;
-      padding-bottom: 14px;
-      margin-bottom: 18px;
-      gap: 16px;
-    }
-    .brand-col { display: flex; align-items: center; gap: 14px; }
-    .brand-logo { height: 44px; width: auto; }
-    .brand-text { border-left: 2px solid #cbd5e1; padding-left: 12px; }
-    .brand-title { font-size: 14px; font-weight: 900; letter-spacing: 0.5px; }
-    .brand-sub { font-size: 10px; color: #475569; }
-    .ref-col { text-align: right; font-family: monospace; font-size: 10px; color: #64748b; }
-    .title-banner {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid #e2e8f0;
-      padding-bottom: 10px;
-      margin-bottom: 16px;
-    }
-    .title-main { font-size: 18px; font-weight: 900; margin: 0; color: #0f172a; }
-    .title-sub { font-size: 10px; color: #64748b; margin: 2px 0 0 0; }
-    .unit-badge {
-      background: #eff6ff;
-      border: 1px solid #bfdbfe;
-      color: #1d4ed8;
-      padding: 4px 12px;
-      border-radius: 6px;
-      font-weight: bold;
-      font-size: 12px;
-    }
-    .parties-box {
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      border-radius: 8px;
-      padding: 14px;
-      margin-bottom: 16px;
-      font-size: 11.5px;
-    }
-    .section-title {
-      font-size: 12px;
-      font-weight: 800;
-      margin: 14px 0 6px 0;
-      color: #0f172a;
-      border-top: 1px solid #e2e8f0;
-      padding-top: 10px;
-    }
-    .table-rent {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 8px 0;
-      font-size: 11px;
-    }
-    .table-rent th {
-      background: #f1f5f9;
-      padding: 6px 10px;
-      text-align: left;
-      border-bottom: 1px solid #cbd5e1;
-    }
-    .table-rent td {
-      padding: 6px 10px;
-      border-bottom: 1px solid #e2e8f0;
-    }
-    .table-rent tr.total-row {
-      background: #ecfdf5;
-      font-weight: bold;
-      color: #065f46;
-    }
-    .signatures-row {
-      display: flex;
-      gap: 20px;
-      margin-top: 20px;
-      border-top: 2px solid #0f172a;
-      padding-top: 16px;
-    }
-    .sig-box {
-      flex: 1;
-      border: 1px solid #cbd5e1;
-      border-radius: 8px;
-      padding: 12px;
-      position: relative;
-    }
-    .stamp-container {
-      height: 70px;
-      display: flex;
-      align-items: center;
-      margin: 4px 0;
-    }
-    .stamp-img { height: 74px; width: 74px; object-fit: contain; }
-    .sig-img { max-height: 56px; max-width: 180px; object-fit: contain; }
-    .annex-box {
-      margin-top: 24px;
-      padding-top: 20px;
-      border-top: 2px dashed #cbd5e1;
-      text-align: center;
-    }
-    .footer-note {
-      margin-top: 20px;
-      border-top: 1px solid #e2e8f0;
-      padding-top: 10px;
-      display: flex;
-      justify-content: space-between;
-      font-family: monospace;
-      font-size: 9.5px;
-      color: #94a3b8;
-    }
+    h1, h2, h3, h4 { margin: 8px 0; color: #111; }
+    p { margin: 6px 0; }
+    strong { color: #000; }
+    img { max-width: 100%; height: auto; display: inline-block; }
+    .border-b-2 { border-bottom: 2px solid #111; }
+    .border-t { border-top: 1px solid #e5e5e5; }
+    .border-b { border-bottom: 1px solid #111; }
+    .border { border: 1px solid #e5e5e5; }
+    .rounded { border-radius: 4px; }
+    .rounded-lg { border-radius: 8px; }
+    .rounded-xl { border-radius: 12px; }
+    .bg-neutral-50 { background-color: #f9fafb; }
+    .bg-neutral-100 { background-color: #f3f4f6; }
+    .bg-blue-50 { background-color: #eff6ff; }
+    .bg-blue-50\\/60 { background-color: rgba(239, 246, 255, 0.6); }
+    .bg-amber-50\\/50 { background-color: rgba(254, 243, 199, 0.5); }
+    .text-blue-900 { color: #1e3a8a; }
+    .text-blue-950 { color: #172554; }
+    .text-neutral-500 { color: #6b7280; }
+    .text-neutral-600 { color: #4b5563; }
+    .text-neutral-700 { color: #374151; }
+    .text-neutral-800 { color: #1f2937; }
+    .text-neutral-900 { color: #111827; }
+    .font-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+    .flex { display: flex; }
+    .flex-col { flex-direction: column; }
+    .flex-row { flex-direction: row; }
+    .items-center { align-items: center; }
+    .items-start { align-items: flex-start; }
+    .items-end { align-items: flex-end; }
+    .justify-between { justify-content: space-between; }
+    .justify-start { justify-content: flex-start; }
+    .gap-1\\.5 { gap: 6px; }
+    .gap-2 { gap: 8px; }
+    .gap-3 { gap: 12px; }
+    .gap-3\\.5 { gap: 14px; }
+    .gap-4 { gap: 16px; }
+    .gap-6 { gap: 24px; }
+    .grid { display: grid; }
+    .grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+    .grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .space-y-0\\.5 > * + * { margin-top: 2px; }
+    .space-y-1 > * + * { margin-top: 4px; }
+    .space-y-1\\.5 > * + * { margin-top: 6px; }
+    .space-y-2 > * + * { margin-top: 8px; }
+    .space-y-2\\.5 > * + * { margin-top: 10px; }
+    .space-y-3 > * + * { margin-top: 12px; }
+    .space-y-3\\.5 > * + * { margin-top: 14px; }
+    .space-y-4 > * + * { margin-top: 16px; }
+    .p-2 { padding: 8px; }
+    .p-2\\.5 { padding: 10px; }
+    .p-3 { padding: 12px; }
+    .p-4 { padding: 16px; }
+    .p-6 { padding: 24px; }
+    .pb-4 { padding-bottom: 16px; }
+    .pb-5 { padding-bottom: 20px; }
+    .pt-3 { padding-top: 12px; }
+    .pt-3\\.5 { padding-top: 14px; }
+    .pt-4 { padding-top: 16px; }
+    .pl-3 { padding-left: 12px; }
+    .pl-4 { padding-left: 16px; }
+    .mb-2 { margin-bottom: 8px; }
+    .mb-4 { margin-bottom: 16px; }
+    .mb-6 { margin-bottom: 24px; }
+    .mt-4 { margin-top: 16px; }
+    .mt-6 { margin-top: 24px; }
+    .h-12 { height: 48px; }
+    .h-14 { height: 56px; }
+    .h-16 { height: 64px; }
+    .h-20 { height: 80px; }
+    .h-24 { height: 96px; }
+    .w-auto { width: auto; }
+    .w-full { width: 100%; }
+    .w-24 { width: 96px; }
+    .shrink-0 { flex-shrink: 0; }
+    .uppercase { text-transform: uppercase; }
+    .text-center { text-align: center; }
+    .text-right { text-align: right; }
+    .text-left { text-align: left; }
+    .text-xs { font-size: 11px; }
+    .text-sm { font-size: 13px; }
+    .text-base { font-size: 15px; }
+    .text-lg { font-size: 17px; }
+    .text-xl { font-size: 19px; }
+    .text-2xl { font-size: 22px; }
+    .font-bold { font-weight: 700; }
+    .font-extrabold { font-weight: 800; }
+    .font-black { font-weight: 900; }
+    .font-semibold { font-weight: 600; }
+    .font-medium { font-weight: 500; }
     @media print {
-      body { background: #fff; padding: 0; }
+      body { padding: 0; max-width: 100%; font-size: 11px; }
       .action-bar { display: none !important; }
-      .contract-page {
-        max-width: 100%;
-        border: none;
-        box-shadow: none;
-        padding: 0;
-      }
-      .page-break { page-break-before: always; }
-      @page {
-        size: A4;
-        margin: 10mm 12mm;
-      }
+      @page { margin: 1.2cm; size: A4 portrait; }
     }
   </style>
 </head>
 <body>
-
   <div class="action-bar no-print">
     <div>
       <strong>Chiang Mai AI Center · Official Lease Agreement</strong>
@@ -267,139 +231,183 @@ function generateStandaloneContractHtml(data: {
     </div>
   </div>
 
-  <div class="contract-page">
-    <!-- Header -->
-    <div class="header-row">
-      <div class="brand-col">
-        <img src="https://lazzor.com/images/cmai_header_logo.png" alt="CMAI" class="brand-logo" />
-        <div class="brand-text">
-          <div class="brand-title">CHIANG MAI AI CENTER</div>
-          <div class="brand-sub">Colasola Co., Ltd. (บริษัท โคล่าโซล่า จำกัด) · Tax ID: 0505566006478</div>
-          <div class="brand-sub">236/105 Chiang Mai AI Center, Moo 6, Mahidol Rd, Mueang Chiang Mai 50000</div>
+  <div class="border-b-2 border-black pb-4 mb-6">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+      <div class="flex items-center gap-2.5 sm:gap-3">
+        <img alt="Chiang Mai AI Center" class="h-10 sm:h-14 md:h-16 w-auto object-contain shrink-0" src="https://lazzor.com/images/cmai_header_logo.png">
+        <div class="border-l-2 border-neutral-300 pl-2.5 sm:pl-3 py-0.5">
+          <div class="font-extrabold text-xs sm:text-sm tracking-wide text-neutral-900 uppercase">Chiang Mai AI Center</div>
+          <div class="text-[10px] sm:text-[11px] text-neutral-600 font-medium">Colasola Co., Ltd. (บริษัท โคล่าโซล่า จำกัด)</div>
+          <div class="text-[9px] sm:text-[10px] text-neutral-500 font-mono break-all">Tax ID: 0505566006478 · Chiang Mai AI Center, Chiang Mai</div>
         </div>
       </div>
-      <div class="ref-col">
-        <div>Ref: <strong>${data.contractSerial}</strong></div>
-        <div>Date: <strong>${data.signedAt ? data.signedAt.slice(0, 10) : "2026-09-14"}</strong></div>
-        <div>Hash: <strong>${data.contractHash ? data.contractHash.slice(0, 12) : "0000625CAED0"}</strong></div>
+      <div class="text-left sm:text-right font-mono text-[10px] sm:text-[11px] text-neutral-500 shrink-0 w-full sm:w-auto">
+        <div class="break-all">Ref: <strong class="text-black">${data.contractSerial}</strong></div>
+        <div class="break-all">Hash: <strong class="text-neutral-800">${data.contractHash ? data.contractHash.slice(0, 12) : "00004E4E4295"}</strong></div>
+        <div>Date: <strong class="text-neutral-800">${data.signedAt ? data.signedAt.slice(0, 10) : "14 September 2026"}</strong></div>
       </div>
     </div>
-
-    <!-- Title -->
-    <div class="title-banner">
+    <div class="mt-4 pt-3 border-t border-neutral-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
       <div>
-        <h1 class="title-main">OFFICE LEASE AGREEMENT / สัญญาเช่า</h1>
-        <p class="title-sub">Office Space & Facilities Tenancy Agreement · สัญญาเช่าพื้นที่สำนักงานและสิ่งอำนวยความสะดวก</p>
+        <h2 class="text-xl sm:text-2xl font-black tracking-tight uppercase text-neutral-900">LEASE AGREEMENT / สัญญาเช่า</h2>
+        <p class="text-[11px] text-neutral-600 font-medium">Office Space &amp; Facilities Tenancy Agreement · สัญญาเช่าพื้นที่สำนักงานและสิ่งอำนวยความสะดวก</p>
       </div>
-      <div class="unit-badge">Unit: Room ${data.roomId} (${data.roomFloor}F)</div>
-    </div>
-
-    <!-- Parties -->
-    <div class="parties-box">
-      <div style="margin-bottom: 8px;">
-        <strong>LANDLORD / ผู้ให้เช่า:</strong> Chiang Mai AI Center (Colasola Co., Ltd. / บริษัท โคล่าโซล่า จำกัด)<br/>
-        <strong>Address / ที่อยู่:</strong> 236/105 Chiang Mai AI Center, Moo 6, Mahidol Rd, Nong Hoi, Mueang Chiang Mai 50000 · Tax ID: 0505566006478
-      </div>
-      <div style="border-top: 1px solid #e2e8f0; padding-top: 8px;">
-        <strong>TENANT / ผู้เช่า:</strong> <span style="font-size: 13px; font-weight: bold; color: #1d4ed8;">${data.effectiveTenant}</span><br/>
-        ${data.effectiveSignatory && data.effectiveSignatory !== data.effectiveTenant ? `<strong>Authorized Representative / ผู้มีอำนาจลงนาม:</strong> ${data.effectiveSignatory}<br/>` : ""}
-        <strong>ID / Passport / Tax ID / เลขที่บัตรประชาชน / เลขผู้เสียภาษี:</strong> ${data.tenantIdNumber}<br/>
-        <strong>Phone / เบอร์โทร:</strong> ${data.tenantPhone} &nbsp;|&nbsp; <strong>Email:</strong> ${data.tenantEmail}<br/>
-        <strong>Registered Address / ที่อยู่ตามทะเบียน:</strong> ${data.tenantAddress}
+      <div class="inline-flex items-center gap-1.5 bg-neutral-100 border border-neutral-300 text-neutral-900 px-2.5 py-1 rounded text-xs font-semibold">
+        <span>Unit:</span>
+        <strong class="font-mono text-sm font-bold text-blue-900">${data.roomId}</strong>
+        <span class="text-neutral-400">|</span>
+        <span>${data.roomFloor}F</span>
       </div>
     </div>
+  </div>
 
-    <!-- Section 1 -->
-    <div class="section-title">1. THE PREMISES & LEASE TERM / สถานที่เช่าและระยะเวลาการเช่า</div>
-    <div>
-      1.1 The Landlord leases to the Tenant Room <strong>${data.roomId} (${data.roomFloor}F)</strong> at Chiang Mai AI Center, 236/105 Mahidol Rd, Nong Hoi, Mueang Chiang Mai 50000 with all standard fixtures.<br/>
-      1.2 Lease Term: <strong>${data.startDate} to ${data.endDate} (${data.durationText})</strong>. Monthly rent payable in advance by the 5th of each month.
+  <div class="space-y-3.5 text-xs sm:text-[12.5px] leading-relaxed mb-6">
+    <p>
+      <strong>Between / ระหว่าง:</strong> Chiang Mai AI Center (Colasola Co., Ltd. / บริษัท โคล่าโซล่า จำกัด)<br>
+      <strong>Company Registration No. / Tax ID / ทะเบียนนิติบุคคลเลขที่:</strong> 0505566006478<br>
+      <strong>Address / ที่อยู่:</strong> 236/105 Chiang Mai AI Center, Moo 6, Mahidol Road, Nong Hoi, Mueang Chiang Mai, Chiang Mai 50000 (บ้านเลขที่ 236/105 หมู่ 6 ถ.มหิดล ตำบลหนองหอย อำเภอเมืองเชียงใหม่ จังหวัดเชียงใหม่ 50000)<br>
+      hereinafter referred to as the <strong>Landlord</strong> / ซึ่งในที่นี้เรียกว่า <strong>“ผู้ให้เช่า”</strong>
+    </p>
+    <div class="p-3 bg-neutral-50 rounded-lg border border-neutral-200 space-y-1">
+      <p><strong>And / และ (Tenant):</strong> <span class="font-bold underline text-blue-900">${data.effectiveTenant}</span></p>
+      ${data.effectiveSignatory && data.effectiveSignatory !== data.effectiveTenant ? `<p><strong>Authorized Representative / ผู้มีอำนาจลงนาม:</strong> <span class="font-bold text-neutral-800">${data.effectiveSignatory}</span></p>` : ""}
+      <p><strong>ID / Passport / Tax ID / เลขที่บัตรประชาชน / เลขผู้เสียภาษี:</strong> <span class="font-mono font-bold underline text-blue-900 break-all">${data.tenantIdNumber}</span></p>
+      <p><strong>Phone / เบอร์โทร:</strong> ${data.tenantPhone} | <strong>Email:</strong> ${data.tenantEmail}</p>
+      <p><strong>Legal Address / ที่อยู่ตามทะเบียน:</strong> ${data.tenantAddress}</p>
+      <p class="text-[11px] text-neutral-500 italic">hereinafter referred to as the <strong>Tenant</strong> / ซึ่งในที่นี้เรียกว่า <strong>“ผู้เช่า”</strong></p>
     </div>
+    <p class="font-semibold text-center py-1 bg-neutral-100 uppercase tracking-wide text-xs">Upon the following terms / ตกลงทำสัญญากันดังต่อไปนี้:</p>
+  </div>
 
-    <!-- Section 2 -->
-    <div class="section-title">2. RENT, SECURITY DEPOSIT & PAYMENT / ค่าเช่า เงินประกัน และการชำระเงิน</div>
-    <table class="table-rent">
-      <thead>
-        <tr>
-          <th>Description / รายการ</th>
-          <th style="text-align: right;">Amount / จำนวนเงิน (THB)</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Monthly Rent (Room ${data.roomId})</td>
-          <td style="text-align: right; font-weight: bold;">฿${Number(data.finalMonthlyRent || 0).toLocaleString()} THB / month</td>
-        </tr>
-        <tr>
-          <td>Advance Rent (First Period Prepaid)</td>
-          <td style="text-align: right;">฿${Number(data.advanceRent || 0).toLocaleString()} THB</td>
-        </tr>
-        <tr>
-          <td>Security Deposit (Refundable upon lease completion)</td>
-          <td style="text-align: right;">${depositText}</td>
-        </tr>
-        <tr class="total-row">
-          <td>TOTAL INITIAL PAYMENT DUE UPON SIGNING (ยอดชำระงวดแรก)</td>
-          <td style="text-align: right; font-size: 13px;">฿${Number(data.totalInitialPayment || 0).toLocaleString()} THB</td>
-        </tr>
-      </tbody>
-    </table>
+  <!-- Section 1 -->
+  <div class="space-y-2.5 text-xs sm:text-[12px] leading-relaxed border-t border-neutral-200 pt-3.5 mb-4">
+    <h3 class="font-bold text-[13px]">1. The Premises &amp; Term of Lease / สถานที่เช่าและระยะเวลาการเช่า</h3>
+    <p>The Landlord agrees to let and the Tenant agrees to rent the property with furniture and fixtures hereinafter known as <strong>The Premises</strong> at the address:</p>
+    <p class="pl-4 font-semibold text-neutral-900">Room ${data.roomId} (${data.roomFloor}F), 236/105 Chiang Mai AI Center, Moo 6, Mahidol Road, Nong Hoi Subdistrict, Mueang Chiang Mai District, Chiang Mai 50000.</p>
+    <p class="text-neutral-600 pl-4 text-[11.5px]">ผู้ให้เช่าตกลงให้เช่าและผู้เช่าตกลงเช่าสถานที่ รวมทั้งเฟอร์นิเจอร์ ณ ห้อง ${data.roomId} (${data.roomFloor}F) Chiang Mai AI Center บ้านเลขที่ 236/105 หมู่ 6 ถ.มหิดล ตำบลหนองหอย อำเภอเมืองเชียงใหม่ จังหวัดเชียงใหม่ 50000</p>
+    <p class="p-2 bg-blue-50/60 rounded border border-blue-100">
+      <strong>Term of Lease / ระยะเวลาการเช่า:</strong><br>
+      Start from <strong>${data.startDate}</strong> to <strong>${data.endDate}</strong>, for <strong>${data.durationText}</strong>.<br>
+      <span class="text-neutral-700">เริ่มตั้งแต่ <strong>${data.startDate}</strong> ถึง <strong>${data.endDate}</strong>, เป็นเวลา <strong>${data.durationText}</strong></span>
+    </p>
+  </div>
 
-    <!-- Section 3, 4, 5 -->
-    <div class="section-title">3. KEY TERMS & OBLIGATIONS / ข้อกำหนดและเงื่อนไขสำคัญ</div>
-    <div style="font-size: 11px; color: #475569; line-height: 1.6;">
-      3.1 Utilities: High-speed fiber Wi-Fi, air-conditioning maintenance, and common janitorial services are included.<br/>
-      3.2 Security Deposit: Refundable within 30 days after lease expiration, subject to inspection and key return.<br/>
-      3.3 Governing Law: Governed by the laws of Thailand. In case of discrepancy, the Thai text shall prevail.
-    </div>
+  <!-- Section 2 -->
+  <div class="space-y-2.5 text-xs sm:text-[12px] leading-relaxed border-t border-neutral-200 pt-3.5 mb-4">
+    <h3 class="font-bold text-[13px]">2. Rental Fee and Payment Terms / ค่าเช่าและเงื่อนไขการชำระเงิน</h3>
+    <p class="p-2 bg-neutral-50 rounded border border-neutral-200">
+      The agreed rental fee per month is <strong>${Number(data.finalMonthlyRent || 0).toLocaleString()} THB</strong>.<br>
+      <span class="text-neutral-700">โดยตกลงค่าเช่าในราคาเดือนละ <strong>${Number(data.finalMonthlyRent || 0).toLocaleString()} บาท</strong></span>
+    </p>
+    ${isThreeMonths ? `
+    <p><strong>2.1</strong> The full rental fee for the entire 3-month lease term is payable in advance upon signing this agreement.<br><span class="text-neutral-600">ค่าเช่าเต็มจำนวนตลอดอายุสัญญาเช่า 3 เดือน จะต้องชำระล่วงหน้าทั้งหมดในวันทำสัญญาฉบับนี้</span></p>
+    <p><strong>2.2</strong> For this 3-month lease, Tenant agrees to pay the full prepaid 3-month rental sum of <strong>${Number(data.totalInitialPayment || 0).toLocaleString()} THB</strong>. No security deposit is required for this 3-month term (0 THB Security Deposit).<br><span class="text-neutral-600">สำหรับสัญญาเช่าระยะเวลา 3 เดือนนี้ ผู้เช่าตกลงชำระค่าเช่าล่วงหน้าเต็มจำนวน 3 เดือน เป็นเงินจำนวน <strong>${Number(data.totalInitialPayment || 0).toLocaleString()} บาท</strong> โดยไม่มีการเรียกเก็บเงินประกัน (เงินประกัน 0 บาท)</span></p>
+    ` : `
+    <p><strong>2.1</strong> The monthly rent shall be payable by Tenant on or before the <strong>15th date</strong> of each month.<br><span class="text-neutral-600">เงินค่าเช่านั้นผู้เช่าจะต้องชำระทุกวันที่ 15 ของเดือน</span></p>
+    <p><strong>2.2</strong> Tenant agrees to pay the security deposit of <strong>${Number(data.securityDeposit || 0).toLocaleString()} THB</strong> [equivalent to 2 months rent] and 1 month rental in advance for <strong>${Number(data.advanceRent || 0).toLocaleString()} THB</strong>. Total initial payment sum is <strong>${Number(data.totalInitialPayment || 0).toLocaleString()} THB</strong>.<br><span class="text-neutral-600">ผู้เช่าตกลงจ่ายค่าประกันจำนวน <strong>${Number(data.securityDeposit || 0).toLocaleString()} บาท</strong> [เทียบเท่าค่าเช่า 2 เดือน] และค่าเช่าล่วงหน้า 1 เดือน จำนวน <strong>${Number(data.advanceRent || 0).toLocaleString()} บาท</strong> รวมเป็นเงินจำนวนจ่ายครั้งแรกทั้งหมด <strong>${Number(data.totalInitialPayment || 0).toLocaleString()} บาท</strong></span></p>
+    `}
+    <p class="text-[11px] text-neutral-600 italic">
+      The security deposit can neither be substituted as prepaid rent nor be treated as part of monthly rent as stipulated in this agreement on the date of signing of this lease agreement.<br>
+      ค่าประกันนี้ไม่สามารถนำมาหักแทนค่าเช่าล่วงหน้าหรือบางส่วนของค่าเช่าได้ตามที่กำหนดไว้ในสัญญานี้นับแต่วันที่ได้เซ็นสัญญาฉบับนี้
+    </p>
+    <p>
+      <strong>Payment Method / วิธีการชำระเงิน:</strong><br>
+      The TENANT shall pay the rental fee, security deposit, and advance payment in cash or via authorized bank transfer.<br>
+      <span class="text-neutral-600">โดยผู้เช่าต้องทำการชำระค่าเช่า เงินประกัน และค่าเช่าล่วงหน้าเป็นเงินสดหรือโอนผ่านบัญชีธนาคาร</span>
+    </p>
+    <p>
+      <strong>2.3</strong> A separate inventory list showing items provided by the Landlord to be attached to the lease agreement or sent via PDF/image file. Both parties shall inspect and approve the inventory list on the date the rental period starts.<br>
+      <span class="text-neutral-600">รายละเอียดเกี่ยวกับเฟอร์นิเจอร์ต่างๆ ที่ผู้ให้เช่าได้มอบไว้จะแนบในใบแทรกของสัญญาฉบับนี้ หรือส่งเป็นไฟล์รูปภาพ/PDF โดยคู่สัญญาได้อ่านและตรวจทานในวันที่สัญญาเช่าเริ่มต้น</span>
+    </p>
+  </div>
 
-    <!-- Signatures -->
-    <div class="signatures-row">
-      <!-- Landlord -->
-      <div class="sig-box">
-        <div style="font-weight: bold; color: #0f172a;">ผู้ให้เช่า / LANDLORD:</div>
-        <div style="font-size: 10px; color: #64748b;">Chiang Mai AI Center (Colasola Co., Ltd.)</div>
-        <div class="stamp-container">
-          <img src="https://lazzor.com/images/colasola_stamp.png" class="stamp-img" alt="Official Seal" />
-        </div>
-        <div style="font-size: 10px; border-top: 1px solid #e2e8f0; padding-top: 4px;">
-          <div><strong>Authorized Director</strong> (ผู้มีอำนาจลงนามและประทับตรา)</div>
-          <div>Date: ${data.signedAt ? data.signedAt.slice(0, 10) : "2026-09-14"}</div>
-          <div>Tel: +66 62 345 8238</div>
-        </div>
+  <!-- Section 3 -->
+  <div class="space-y-1.5 text-[11px] leading-relaxed border-t border-neutral-200 pt-3.5 mb-4">
+    <h3 class="font-bold text-xs mb-1 text-black">3. The Tenant Agrees / ผู้เช่าตกลงทำสัญญาดังต่อไปนี้:</h3>
+    <p><strong>3.1</strong> To keep all floors, walls, ceiling, windows, window treatments, doors, furniture, outside space, appliances, and fixtures in good condition, except for normal wear and tear.<br><span class="text-neutral-600">จะรักษาพื้น ผนัง ฝ้าเพดาน หน้าต่าง ประตู เฟอร์นิเจอร์ อุปกรณ์ไฟฟ้า ให้อยู่ในสภาพดี เว้นแต่ร่องรอยอันเกิดจากการใช้งานปกติ</span></p>
+    <p><strong>3.2</strong> To use the Premises only for business and legal purposes for the Tenant or their employees for working only.<br><span class="text-neutral-600">จะใช้สถานที่เช่าสำหรับทำงานและตามวัตถุประสงค์ที่ถูกต้องภายใต้กฎหมายสำหรับผู้เช่าหรือพนักงานของผู้เช่าเท่านั้น</span></p>
+    <p><strong>3.3</strong> To pay utility charges for electricity, water, garbage collection fees, and other expenses incurred on time.<br><span class="text-neutral-600">จะชำระค่าสาธารณูปโภค ค่าไฟฟ้า ค่าน้ำ ค่าเก็บขยะ หรือค่าใช้จ่ายอื่นๆ ที่เกิดขึ้นจากผู้เช่าให้ตรงเวลา</span></p>
+    <p><strong>3.4</strong> To promptly repair at own expense any damage caused by the Tenant, family, guests, but not for ordinary wear and tear.<br><span class="text-neutral-600">จะซ่อมแซมและออกค่าใช้จ่ายเองหากเกิดความเสียหายต่อทรัพย์สินที่เช่าโดยเกิดจากผู้เช่าหรือบริวาร</span></p>
+    <p><strong>3.5 Pets / การเลี้ยงสัตว์:</strong> No pets are allowed. / ไม่อนุญาตให้เลี้ยงสัตว์</p>
+    <p><strong>3.6 Inspection / การเข้าตรวจ:</strong> To permit the Landlord/agent to enter for inspection and repairing with reasonable notice, and to show to prospective tenants during 30 days prior to expiration.<br><span class="text-neutral-600">จะอนุญาตให้ผู้ให้เช่าหรือตัวแทนเข้าตรวจและซ่อมแซมตามสมควร และให้เข้าชมสถานที่ใน 30 วันก่อนหมดสัญญา</span></p>
+    <p><strong>3.7 Alterations / การต่อเติม:</strong> Not to make structural alterations, additions, demolish, repaint, nor drill holes without prior written consent.<br><span class="text-neutral-600">ไม่ปรับปรุง ต่อเติม รื้อถอน ทาสี หรือเจาะผนัง โดยปราศจากการแจ้งให้ผู้ให้เช่าทราบเป็นลายลักษณ์อักษรล่วงหน้า</span></p>
+    <p><strong>3.8 Smoking / การสูบบุหรี่:</strong> Smoking is strictly prohibited inside the Premises. / ไม่อนุญาตให้สูบบุหรี่ภายในสถานที่</p>
+    <p><strong>3.9 Nuisance / ความสงบ:</strong> Not to cause or permit any nuisance or interference with neighbors.<br><span class="text-neutral-600">ไม่กระทำการอันเป็นเหตุให้เกิดความเดือดร้อนรำคาญหรือรบกวนความสงบสุขของเพื่อนบ้าน</span></p>
+    <p><strong>3.10 Keys &amp; Cards / กุญแจและบัตร:</strong> To return all keys and access cards upon termination. Tenant is responsible for replacement cost if lost.<br><span class="text-neutral-600">จะส่งมอบกุญแจและบัตรผ่านคืนในวันสิ้นสุดสัญญา หากสูญหายผู้เช่าต้องรับผิดชอบค่าทำใหม่</span></p>
+    <p><strong>3.11 Illegal Acts / กฎหมาย:</strong> Not to use the Premises for any illegal purposes. / ไม่ใช้สถานที่เช่าในการกระทำสิ่งผิดกฎหมาย</p>
+    <p><strong>3.12 Hazardous Materials / วัตถุอันตราย:</strong> Not to keep dangerous, combustible, explosive materials, or illegal substances in the Premises.<br><span class="text-neutral-600">ไม่เก็บวัตถุอันตราย วัตถุไวไฟ วัตถุระเบิด หรือสิ่งผิดกฎหมายในสถานที่เช่า</span></p>
+    <p><strong>3.13 Clean Handover / การส่งมอบ:</strong> To return the property in a clean condition and remove all personal belongings at own cost.<br><span class="text-neutral-600">จะส่งคืนสถานที่ในสภาพสะอาดเรียบร้อย และขนย้ายสิ่งของของผู้เช่าออกด้วยค่าใช้จ่ายตนเอง</span></p>
+    <p><strong>3.14 Computer Servers / เซิร์ฟเวอร์:</strong> Computer server installation is not allowed. / ไม่อนุญาตให้ติดตั้งคอมพิวเตอร์เซิร์ฟเวอร์</p>
+  </div>
+
+  <!-- Section 4 -->
+  <div class="space-y-1.5 text-[11px] leading-relaxed border-t border-neutral-200 pt-3.5 mb-4">
+    <h3 class="font-bold text-xs mb-1 text-black">4. The Landlord Agrees / ผู้ให้เช่าตกลงทำสัญญาดังต่อไปนี้:</h3>
+    <p><strong>4.1 Peaceful Enjoyment:</strong> To ensure the Tenant peacefully enjoys the use of the property for business and working purposes without unlawful interruption.<br><span class="text-neutral-600">รับรองให้ผู้เช่าใช้งานสถานที่เช่าและประกอบธุรกิจได้อย่างสงบสุข ปราศจากการรบกวนโดยมิชอบ</span></p>
+    <p><strong>4.2 Maintenance:</strong> To keep the Premises in good repair, including annual maintenance of air-conditioning units.<br><span class="text-neutral-600">จะดูแลซ่อมแซมสถานที่เช่าให้อยู่ในสภาพดี รวมถึงการบำรุงรักษาเครื่องปรับอากาศประจำปี</span></p>
+    <p><strong>4.3 Major Repairs:</strong> To pay for major repairs exceeding 1,000 THB per occurrence. If delayed over 7 days after notice, Tenant may proceed and claim reimbursement against receipts.<br><span class="text-neutral-600">จะรับผิดชอบค่าซ่อมแซมใหญ่ที่เกินกว่า 1,000 บาท หากล่าช้าเกิน 7 วันผู้เช่าดำเนินการซ่อมและเบิกคืนตามใบเสร็จจริงได้</span></p>
+    <p><strong>4.4 Ready Condition:</strong> To ensure that at commencement, the Premises is clean and in ready working condition.<br><span class="text-neutral-600">จะรับรองว่าเมื่อเริ่มต้นสัญญา สถานที่เช่าต้องสะอาดและอยู่ในสภาพพร้อมใช้งาน</span></p>
+    <p><strong>4.5 Building Taxes:</strong> To pay all land and building taxes levied on the Premises.<br><span class="text-neutral-600">จะเป็นผู้ชำระภาษีที่ดินและสิ่งปลูกสร้างของสถานที่เช่า</span></p>
+    <p><strong>4.6 Deposit Refund:</strong> To refund security deposit within 30 days after lease ends, minus actual damages caused by Tenant (applicable when security deposit is held).<br><span class="text-neutral-600">จะคืนเงินประกันให้แก่ผู้เช่าภายใน 30 วันหลังจากสิ้นสุดสัญญา โดยหักค่าเสียหายตามจริง (กรณีที่มีการเรียกเก็บเงินประกัน)</span></p>
+  </div>
+
+  <!-- Section 5 -->
+  <div class="space-y-1.5 text-[11px] leading-relaxed border-t border-neutral-200 pt-3.5 mb-5">
+    <h3 class="font-bold text-xs mb-1 text-black">5. TERMINATION &amp; 6. EXTENSION &amp; 7. GOVERNING LAW</h3>
+    <p><strong>5.1 Early Termination:</strong> Tenant may terminate early by giving 30 days written notice, forfeiting the 2-month security deposit as penalty.<br><span class="text-neutral-600">ผู้เช่าบอกเลิกสัญญาก่อนกำหนดได้โดยแจ้งล่วงหน้า 30 วัน และยินยอมให้ริบเงินประกัน 2 เดือนเป็นค่าปรับ</span></p>
+    <p><strong>5.2 Force Majeure:</strong> Terminates immediately if uninhabitable due to court order or force majeure, deposit refunded.<br><span class="text-neutral-600">สิ้นสุดลงทันทีหากสถานที่เช่าไม่สามารถใช้งานได้จากคำสั่งศาล หรือเหตุสุดวิสัย และต้องคืนเงินประกัน</span></p>
+    <p><strong>5.3 Default:</strong> If Tenant defaults on rent or breaches terms and fails to remedy within 10 days of notice, Landlord may repossess.<br><span class="text-neutral-600">หากผิดนัดชำระหรือไม่แก้ไขภายใน 10 วันหลังแจ้งเตือน ผู้ให้เช่ามีสิทธิ์บอกเลิกสัญญาและกลับเข้าครอบครอง</span></p>
+    <p><strong>6. Extension:</strong> Tenant shall notify Landlord in writing at least 30 days before termination to extend.<br><span class="text-neutral-600">หากประสงค์จะต่อสัญญา จะต้องแจ้งล่วงหน้าเป็นลายลักษณ์อักษรอย่างน้อย 30 วัน</span></p>
+    <p><strong>7. Governing Law:</strong> Governed by the laws of Thailand. / สัญญานี้อยู่ภายใต้กฎหมายของราชอาณาจักรไทย</p>
+    <p class="text-[10.5px] text-neutral-600"><strong>7.1 Language Priority:</strong> In case of discrepancy between the English and Thai versions, the Thai version shall prevail in accordance with Thai legal proceedings. / ในกรณีที่มีข้อความขัดแย้งกัน ให้ยึดถือฉบับภาษาไทยเป็นสำคัญ</p>
+  </div>
+
+  <!-- Signatures -->
+  <div class="border-t-2 border-black pt-5 grid grid-cols-1 sm:grid-cols-2 print:grid-cols-2 gap-6 text-xs">
+    <div class="space-y-2">
+      <p class="font-bold uppercase">ผู้ให้เช่า / LANDLORD:<br>
+        <span class="text-blue-950 font-semibold">Chiang Mai AI Center (Colasola Co., Ltd. / บริษัท โคล่าโซล่า จำกัด)</span>
+      </p>
+      <div class="h-20 border-b border-black items-center justify-start relative py-1 flex">
+        <img alt="Official Corporate Seal - Colasola Co., Ltd." class="h-24 w-24 object-contain -my-2" src="https://lazzor.com/images/colasola_stamp.png">
       </div>
-
-      <!-- Tenant -->
-      <div class="sig-box">
-        <div style="font-weight: bold; color: #0f172a;">ผู้เช่า / TENANT:</div>
-        <div style="font-size: 10px; color: #64748b;">${data.effectiveTenant}</div>
-        <div class="stamp-container">
-          ${data.signatureData ? `<img src="${data.signatureData}" class="sig-img" alt="Tenant Signature" />` : `<div style="color: #64748b; font-size: 10px; font-style: italic;">[ Digitally Signed & Approved ]</div>`}
-        </div>
-        <div style="font-size: 10px; border-top: 1px solid #e2e8f0; padding-top: 4px;">
-          <div><strong>${data.effectiveSignatory || data.effectiveTenant}</strong></div>
-          <div>Date: ${data.signedAt ? data.signedAt.slice(0, 10) : "2026-09-14"}</div>
-          <div>Tel: ${data.tenantPhone}</div>
-        </div>
+      <div class="space-y-0.5 text-[10.5px]">
+        <p><strong>Written Name / ชื่อเต็ม:</strong> Authorized Director</p>
+        <p><strong>Title / ตำแหน่ง:</strong> Managing Director (Colasola Co., Ltd.)</p>
+        <p><strong>Date / วันที่:</strong> ${data.signedAt ? data.signedAt.slice(0, 10) : "14 September 2026"}</p>
+        <p><strong>Phone / เบอร์โทร:</strong> +66 62 345 8238</p>
       </div>
     </div>
 
-    <!-- Annex: Tenant ID Photo -->
-    ${data.idImage ? `
-    <div class="annex-box page-break">
-      <div style="font-weight: bold; font-size: 12px; margin-bottom: 10px; color: #0f172a;">
-        LEGAL ATTACHMENT / เอกสารแนบ: TENANT PASSPORT / ID COPY
+    <div class="space-y-2">
+      <p class="font-bold uppercase">ผู้เช่า / TENANT:<br>
+        <span class="text-blue-900 font-semibold">${data.effectiveTenant}</span>
+      </p>
+      <div class="h-20 border-b border-black flex items-end pb-1">
+        ${data.signatureData ? `<img alt="Tenant Signature" class="max-h-16 max-w-full object-contain" src="${data.signatureData}">` : `<span class="font-mono text-xs text-neutral-400 italic">[ Digitally Signed ]</span>`}
       </div>
-      <img src="${data.idImage}" style="max-height: 440px; max-width: 100%; object-fit: contain; border: 1px solid #cbd5e1; border-radius: 8px; padding: 4px;" alt="Tenant ID" />
+      <div class="space-y-0.5 text-[10.5px]">
+        <p><strong>Written Name / ชื่อเต็ม:</strong> ${data.effectiveSignatory || data.effectiveTenant}</p>
+        <p><strong>Title / ตำแหน่ง:</strong> ${data.effectiveSignatory ? "Authorized Representative" : "Individual Tenant"}</p>
+        <p><strong>Date / วันที่:</strong> ${data.signedAt ? data.signedAt.slice(0, 10) : "14 September 2026"}</p>
+        <p class="break-all"><strong>Phone / เบอร์โทร:</strong> ${data.tenantPhone}</p>
+      </div>
     </div>
-    ` : ""}
+  </div>
 
-    <!-- Footer -->
-    <div class="footer-note">
-      <span>Doc ID: ${data.contractSerial}</span>
-      <span>SHA256: ${data.contractHash}</span>
-      <span>Official Tenancy Record · Chiang Mai AI Center</span>
+  ${data.idImage ? `
+  <div class="mt-8 pt-6 border-t-2 border-dashed border-neutral-300 page-break-before">
+    <h4 class="font-bold text-[11px] uppercase tracking-wider text-neutral-700 mb-2 text-center">LEGAL ATTACHMENT / เอกสารแนบ: TENANT PASSPORT / ID COPY</h4>
+    <div class="border border-neutral-300 rounded-lg p-2 bg-neutral-50 flex justify-center">
+      <img alt="Tenant Identity Document" class="max-h-72 max-w-full object-contain rounded shadow-sm" src="${data.idImage}">
     </div>
+  </div>
+  ` : ""}
+
+  <div class="mt-6 pt-3 border-t border-neutral-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-1.5 text-[9.5px] sm:text-[10px] text-neutral-500 font-mono">
+    <span class="break-all">Doc ID: ${data.contractSerial}</span>
+    <span class="break-all">Checksum: SHA256:${data.contractHash ? data.contractHash.slice(0, 12) : "00004E4E4295"}</span>
+    <span>Page 1 of 1</span>
   </div>
 
 </body>
@@ -495,6 +503,7 @@ export async function POST(req: Request) {
       pdfError,
       signatureData,
       idImage,
+      contractHtml,
     } = payload;
 
     // --- 2. Honeypot Anti-Bot Trap Check ---
@@ -624,7 +633,7 @@ export async function POST(req: Request) {
       `;
 
       // 2. Generate Standalone Printable Contract HTML Document for Attachment
-      const standaloneHtml = generateStandaloneContractHtml({
+      const standaloneHtml = contractHtml || generateStandaloneContractHtml({
         contractSerial,
         contractHash,
         roomId,

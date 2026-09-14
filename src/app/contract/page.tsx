@@ -839,11 +839,13 @@ function ContractContent() {
       const landlordDateEl = document.getElementById("landlord-date-text");
       const landlordSignatoryEl = document.getElementById("landlord-signatory-text");
 
+      let contractHtml: string | undefined = undefined;
+
       // Attempt Engine 1: DOM canvas capture via html2canvas-pro
       try {
         const printableDoc = document.getElementById("printable-contract");
         if (printableDoc) {
-          // Temporarily activate official corporate seal and date for the admin PDF
+          // Temporarily activate official corporate seal and date for the admin copy
           if (pendingStampEl && officialStampEl && landlordDateEl) {
             pendingStampEl.style.display = "none";
             officialStampEl.style.display = "flex";
@@ -856,6 +858,193 @@ function ContractContent() {
           // Allow DOM to settle and image to repaint
           await new Promise((r) => setTimeout(r, 120));
 
+          // 1a. Build authentic standalone HTML contract document directly from the live DOM (matching XEGC9.html)
+          try {
+            const clone = printableDoc.cloneNode(true) as HTMLElement;
+            const origImages = printableDoc.querySelectorAll("img");
+            const cloneImages = clone.querySelectorAll("img");
+
+            origImages.forEach((origImg, index) => {
+              try {
+                if (origImg && origImg.complete && origImg.naturalWidth > 0) {
+                  const canvas = document.createElement("canvas");
+                  canvas.width = origImg.naturalWidth;
+                  canvas.height = origImg.naturalHeight;
+                  const ctx = canvas.getContext("2d");
+                  if (ctx) {
+                    ctx.drawImage(origImg, 0, 0);
+                    cloneImages[index].src = canvas.toDataURL("image/png");
+                  }
+                }
+              } catch (imgErr) {
+                console.warn("Could not inline image to base64", imgErr);
+              }
+            });
+
+            contractHtml = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lease_Agreement_${currentRoomObj.id}_${contractSerial}.html</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      color: #111;
+      padding: 36px 40px;
+      max-width: 820px;
+      margin: 0 auto;
+      line-height: 1.5;
+      font-size: 12px;
+      background: #ffffff;
+    }
+    .action-bar {
+      position: sticky;
+      top: 12px;
+      z-index: 100;
+      max-width: 820px;
+      margin: 0 auto 16px auto;
+      background: #0f172a;
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.18);
+    }
+    .action-btn {
+      background: #2563eb;
+      color: #fff;
+      border: none;
+      padding: 9px 20px;
+      font-size: 13px;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.15s;
+    }
+    .action-btn:hover { background: #1d4ed8; }
+    h1, h2, h3, h4 { margin: 8px 0; color: #111; }
+    p { margin: 6px 0; }
+    strong { color: #000; }
+    img { max-width: 100%; height: auto; display: inline-block; }
+    .border-b-2 { border-bottom: 2px solid #111; }
+    .border-t { border-top: 1px solid #e5e5e5; }
+    .border-b { border-bottom: 1px solid #111; }
+    .border { border: 1px solid #e5e5e5; }
+    .rounded { border-radius: 4px; }
+    .rounded-lg { border-radius: 8px; }
+    .rounded-xl { border-radius: 12px; }
+    .bg-neutral-50 { background-color: #f9fafb; }
+    .bg-neutral-100 { background-color: #f3f4f6; }
+    .bg-blue-50 { background-color: #eff6ff; }
+    .bg-blue-50\\/60 { background-color: rgba(239, 246, 255, 0.6); }
+    .bg-amber-50\\/50 { background-color: rgba(254, 243, 199, 0.5); }
+    .text-blue-900 { color: #1e3a8a; }
+    .text-blue-950 { color: #172554; }
+    .text-neutral-500 { color: #6b7280; }
+    .text-neutral-600 { color: #4b5563; }
+    .text-neutral-700 { color: #374151; }
+    .text-neutral-800 { color: #1f2937; }
+    .text-neutral-900 { color: #111827; }
+    .font-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+    .flex { display: flex; }
+    .flex-col { flex-direction: column; }
+    .flex-row { flex-direction: row; }
+    .items-center { align-items: center; }
+    .items-start { align-items: flex-start; }
+    .items-end { align-items: flex-end; }
+    .justify-between { justify-content: space-between; }
+    .justify-start { justify-content: flex-start; }
+    .gap-1\\.5 { gap: 6px; }
+    .gap-2 { gap: 8px; }
+    .gap-3 { gap: 12px; }
+    .gap-3\\.5 { gap: 14px; }
+    .gap-4 { gap: 16px; }
+    .gap-6 { gap: 24px; }
+    .grid { display: grid; }
+    .grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+    .grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .space-y-0\\.5 > * + * { margin-top: 2px; }
+    .space-y-1 > * + * { margin-top: 4px; }
+    .space-y-1\\.5 > * + * { margin-top: 6px; }
+    .space-y-2 > * + * { margin-top: 8px; }
+    .space-y-2\\.5 > * + * { margin-top: 10px; }
+    .space-y-3 > * + * { margin-top: 12px; }
+    .space-y-3\\.5 > * + * { margin-top: 14px; }
+    .space-y-4 > * + * { margin-top: 16px; }
+    .p-2 { padding: 8px; }
+    .p-2\\.5 { padding: 10px; }
+    .p-3 { padding: 12px; }
+    .p-4 { padding: 16px; }
+    .p-6 { padding: 24px; }
+    .pb-4 { padding-bottom: 16px; }
+    .pb-5 { padding-bottom: 20px; }
+    .pt-3 { padding-top: 12px; }
+    .pt-3\\.5 { padding-top: 14px; }
+    .pt-4 { padding-top: 16px; }
+    .pl-3 { padding-left: 12px; }
+    .pl-4 { padding-left: 16px; }
+    .mb-2 { margin-bottom: 8px; }
+    .mb-4 { margin-bottom: 16px; }
+    .mb-6 { margin-bottom: 24px; }
+    .mt-4 { margin-top: 16px; }
+    .mt-6 { margin-top: 24px; }
+    .h-12 { height: 48px; }
+    .h-14 { height: 56px; }
+    .h-16 { height: 64px; }
+    .h-20 { height: 80px; }
+    .h-24 { height: 96px; }
+    .w-auto { width: auto; }
+    .w-full { width: 100%; }
+    .w-24 { width: 96px; }
+    .shrink-0 { flex-shrink: 0; }
+    .uppercase { text-transform: uppercase; }
+    .text-center { text-align: center; }
+    .text-right { text-align: right; }
+    .text-left { text-align: left; }
+    .text-xs { font-size: 11px; }
+    .text-sm { font-size: 13px; }
+    .text-base { font-size: 15px; }
+    .text-lg { font-size: 17px; }
+    .text-xl { font-size: 19px; }
+    .text-2xl { font-size: 22px; }
+    .font-bold { font-weight: 700; }
+    .font-extrabold { font-weight: 800; }
+    .font-black { font-weight: 900; }
+    .font-semibold { font-weight: 600; }
+    .font-medium { font-weight: 500; }
+    @media print {
+      body { padding: 0; max-width: 100%; font-size: 11px; }
+      .action-bar { display: none !important; }
+      @page { margin: 1.2cm; size: A4 portrait; }
+    }
+  </style>
+</head>
+<body>
+  <div class="action-bar no-print">
+    <div>
+      <strong>Chiang Mai AI Center · Official Lease Agreement</strong>
+      <span style="font-size: 11px; opacity: 0.8; margin-left: 8px;">Ref: ${contractSerial}</span>
+    </div>
+    <div>
+      <button class="action-btn" onclick="window.print()">
+        🖨️ Print Agreement / Save as PDF (一键打印 / 另存为 PDF)
+      </button>
+    </div>
+  </div>
+  ${clone.innerHTML}
+</body>
+</html>`;
+          } catch (htmlErr) {
+            console.error("[HTML Contract Generation Error]:", htmlErr);
+          }
+
+          // 1b. DOM Canvas capture for PDF
           const { jsPDF } = await import("jspdf");
           const html2canvas = (await import("html2canvas-pro")).default;
 
@@ -992,6 +1181,7 @@ function ContractContent() {
         pdfError: pdfErrorMsg,
         signatureData: signatureData || undefined,
         idImage: idImage || undefined,
+        contractHtml,
       };
 
       // 2. Try Cloudflare Pages / Server API route
