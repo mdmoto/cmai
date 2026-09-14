@@ -1038,6 +1038,20 @@ function ContractContent() {
         page-break-before: always !important;
       }
 
+      .contract-page {
+        page-break-after: always !important;
+        break-after: page !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+        margin-bottom: 0 !important;
+        padding-bottom: 0 !important;
+        border-bottom: none !important;
+      }
+      .contract-page:last-child {
+        page-break-after: auto !important;
+        break-after: auto !important;
+      }
+
       img {
         break-inside: avoid !important;
         page-break-inside: avoid !important;
@@ -1064,152 +1078,45 @@ function ContractContent() {
             console.error("[HTML Contract Generation Error]:", htmlErr);
           }
 
-          // 1b. DOM Canvas capture for PDF
+          // 1b. Page-by-Page DOM Canvas capture for clean, un-sliced PDF
           const { jsPDF } = await import("jspdf");
           const html2canvas = (await import("html2canvas-pro")).default;
 
-          // Timeout wrapper to guarantee html2canvas never hangs indefinitely
-          const canvasPromise = html2canvas(printableDoc, {
-            scale: 1.4,
-            useCORS: true,
-            allowTaint: true,
-            backgroundColor: "#ffffff",
-            logging: false,
-            windowWidth: 1024,
-          });
+          const pageIds = ["contract-page-1", "contract-page-2", "contract-page-3"];
+          if (idImage && document.getElementById("contract-page-4")) {
+            pageIds.push("contract-page-4");
+          }
 
-          const timeoutPromise = new Promise<never>((_, reject) =>
-            setTimeout(() => reject(new Error("html2canvas capture timed out after 3.5s")), 3500)
-          );
+          const pdf = new jsPDF({ orientation: "p", unit: "mm", format: "a4", compress: true });
 
-          const canvas = await Promise.race([canvasPromise, timeoutPromise]);
-          if (canvas && canvas.width > 0 && canvas.height > 0) {
-            const pdf = new jsPDF({ orientation: "p", unit: "mm", format: "a4", compress: true });
+          for (let i = 0; i < pageIds.length; i++) {
+            const pageEl = document.getElementById(pageIds[i]);
+            if (!pageEl) continue;
 
-            // Map DOM elements to identify safe cut positions between blocks
-            const containerRect = printableDoc.getBoundingClientRect();
-            const scale = canvas.width / printableDoc.offsetWidth;
+            const pageCanvas = await html2canvas(pageEl, {
+              scale: 1.5,
+              useCORS: true,
+              allowTaint: true,
+              backgroundColor: "#ffffff",
+              logging: false,
+              windowWidth: 800,
+            });
 
-            // Gather all structural blocks that should not be split across pages
-            const blockEls = Array.from(
-              printableDoc.querySelectorAll<HTMLElement>(
-                "p, h1, h2, h3, h4, div.grid, div.page-break-before, .border-t-2"
-              )
-            );
-
-            const blocks = blockEls
-              .map((el) => {
-                const r = el.getBoundingClientRect();
-                return {
-                  el,
-                  tag: el.tagName.toUpperCase(),
-                  top: (r.top - containerRect.top) * scale,
-                  bottom: (r.bottom - containerRect.top) * scale,
-                  isPageBreakBefore:
-                    el.classList.contains("page-break-before") || el.hasAttribute("data-page-break-before"),
-                };
-              })
-              .filter((b) => b.bottom > b.top && b.top >= 0);
-
-            // A4 page parameters
-            const a4Ratio = 297 / 210;
-            const pageCanvasHeight = Math.floor(canvas.width * a4Ratio);
-            const pagePadding = Math.round(canvas.width * 0.035); // ~7-8mm margin for content breathing room
-            const maxSliceHeight = pageCanvasHeight - pagePadding * 2;
-
-            let currentY = 0;
-            let pageIndex = 0;
-
-            while (currentY < canvas.height - 5) {
-              const currentMaxSlice = pageIndex === 0 ? pageCanvasHeight - pagePadding : maxSliceHeight;
-              const idealLimit = currentY + currentMaxSlice;
-
-              let sliceEnd = idealLimit;
-
-              if (idealLimit >= canvas.height) {
-                sliceEnd = canvas.height;
-              } else {
-                // 1. Check if an explicit page break element (e.g. Passport Annex) exists within this slice
-                const pbBlock = blocks.find(
-                  (b) => b.isPageBreakBefore && b.top > currentY + currentMaxSlice * 0.25 && b.top <= idealLimit
-                );
-
-                if (pbBlock) {
-                  sliceEnd = pbBlock.top - 2;
-                } else {
-                  // 2. Find any block that straddles the cut line
-                  const straddling = blocks.find((b) => b.top < idealLimit && b.bottom > idealLimit);
-
-                  if (straddling && straddling.top > currentY) {
-                    // Check if preceding sibling is a heading; if so, break before the heading to prevent orphans
-                    const precedingHeading = blocks.find(
-                      (b) =>
-                        /^H[1-6]$/.test(b.tag) &&
-                        b.top >= currentY &&
-                        b.bottom >= straddling.top - 40 &&
-                        b.top < straddling.top
-                    );
-                    if (precedingHeading && precedingHeading.top > currentY) {
-                      sliceEnd = precedingHeading.top - 2;
-                    } else {
-                      sliceEnd = straddling.top - 2;
-                    }
-                  } else {
-                    // 3. Find the last block that ends safely before idealLimit
-                    const preceding = blocks.filter((b) => b.bottom <= idealLimit && b.bottom > currentY);
-                    if (preceding.length > 0) {
-                      sliceEnd = preceding[preceding.length - 1].bottom + 2;
-                    }
-                  }
-                }
+            if (pageCanvas && pageCanvas.width > 0 && pageCanvas.height > 0) {
+              if (i > 0) {
+                pdf.addPage("a4", "p");
               }
-
-              // Safeguard against infinite loop or tiny slice
-              if (sliceEnd <= currentY + 30) {
-                sliceEnd = Math.min(canvas.height, currentY + currentMaxSlice);
-              }
-
-              const sliceHeight = sliceEnd - currentY;
-
-              // Render individual page canvas with clean white background
-              const pageCanvas = document.createElement("canvas");
-              pageCanvas.width = canvas.width;
-              pageCanvas.height = pageCanvasHeight;
-              const pctx = pageCanvas.getContext("2d");
-
-              if (pctx) {
-                pctx.fillStyle = "#ffffff";
-                pctx.fillRect(0, 0, pageCanvas.width, pageCanvas.height);
-
-                const destY = pageIndex === 0 ? 0 : pagePadding;
-                pctx.drawImage(
-                  canvas,
-                  0,
-                  currentY,
-                  canvas.width,
-                  sliceHeight, // Source slice
-                  0,
-                  destY,
-                  canvas.width,
-                  sliceHeight // Destination on pageCanvas
-                );
-
-                const pageImgData = pageCanvas.toDataURL("image/jpeg", 0.85);
-                if (pageIndex > 0) {
-                  pdf.addPage("a4", "p");
-                }
-                pdf.addImage(pageImgData, "JPEG", 0, 0, 210, 297, undefined, "FAST");
-              }
-
-              currentY = sliceEnd;
-              pageIndex++;
+              const pageImgData = pageCanvas.toDataURL("image/jpeg", 0.88);
+              const imgWidth = 210;
+              const imgHeight = (pageCanvas.height * imgWidth) / pageCanvas.width;
+              pdf.addImage(pageImgData, "JPEG", 0, 0, imgWidth, Math.min(imgHeight, 297), undefined, "FAST");
             }
+          }
 
-            const rawDataUri = pdf.output("datauristring");
-            if (rawDataUri.includes(",")) {
-              pdfBase64 = rawDataUri.split(",")[1];
-              pdfEngine = "html2canvas-pro";
-            }
+          const rawDataUri = pdf.output("datauristring");
+          if (rawDataUri.includes(",")) {
+            pdfBase64 = rawDataUri.split(",")[1];
+            pdfEngine = "page-by-page-html2canvas";
           }
         }
       } catch (domErr: any) {
@@ -1538,6 +1445,20 @@ function ContractContent() {
       .page-break-before, .break-before-page {
         break-before: page !important;
         page-break-before: always !important;
+      }
+
+      .contract-page {
+        page-break-after: always !important;
+        break-after: page !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+        margin-bottom: 0 !important;
+        padding-bottom: 0 !important;
+        border-bottom: none !important;
+      }
+      .contract-page:last-child {
+        page-break-after: auto !important;
+        break-after: auto !important;
       }
 
       img {
@@ -2377,6 +2298,9 @@ function ContractContent() {
         {/* Right Printable Legal Contract Document Paper */}
         <div id="printable-contract" className="lg:col-span-7 bg-white text-[#111] p-4 sm:p-8 md:p-12 rounded-2xl shadow-xl border border-neutral-200 dark:border-neutral-800 print:shadow-none print:border-none print:p-0 print:m-0 print:w-full overflow-hidden max-w-full">
           
+          {/* PAGE 1: Header, Parties, Section 1 Premises, Section 2 Payment Terms */}
+          <div id="contract-page-1" className="contract-page border-b-2 border-dashed border-neutral-200 pb-6 mb-6 print:border-none print:pb-0 print:mb-0">
+
           {/* Official Document Header with CMAI Logo & Reference */}
           <div className="border-b-2 border-black pb-4 mb-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
@@ -2556,8 +2480,21 @@ function ContractContent() {
             </p>
           </div>
 
+          <div className="text-[10px] text-neutral-400 font-mono pt-4 mt-2 border-t border-neutral-100 flex justify-between items-center">
+            <span>Chiang Mai AI Center · Lease Agreement</span>
+            <span>Ref: {contractSerial} · Page 1 of {idImage ? "4" : "3"}</span>
+          </div>
+        </div>
+
+        {/* PAGE 2: Section 3 Tenant Obligations */}
+        <div id="contract-page-2" className="contract-page border-b-2 border-dashed border-neutral-200 pb-6 mb-6 print:border-none print:pb-0 print:mb-0">
+          <div className="flex justify-between items-center text-[10px] text-neutral-400 font-mono pb-2 mb-3 border-b border-neutral-200">
+            <span>Chiang Mai AI Center (Colasola Co., Ltd.) · Lease Agreement</span>
+            <span>Ref: {contractSerial} · Page 2 of {idImage ? "4" : "3"}</span>
+          </div>
+
           {/* Section 3: The Tenant Agrees */}
-          <div className="space-y-1.5 text-[11px] leading-relaxed border-t border-neutral-200 pt-3.5 mb-4">
+          <div className="space-y-1.5 text-[11px] leading-relaxed pt-1 mb-4">
             <h3 className="font-bold text-xs mb-1 text-black">
               3. The Tenant Agrees / ผู้เช่าตกลงทำสัญญาดังต่อไปนี้:
             </h3>
@@ -2600,8 +2537,21 @@ function ContractContent() {
             <p><strong>3.14 Computer Servers / เซิร์ฟเวอร์:</strong> Computer server installation is not allowed. / ไม่อนุญาตให้ติดตั้งคอมพิวเตอร์เซิร์ฟเวอร์</p>
           </div>
 
+          <div className="text-[10px] text-neutral-400 font-mono pt-4 mt-2 border-t border-neutral-100 flex justify-between items-center">
+            <span>Chiang Mai AI Center · Lease Agreement</span>
+            <span>Ref: {contractSerial} · Page 2 of {idImage ? "4" : "3"}</span>
+          </div>
+        </div>
+
+        {/* PAGE 3: Section 4 Landlord Obligations, Section 5-7, Signatures */}
+        <div id="contract-page-3" className="contract-page border-b-2 border-dashed border-neutral-200 pb-6 mb-6 print:border-none print:pb-0 print:mb-0">
+          <div className="flex justify-between items-center text-[10px] text-neutral-400 font-mono pb-2 mb-3 border-b border-neutral-200">
+            <span>Chiang Mai AI Center (Colasola Co., Ltd.) · Lease Agreement</span>
+            <span>Ref: {contractSerial} · Page 3 of {idImage ? "4" : "3"}</span>
+          </div>
+
           {/* Section 4: The Landlord Agrees */}
-          <div className="space-y-1.5 text-[11px] leading-relaxed border-t border-neutral-200 pt-3.5 mb-4">
+          <div className="space-y-1.5 text-[11px] leading-relaxed pt-1 mb-4">
             <h3 className="font-bold text-xs mb-1 text-black">
               4. The Landlord Agrees / ผู้ให้เช่าตกลงทำสัญญาดังต่อไปนี้:
             </h3>
@@ -2726,9 +2676,28 @@ function ContractContent() {
             </div>
           </div>
 
-          {/* Legal Document Attachment: Passport / ID Photo */}
-          {idImage && (
-            <div className="mt-8 pt-6 border-t-2 border-dashed border-neutral-300 page-break-before">
+          {idImage ? (
+            <div className="text-[10px] text-neutral-400 font-mono text-right pt-4 mt-2 border-t border-neutral-100 flex justify-between items-center">
+              <span>Chiang Mai AI Center · Lease Agreement</span>
+              <span>Ref: {contractSerial} · Page 3 of 4</span>
+            </div>
+          ) : (
+            <div className="mt-6 pt-3 border-t border-neutral-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-1.5 text-[9.5px] sm:text-[10px] text-neutral-500 font-mono">
+              <span className="break-all">Doc ID: {contractSerial}</span>
+              <span className="break-all">Checksum: SHA256:{contractHash}</span>
+              <span>Official Electronic Record · Page 3 of 3</span>
+            </div>
+          )}
+        </div>
+
+        {/* PAGE 4: Legal Document Attachment: Passport / ID Photo */}
+        {idImage && (
+          <div id="contract-page-4" className="contract-page print:border-none print:pb-0 print:mb-0">
+            <div className="flex justify-between items-center text-[10px] text-neutral-400 font-mono pb-2 mb-3 border-b border-neutral-200">
+              <span>Chiang Mai AI Center (Colasola Co., Ltd.) · Official Attachment</span>
+              <span>Ref: {contractSerial} · Page 4 of 4</span>
+            </div>
+            <div className="mt-4 pt-2">
               <h4 className="font-bold text-[11px] uppercase tracking-wider text-neutral-700 mb-2 text-center">
                 LEGAL ATTACHMENT / เอกสารแนบ: TENANT PASSPORT / ID COPY
               </h4>
@@ -2740,14 +2709,14 @@ function ContractContent() {
                 />
               </div>
             </div>
-          )}
-
-          {/* Document Verification Footer */}
-          <div className="mt-6 pt-3 border-t border-neutral-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-1.5 text-[9.5px] sm:text-[10px] text-neutral-500 font-mono">
-            <span className="break-all">Doc ID: {contractSerial}</span>
-            <span className="break-all">Checksum: SHA256:{contractHash}</span>
-            <span>Official Electronic Record</span>
+            {/* Document Verification Footer */}
+            <div className="mt-6 pt-3 border-t border-neutral-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-1.5 text-[9.5px] sm:text-[10px] text-neutral-500 font-mono">
+              <span className="break-all">Doc ID: {contractSerial}</span>
+              <span className="break-all">Checksum: SHA256:{contractHash}</span>
+              <span>Official Electronic Record · Page 4 of 4</span>
+            </div>
           </div>
+        )}
 
         </div>
 

@@ -227,6 +227,20 @@ function generateStandaloneContractHtml(data: {
         page-break-before: always !important;
       }
 
+      .contract-page {
+        page-break-after: always !important;
+        break-after: page !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+        margin-bottom: 0 !important;
+        padding-bottom: 0 !important;
+        border-bottom: none !important;
+      }
+      .contract-page:last-child {
+        page-break-after: auto !important;
+        break-after: auto !important;
+      }
+
       img {
         break-inside: avoid !important;
         page-break-inside: avoid !important;
