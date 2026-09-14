@@ -376,8 +376,14 @@ function ContractContent() {
   const calculatedRent = Math.round(standardRoomPrice * discountRate);
   const finalMonthlyRent = Math.max(calculatedRent, 1000); // Strict floor protection
   const monthlySavings = standardRoomPrice - finalMonthlyRent;
-  const securityDeposit = finalMonthlyRent * 2;
-  const advanceRent = finalMonthlyRent;
+
+  // Duration & Deposit Rules:
+  // - 3 Months: Full upfront prepaid (all 3 months rent upfront), no security deposit (฿0 deposit)
+  // - 6 Months: 3 months upfront (1 month advance rent + 2 months security deposit), then monthly thereafter
+  // - 1 / 2 / 3 Years: Standard 1 month advance rent + 2 months security deposit, then monthly thereafter
+  const isThreeMonthsNoDeposit = durationMonths === 3;
+  const securityDeposit = isThreeMonthsNoDeposit ? 0 : finalMonthlyRent * 2;
+  const advanceRent = isThreeMonthsNoDeposit ? finalMonthlyRent * 3 : finalMonthlyRent;
   const totalInitialPayment = securityDeposit + advanceRent;
 
   // Accurate Month & Leap Year End Date
@@ -389,8 +395,31 @@ function ContractContent() {
   const effectiveSignatoryTitle = tenantType === "company" ? signatoryTitle : "Individual Tenant";
 
   // Dynamic Duration Text
-  const durationEngText = durationMonths === 6 ? "6 months" : durationMonths === 12 ? "1 year" : durationMonths === 24 ? "2 years" : `${durationMonths} months`;
-  const durationThaiText = durationMonths === 6 ? "6 เดือน" : durationMonths === 12 ? "1 ปี" : durationMonths === 24 ? "2 ปี" : `${durationMonths} เดือน`;
+  const durationEngText =
+    durationMonths === 3
+      ? "3 months (Full Prepaid · No Security Deposit)"
+      : durationMonths === 6
+      ? "6 months (Pay 3 Months Upfront · Monthly Thereafter)"
+      : durationMonths === 12
+      ? "1 year"
+      : durationMonths === 24
+      ? "2 years"
+      : durationMonths === 36
+      ? "3 years"
+      : `${durationMonths} months`;
+
+  const durationThaiText =
+    durationMonths === 3
+      ? "3 เดือน (ชำระเต็มจำนวนล่วงหน้า · ไม่มีเงินประกัน)"
+      : durationMonths === 6
+      ? "6 เดือน (ชำระงวดแรก 3 เดือน · ชำระรายเดือนถัดไป)"
+      : durationMonths === 12
+      ? "1 ปี"
+      : durationMonths === 24
+      ? "2 ปี"
+      : durationMonths === 36
+      ? "3 ปี"
+      : `${durationMonths} เดือน`;
 
   // Validation Logic
   const hasValidSignature = strokeCount >= 2 && totalPoints >= 20 && signatureData !== null;
@@ -492,9 +521,9 @@ function ContractContent() {
           "Digital Hash Checksum": contractHash,
           "Lease Room Unit": `Room ${selectedRoomId} (${currentRoomObj?.floor || 2}F)`,
           "Monthly Rent": `฿${finalMonthlyRent.toLocaleString()} THB / month`,
-          "Security Deposit (2 Months)": `฿${securityDeposit.toLocaleString()} THB`,
+          "Security Deposit": isThreeMonthsNoDeposit ? "฿0 THB (No Deposit Required)" : `฿${securityDeposit.toLocaleString()} THB (2 Months)`,
           "Total Initial Payment": `฿${totalInitialPayment.toLocaleString()} THB`,
-          "Lease Term": `${startDate} to ${endDate} (${durationMonths} Months)`,
+          "Lease Term": `${startDate} to ${endDate} (${durationEngText})`,
           "Tenant Legal Name": effectiveTenantName,
           "Authorized Signatory": `${effectiveSignatoryDisplay} (${effectiveSignatoryTitle})`,
           "Tenant ID or Tax No": tenantIdNumber,
@@ -503,7 +532,7 @@ function ContractContent() {
           "Registered Address": tenantAddress,
           "Discount Applied": promoText,
           "Signed Timestamp": record.signedAt,
-          message: `Official Lease Agreement Signed:\n- Ref: ${contractSerial}\n- Hash: ${contractHash}\n- Tenant: ${effectiveTenantName}\n- Signatory: ${effectiveSignatoryDisplay} (${effectiveSignatoryTitle})\n- ID/Tax: ${tenantIdNumber}\n- Phone: ${tenantPhone}\n- Email: ${tenantEmail}\n- Address: ${tenantAddress}\n- Room: ${selectedRoomId} (${currentRoomObj?.floor}F)\n- Discount: ${promoText}\n- Monthly Rent: ฿${finalMonthlyRent.toLocaleString()} (Standard: ฿${standardRoomPrice.toLocaleString()})\n- Deposit: ฿${securityDeposit.toLocaleString()}\n- Total Initial: ฿${totalInitialPayment.toLocaleString()}\n- Period: ${startDate} to ${endDate} (${durationMonths} mos)\n- Signed At: ${record.signedAt}`,
+          message: `Official Lease Agreement Signed:\n- Ref: ${contractSerial}\n- Hash: ${contractHash}\n- Tenant: ${effectiveTenantName}\n- Signatory: ${effectiveSignatoryDisplay} (${effectiveSignatoryTitle})\n- ID/Tax: ${tenantIdNumber}\n- Phone: ${tenantPhone}\n- Email: ${tenantEmail}\n- Address: ${tenantAddress}\n- Room: ${selectedRoomId} (${currentRoomObj?.floor}F)\n- Discount: ${promoText}\n- Monthly Rent: ฿${finalMonthlyRent.toLocaleString()} (Standard: ฿${standardRoomPrice.toLocaleString()})\n- Deposit: ${isThreeMonthsNoDeposit ? "฿0 (No Deposit Required)" : `฿${securityDeposit.toLocaleString()}`}\n- Total Initial: ฿${totalInitialPayment.toLocaleString()}\n- Period: ${startDate} to ${endDate} (${durationEngText})\n- Signed At: ${record.signedAt}`,
         }),
       });
     } catch {}
@@ -1060,11 +1089,17 @@ function ContractContent() {
                 )}
 
                 <div className="flex justify-between items-center text-[11px] text-neutral-500">
-                  <span>Security Deposit (2 Months):</span>
-                  <span className="font-mono font-semibold text-neutral-800 dark:text-neutral-200">฿{securityDeposit.toLocaleString()}</span>
+                  <span>Security Deposit ({isThreeMonthsNoDeposit ? "Deposit Free" : "2 Months"}):</span>
+                  <span className={`font-mono font-semibold ${isThreeMonthsNoDeposit ? "text-emerald-600 dark:text-emerald-400" : "text-neutral-800 dark:text-neutral-200"}`}>
+                    {isThreeMonthsNoDeposit ? "฿0 (No Deposit)" : `฿${securityDeposit.toLocaleString()}`}
+                  </span>
                 </div>
                 <div className="flex justify-between items-center text-[11px] text-neutral-500">
-                  <span>Total Initial Payment (1st Month + 2 Mo Deposit):</span>
+                  <span>
+                    {isThreeMonthsNoDeposit
+                      ? "Total Initial Payment (Full 3 Months Prepaid):"
+                      : "Total Initial Payment (1st Month + 2 Mo Deposit):"}
+                  </span>
                   <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">฿{totalInitialPayment.toLocaleString()}</span>
                 </div>
               </div>
@@ -1327,7 +1362,8 @@ function ContractContent() {
                   onChange={(e) => setDurationMonths(parseInt(e.target.value, 10))}
                   className="w-full px-3.5 py-2.5 bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl text-neutral-900 dark:text-white focus:outline-none focus:border-blue-500 min-h-[44px]"
                 >
-                  <option value={6}>6 Months (Half-Year)</option>
+                  <option value={3}>3 Months (Full Prepaid · No Security Deposit)</option>
+                  <option value={6}>6 Months (Pay 3 Months Upfront · Monthly Thereafter)</option>
                   <option value={12}>1 Year (12 Months - Standard)</option>
                   <option value={24}>2 Years (24 Months - Long Term)</option>
                   <option value={36}>3 Years (36 Months - Multi-Year)</option>
@@ -1337,7 +1373,13 @@ function ContractContent() {
 
             <div className="mt-3 p-3 bg-neutral-50 dark:bg-neutral-900/50 rounded-xl border border-neutral-200 dark:border-neutral-800 text-[11px] text-neutral-500 space-y-1">
               <div>Calculated Lease End Date: <strong className="text-neutral-900 dark:text-white font-mono">{endDate}</strong></div>
-              <div>Monthly Rent Due: On or before the <strong className="text-neutral-900 dark:text-white font-mono">{rentDueDay}th</strong> of each month</div>
+              <div>
+                {isThreeMonthsNoDeposit ? (
+                  <span>Payment Schedule: <strong className="text-emerald-600 dark:text-emerald-400 font-semibold">Full 3-Month Rent Prepaid at Signing (No Recurring Monthly Due)</strong></span>
+                ) : (
+                  <span>Monthly Rent Due: On or before the <strong className="text-neutral-900 dark:text-white font-mono">{rentDueDay}th</strong> of each month</span>
+                )}
+              </div>
             </div>
           </div>
 
@@ -1428,7 +1470,7 @@ function ContractContent() {
                   className="mt-0.5 w-4 h-4 rounded text-blue-600 border-neutral-300 focus:ring-blue-500 cursor-pointer"
                 />
                 <span className="text-neutral-700 dark:text-neutral-300 leading-relaxed font-medium">
-                  I have thoroughly reviewed and fully agree to all terms and conditions (Clauses 1 to 7) of this Office Lease Agreement, including payment schedules, 2-month security deposit, and termination policies.
+                  I have thoroughly reviewed and fully agree to all terms and conditions (Clauses 1 to 7) of this Office Lease Agreement, including payment schedules, security deposit/prepayment terms, and termination policies.
                 </span>
               </label>
 
@@ -1576,20 +1618,53 @@ function ContractContent() {
                 โดยตกลงค่าเช่าในราคาเดือนละ <strong>{finalMonthlyRent.toLocaleString()} บาท</strong> ({numberToThaiWords(finalMonthlyRent)})
               </span>
             </p>
-            <p>
-              <strong>2.1</strong> The monthly rent shall be payable by Tenant on or before the <strong>{rentDueDay}th date</strong> of each month.<br />
-              <span className="text-neutral-600">เงินค่าเช่านั้นผู้เช่าจะต้องชำระทุกวันที่ {rentDueDay} ของเดือน</span>
-            </p>
-            <p>
-              <strong>2.2</strong> Tenant agrees to pay the security deposit of <strong>{securityDeposit.toLocaleString()} THB</strong> ({numberToEnglishWords(securityDeposit)}) [equivalent to 2 months rent] and 1 month rental in advance for <strong>{advanceRent.toLocaleString()} THB</strong> ({numberToEnglishWords(advanceRent)}). Total initial payment sum is <strong>{totalInitialPayment.toLocaleString()} THB</strong> ({numberToEnglishWords(totalInitialPayment)}).<br />
-              <span className="text-neutral-600">
-                ผู้เช่าตกลงจ่ายค่าประกันจำนวน <strong>{securityDeposit.toLocaleString()} บาท</strong> ({numberToThaiWords(securityDeposit)}) [เทียบเท่าค่าเช่า 2 เดือน] และค่าเช่าล่วงหน้า 1 เดือน จำนวน <strong>{advanceRent.toLocaleString()} บาท</strong> ({numberToThaiWords(advanceRent)}) รวมเป็นเงินจำนวนจ่ายครั้งแรกทั้งหมด <strong>{totalInitialPayment.toLocaleString()} บาท</strong> ({numberToThaiWords(totalInitialPayment)})
-              </span>
-            </p>
-            <p className="text-[11px] text-neutral-600 italic">
-              The security deposit can neither be substituted as prepaid rent nor be treated as part of monthly rent as stipulated in this agreement on the date of signing of this lease agreement.<br />
-              ค่าประกันนี้ไม่สามารถนำมาหักแทนค่าเช่าล่วงหน้าหรือบางส่วนของค่าเช่าได้ตามที่กำหนดไว้ในสัญญานี้นับแต่วันที่ได้เซ็นสัญญาฉบับนี้
-            </p>
+            {isThreeMonthsNoDeposit ? (
+              <>
+                <p>
+                  <strong>2.1</strong> The full rental fee for the entire 3-month lease term is payable in advance upon signing this agreement.<br />
+                  <span className="text-neutral-600">ค่าเช่าเต็มจำนวนตลอดอายุสัญญาเช่า 3 เดือน จะต้องชำระล่วงหน้าทั้งหมดในวันทำสัญญาฉบับนี้</span>
+                </p>
+                <p>
+                  <strong>2.2</strong> For this 3-month lease, Tenant agrees to pay the full prepaid 3-month rental sum of <strong>{totalInitialPayment.toLocaleString()} THB</strong> ({numberToEnglishWords(totalInitialPayment)}). No security deposit is required for this 3-month term (0 THB Security Deposit).<br />
+                  <span className="text-neutral-600">
+                    สำหรับสัญญาเช่าระยะเวลา 3 เดือนนี้ ผู้เช่าตกลงชำระค่าเช่าล่วงหน้าเต็มจำนวน 3 เดือน เป็นเงินจำนวน <strong>{totalInitialPayment.toLocaleString()} บาท</strong> ({numberToThaiWords(totalInitialPayment)}) โดยไม่มีการเรียกเก็บเงินประกัน (เงินประกัน 0 บาท)
+                  </span>
+                </p>
+              </>
+            ) : durationMonths === 6 ? (
+              <>
+                <p>
+                  <strong>2.1</strong> The monthly rent shall be payable by Tenant on or before the <strong>{rentDueDay}th date</strong> of each month.<br />
+                  <span className="text-neutral-600">เงินค่าเช่านั้นผู้เช่าจะต้องชำระทุกวันที่ {rentDueDay} ของเดือน</span>
+                </p>
+                <p>
+                  <strong>2.2</strong> For this 6-month lease, Tenant agrees to pay an initial upfront payment of 3 months totaling <strong>{totalInitialPayment.toLocaleString()} THB</strong> ({numberToEnglishWords(totalInitialPayment)}), comprising a 2-month security deposit of <strong>{securityDeposit.toLocaleString()} THB</strong> ({numberToEnglishWords(securityDeposit)}) and 1 month advance rent of <strong>{advanceRent.toLocaleString()} THB</strong> ({numberToEnglishWords(advanceRent)}). Thereafter, the agreed monthly rent shall be paid monthly on or before the <strong>{rentDueDay}th date</strong> of each subsequent month.<br />
+                  <span className="text-neutral-600">
+                    สำหรับสัญญาเช่าระยะเวลา 6 เดือนนี้ ผู้เช่าตกลงชำระเงินงวดแรกจำนวน 3 เดือน รวมเป็นเงิน <strong>{totalInitialPayment.toLocaleString()} บาท</strong> ({numberToThaiWords(totalInitialPayment)}) ประกอบด้วยเงินประกัน 2 เดือน จำนวน <strong>{securityDeposit.toLocaleString()} บาท</strong> ({numberToThaiWords(securityDeposit)}) และค่าเช่าล่วงหน้า 1 เดือน จำนวน <strong>{advanceRent.toLocaleString()} บาท</strong> ({numberToThaiWords(advanceRent)}) และชำระค่าเช่ารายเดือนทุกวันที่ {rentDueDay} ของเดือนถัดไป
+                  </span>
+                </p>
+              </>
+            ) : (
+              <>
+                <p>
+                  <strong>2.1</strong> The monthly rent shall be payable by Tenant on or before the <strong>{rentDueDay}th date</strong> of each month.<br />
+                  <span className="text-neutral-600">เงินค่าเช่านั้นผู้เช่าจะต้องชำระทุกวันที่ {rentDueDay} ของเดือน</span>
+                </p>
+                <p>
+                  <strong>2.2</strong> Tenant agrees to pay the security deposit of <strong>{securityDeposit.toLocaleString()} THB</strong> ({numberToEnglishWords(securityDeposit)}) [equivalent to 2 months rent] and 1 month rental in advance for <strong>{advanceRent.toLocaleString()} THB</strong> ({numberToEnglishWords(advanceRent)}). Total initial payment sum is <strong>{totalInitialPayment.toLocaleString()} THB</strong> ({numberToEnglishWords(totalInitialPayment)}).<br />
+                  <span className="text-neutral-600">
+                    ผู้เช่าตกลงจ่ายค่าประกันจำนวน <strong>{securityDeposit.toLocaleString()} บาท</strong> ({numberToThaiWords(securityDeposit)}) [เทียบเท่าค่าเช่า 2 เดือน] และค่าเช่าล่วงหน้า 1 เดือน จำนวน <strong>{advanceRent.toLocaleString()} บาท</strong> ({numberToThaiWords(advanceRent)}) รวมเป็นเงินจำนวนจ่ายครั้งแรกทั้งหมด <strong>{totalInitialPayment.toLocaleString()} บาท</strong> ({numberToThaiWords(totalInitialPayment)})
+                  </span>
+                </p>
+              </>
+            )}
+
+            {!isThreeMonthsNoDeposit && (
+              <p className="text-[11px] text-neutral-600 italic">
+                The security deposit can neither be substituted as prepaid rent nor be treated as part of monthly rent as stipulated in this agreement on the date of signing of this lease agreement.<br />
+                ค่าประกันนี้ไม่สามารถนำมาหักแทนค่าเช่าล่วงหน้าหรือบางส่วนของค่าเช่าได้ตามที่กำหนดไว้ในสัญญานี้นับแต่วันที่ได้เซ็นสัญญาฉบับนี้
+              </p>
+            )}
             <p>
               <strong>Payment Method / วิธีการชำระเงิน:</strong><br />
               The TENANT shall pay the rental fee, security deposit, and advance payment in cash or via authorized bank transfer.<br />
@@ -1665,8 +1740,8 @@ function ContractContent() {
             <p><strong>4.5 Building Taxes:</strong> To pay all land and building taxes levied on the Premises.<br />
             <span className="text-neutral-600">จะเป็นผู้ชำระภาษีที่ดินและสิ่งปลูกสร้างของสถานที่เช่า</span></p>
 
-            <p><strong>4.6 Deposit Refund:</strong> To refund security deposit within 30 days after lease ends, minus actual damages caused by Tenant.<br />
-            <span className="text-neutral-600">จะคืนเงินประกันให้แก่ผู้เช่าภายใน 30 วันหลังจากสิ้นสุดสัญญา โดยหักค่าเสียหายตามจริง (หากมี)</span></p>
+            <p><strong>4.6 Deposit Refund:</strong> To refund security deposit within 30 days after lease ends, minus actual damages caused by Tenant (applicable when security deposit is held).<br />
+            <span className="text-neutral-600">จะคืนเงินประกันให้แก่ผู้เช่าภายใน 30 วันหลังจากสิ้นสุดสัญญา โดยหักค่าเสียหายตามจริง (กรณีที่มีการเรียกเก็บเงินประกัน)</span></p>
           </div>
 
           {/* Section 5, 6, 7: Termination, Extension, Law & Language Priority */}
@@ -1674,8 +1749,13 @@ function ContractContent() {
             <h3 className="font-bold text-xs mb-1 text-black">
               5. TERMINATION & 6. EXTENSION & 7. GOVERNING LAW
             </h3>
-            <p><strong>5.1 Early Termination:</strong> Tenant may terminate early by giving 30 days written notice, forfeiting the 2-month security deposit as penalty.<br />
-            <span className="text-neutral-600">ผู้เช่าบอกเลิกสัญญาก่อนกำหนดได้โดยแจ้งล่วงหน้า 30 วัน และยินยอมให้ริบเงินประกัน 2 เดือนเป็นค่าปรับ</span></p>
+            {isThreeMonthsNoDeposit ? (
+              <p><strong>5.1 Early Termination:</strong> Tenant may terminate early by giving 30 days written notice; prepaid rent for the 3-month lease period is non-refundable.<br />
+              <span className="text-neutral-600">ผู้เช่าบอกเลิกสัญญาก่อนกำหนดได้โดยแจ้งล่วงหน้า 30 วัน โดยค่าเช่าล่วงหน้าสำหรับระยะเวลา 3 เดือนจะไม่สามารถขอคืนได้</span></p>
+            ) : (
+              <p><strong>5.1 Early Termination:</strong> Tenant may terminate early by giving 30 days written notice, forfeiting the 2-month security deposit as penalty.<br />
+              <span className="text-neutral-600">ผู้เช่าบอกเลิกสัญญาก่อนกำหนดได้โดยแจ้งล่วงหน้า 30 วัน และยินยอมให้ริบเงินประกัน 2 เดือนเป็นค่าปรับ</span></p>
+            )}
 
             <p><strong>5.2 Force Majeure:</strong> Terminates immediately if uninhabitable due to court order or force majeure, deposit refunded.<br />
             <span className="text-neutral-600">สิ้นสุดลงทันทีหากสถานที่เช่าไม่สามารถใช้งานได้จากคำสั่งศาล หรือเหตุสุดวิสัย และต้องคืนเงินประกัน</span></p>
@@ -1811,6 +1891,14 @@ function ContractContent() {
               <div className="flex justify-between items-center gap-2">
                 <span className="text-neutral-500 shrink-0">Tenant:</span>
                 <span className="text-neutral-800 dark:text-neutral-200 break-words text-right">{effectiveTenantName}</span>
+              </div>
+              <div className="flex justify-between items-center gap-2">
+                <span className="text-neutral-500 shrink-0">Duration:</span>
+                <span className="text-neutral-800 dark:text-neutral-200">{durationMonths} Months</span>
+              </div>
+              <div className="flex justify-between items-center gap-2">
+                <span className="text-neutral-500 shrink-0">Initial Payment:</span>
+                <span className="text-emerald-600 dark:text-emerald-400 font-bold">฿{totalInitialPayment.toLocaleString()}</span>
               </div>
               <div className="flex justify-between items-center gap-2">
                 <span className="text-neutral-500 shrink-0">Digital Hash:</span>
