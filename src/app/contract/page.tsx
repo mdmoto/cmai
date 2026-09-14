@@ -1005,7 +1005,7 @@ function ContractContent() {
                     <input
                       id="promo-code"
                       type="text"
-                      placeholder="e.g. newcome2026, festival2026..."
+                      placeholder="Enter discount / promo code..."
                       value={promoInput}
                       onChange={(e) => {
                         setPromoInput(e.target.value);
