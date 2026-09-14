@@ -367,6 +367,7 @@ function ContractContent() {
   // Submission & Confirmation Modal State
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSignedAndArchived, setIsSignedAndArchived] = useState(false);
+  const [generatedPdfBase64, setGeneratedPdfBase64] = useState<string | null>(null);
 
   // Dynamic discount rate from verified promo code
   const discountRate = appliedPromo ? appliedPromo.rate : 1.0;
@@ -503,6 +504,49 @@ function ContractContent() {
     let emailErrorMessage = "";
 
     try {
+      // 1. Generate full multi-page PDF of the agreement in browser
+      let pdfBase64: string | undefined = undefined;
+      try {
+        const printableDoc = document.getElementById("printable-contract");
+        if (printableDoc) {
+          const { jsPDF } = await import("jspdf");
+          const html2canvas = (await import("html2canvas")).default;
+
+          const canvas = await html2canvas(printableDoc, {
+            scale: 1.5,
+            useCORS: true,
+            logging: false,
+            windowWidth: 1024,
+          });
+
+          const imgData = canvas.toDataURL("image/jpeg", 0.88);
+          const pdf = new jsPDF("p", "mm", "a4");
+          const imgWidth = 210;
+          const pageHeight = 297;
+          const imgHeight = (canvas.height * imgWidth) / canvas.width;
+          let heightLeft = imgHeight;
+          let position = 0;
+
+          pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight);
+          heightLeft -= pageHeight;
+
+          while (heightLeft > 0) {
+            position = heightLeft - imgHeight;
+            pdf.addPage();
+            pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight);
+            heightLeft -= pageHeight;
+          }
+
+          const rawDataUri = pdf.output("datauristring");
+          if (rawDataUri.includes(",")) {
+            pdfBase64 = rawDataUri.split(",")[1];
+            setGeneratedPdfBase64(pdfBase64);
+          }
+        }
+      } catch (pdfErr) {
+        console.warn("Could not generate client-side PDF:", pdfErr);
+      }
+
       const promoText = appliedPromo
         ? `Promo Code: ${appliedPromo.code.toUpperCase()} (${appliedPromo.percentOff}% OFF, saving ฿${monthlySavings.toLocaleString()}/mo)`
         : "Standard Rate (No Promo Code)";
@@ -534,9 +578,10 @@ function ContractContent() {
         tenantAddress,
         signedAt: record.signedAt,
         bot_honeypot: honeypot,
+        pdfBase64: pdfBase64 || undefined,
       };
 
-      // 1. Try Cloudflare Pages / Server API route
+      // 2. Try Cloudflare Pages / Server API route
       try {
         const res = await fetch("/api/contract/send-email", {
           method: "POST",
@@ -544,13 +589,15 @@ function ContractContent() {
           body: JSON.stringify(payloadBody),
         });
 
-        if (res.ok) {
-          const resData = await res.json();
-          if (resData.success) {
-            emailSentSuccessfully = true;
-          }
+        const resData = await res.json().catch(() => null);
+        if (res.ok && resData?.success) {
+          emailSentSuccessfully = true;
+        } else if (resData?.error) {
+          emailErrorMessage = resData.error;
         }
-      } catch {}
+      } catch (apiErr: any) {
+        emailErrorMessage = apiErr?.message || "Failed to reach email API";
+      }
 
       // 2. If server function is unreachable (e.g. pure static CDN preview), seamlessly fallback to direct Web3Forms dispatch
       if (!emailSentSuccessfully) {
@@ -612,6 +659,30 @@ function ContractContent() {
     } catch {}
 
     setIsSignedAndArchived(true);
+  };
+
+  // Generate & Download Standalone PDF Document Blob
+  const handleDownloadPdf = () => {
+    if (!generatedPdfBase64) return;
+    try {
+      const byteCharacters = atob(generatedPdfBase64);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: "application/pdf" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `Lease_Agreement_${selectedRoomId}_${contractSerial}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("Failed to download PDF blob:", err);
+    }
   };
 
   // Generate Standalone Downloadable HTML / PDF Document Blob
@@ -2000,19 +2071,30 @@ function ContractContent() {
             </div>
 
             <div className="space-y-2.5">
+              {generatedPdfBase64 && (
+                <button
+                  type="button"
+                  onClick={handleDownloadPdf}
+                  className="w-full py-3 bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-semibold text-xs rounded-xl transition-colors flex items-center justify-center gap-2 shadow-sm cursor-pointer"
+                >
+                  <Download className="w-4 h-4" />
+                  <span>Download Full Contract PDF (.pdf)</span>
+                </button>
+              )}
+
               <button
                 type="button"
                 onClick={handleDownloadOfflineContract}
-                className="w-full py-3 bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-semibold text-xs rounded-xl transition-colors flex items-center justify-center gap-2 shadow-sm cursor-pointer"
+                className={`w-full ${generatedPdfBase64 ? "py-2.5 bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 text-neutral-800 dark:text-neutral-200" : "py-3 bg-[#2563eb] hover:bg-[#1d4ed8] text-white"} font-semibold text-xs rounded-xl transition-colors flex items-center justify-center gap-2 shadow-sm cursor-pointer`}
               >
                 <Download className="w-4 h-4" />
-                <span>Download Application Copy (.html)</span>
+                <span>Download Standalone Copy (.html)</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => window.print()}
-                className="w-full py-3 bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 text-neutral-800 dark:text-neutral-200 font-semibold text-xs rounded-xl transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                className="w-full py-2.5 bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 text-neutral-800 dark:text-neutral-200 font-semibold text-xs rounded-xl transition-colors flex items-center justify-center gap-2 cursor-pointer"
               >
                 <Printer className="w-4 h-4" />
                 <span>Print Application Summary</span>

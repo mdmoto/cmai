@@ -28,6 +28,7 @@ export interface ContractEmailPayload {
   tenantAddress: string;
   signedAt: string;
   bot_honeypot?: string; // Invisible anti-bot field
+  pdfBase64?: string; // Optional client-generated PDF base64
 }
 
 // Allowed Room Whitelist
@@ -121,6 +122,7 @@ export async function POST(req: Request) {
       tenantAddress,
       signedAt,
       bot_honeypot,
+      pdfBase64,
     } = payload;
 
     // --- 2. Honeypot Anti-Bot Trap Check ---
@@ -300,6 +302,13 @@ export async function POST(req: Request) {
         replyTo: cleanEmail,
         subject: `[ACTION REQUIRED / 待收款复核] New Lease Application - Room ${roomId} - ${effectiveTenant} (${contractSerial})`,
         html: adminHtml,
+        attachments: pdfBase64 ? [
+          {
+            filename: `Lease_Agreement_${roomId}_${contractSerial}.pdf`,
+            content: Buffer.from(pdfBase64, "base64"),
+            contentType: "application/pdf",
+          }
+        ] : [],
       });
 
       return NextResponse.json({
