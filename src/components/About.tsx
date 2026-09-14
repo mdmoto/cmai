@@ -31,7 +31,7 @@ export default function About() {
     {
       number: "Prime Hub",
       label: t("aboutStatLocation"),
-      sub: "Huay Kaew Center Road",
+      sub: "Nong Hoi, Mueang Chiang Mai",
     },
     {
       number: "5 km",
