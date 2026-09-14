@@ -165,33 +165,33 @@ function formatThaiDate(isoStr: string): string {
 }
 
 const defaultRooms = [
-  { id: "B1-2", floor: 2, defaultPrice: 9400, features: "独立空调 · 带采光窗 (Double Room)" },
-  { id: "B6", floor: 2, defaultPrice: 3700, features: "公共空调 · 无窗 (Quiet Focus)" },
-  { id: "B7", floor: 2, defaultPrice: 3100, features: "公共空调 · 带采光窗 (Cozy Window)" },
-  { id: "C1-2", floor: 3, defaultPrice: 9700, features: "独立空调 · 采光大窗 (Executive Suite)" },
-  { id: "C4", floor: 3, defaultPrice: 7800, features: "独立空调 · 采光窗 (Standard Team)" },
-  { id: "C5", floor: 3, defaultPrice: 4700, features: "独立空调 · 采光窗 (Compact Pro)" },
-  { id: "C6", floor: 3, defaultPrice: 1800, features: "公共空调 · 无窗 (Budget Solo)" },
-  { id: "C7-8", floor: 3, defaultPrice: 5800, features: "独立空调 · 采光窗 (Team Dual)" },
-  { id: "C9", floor: 3, defaultPrice: 6000, features: "独立空调 · 采光窗 (Studio Suite)" },
-  { id: "C11", floor: 3, defaultPrice: 3000, features: "公共空调 · 无窗 (Focus Unit)" },
-  { id: "C12", floor: 3, defaultPrice: 1500, features: "公共空调 · 采光窗 (Single Window)" },
-  { id: "D1-2", floor: 4, defaultPrice: 9700, features: "独立空调 · 采光窗 (Large Suite)" },
-  { id: "D3", floor: 4, defaultPrice: 7800, features: "独立空调 · 采光窗 (Team Room)" },
-  { id: "D4", floor: 4, defaultPrice: 7800, features: "独立空调 · 采光窗 (Team Room)" },
-  { id: "D5", floor: 4, defaultPrice: 4700, features: "独立空调 · 采光窗 (Private Pro)" },
-  { id: "D7-8", floor: 4, defaultPrice: 5800, features: "独立空调 · 采光窗 (Dual Studio)" },
-  { id: "D9", floor: 4, defaultPrice: 6000, features: "独立空调 · 采光窗 (Studio Suite)" },
-  { id: "D10", floor: 4, defaultPrice: 3000, features: "公共空调 · 无窗 (Focus Room)" },
-  { id: "D11", floor: 4, defaultPrice: 3000, features: "公共空调 · 无窗 (Focus Room)" },
-  { id: "E2", floor: 5, defaultPrice: 7800, features: "独立空调 · 顶层采光 (Top Floor Pro)" },
-  { id: "E3", floor: 5, defaultPrice: 7800, features: "独立空调 · 顶层采光 (Top Floor Pro)" },
-  { id: "E4-5", floor: 5, defaultPrice: 9600, features: "独立空调 · 打通大开间 (Combined Studio)" },
-  { id: "E6", floor: 5, defaultPrice: 3800, features: "公共空调 · 顶层无窗 (Quiet Studio)" },
-  { id: "E7", floor: 5, defaultPrice: 3800, features: "公共空调 · 顶层无窗 (Quiet Studio)" },
-  { id: "E8", floor: 5, defaultPrice: 5800, features: "独立空调 · 顶层采光 (Top Window Unit)" },
-  { id: "E9", floor: 5, defaultPrice: 6000, features: "独立空调 · 顶层采光 (Top Studio)" },
-  { id: "E10", floor: 5, defaultPrice: 3000, features: "公共空调 · 顶层无窗 (Focus Solo)" },
+  { id: "B1-2", floor: 2, defaultPrice: 9400, features: "Private A/C · Natural Light Window (Double Suite)" },
+  { id: "B6", floor: 2, defaultPrice: 3700, features: "Central A/C · Interior (Quiet Focus)" },
+  { id: "B7", floor: 2, defaultPrice: 3100, features: "Central A/C · Natural Light Window (Cozy Window)" },
+  { id: "C1-2", floor: 3, defaultPrice: 9700, features: "Private A/C · Panoramic Window (Executive Suite)" },
+  { id: "C4", floor: 3, defaultPrice: 7800, features: "Private A/C · Natural Light Window (Standard Team)" },
+  { id: "C5", floor: 3, defaultPrice: 4700, features: "Private A/C · Natural Light Window (Compact Pro)" },
+  { id: "C6", floor: 3, defaultPrice: 1800, features: "Central A/C · Interior (Budget Solo)" },
+  { id: "C7-8", floor: 3, defaultPrice: 5800, features: "Private A/C · Natural Light Window (Team Dual)" },
+  { id: "C9", floor: 3, defaultPrice: 6000, features: "Private A/C · Natural Light Window (Studio Suite)" },
+  { id: "C11", floor: 3, defaultPrice: 3000, features: "Central A/C · Interior (Focus Unit)" },
+  { id: "C12", floor: 3, defaultPrice: 1500, features: "Central A/C · Natural Light Window (Single Window)" },
+  { id: "D1-2", floor: 4, defaultPrice: 9700, features: "Private A/C · Panoramic Window (Large Suite)" },
+  { id: "D3", floor: 4, defaultPrice: 7800, features: "Private A/C · Natural Light Window (Team Room)" },
+  { id: "D4", floor: 4, defaultPrice: 7800, features: "Private A/C · Natural Light Window (Team Room)" },
+  { id: "D5", floor: 4, defaultPrice: 4700, features: "Private A/C · Natural Light Window (Private Pro)" },
+  { id: "D7-8", floor: 4, defaultPrice: 5800, features: "Private A/C · Natural Light Window (Dual Studio)" },
+  { id: "D9", floor: 4, defaultPrice: 6000, features: "Private A/C · Natural Light Window (Studio Suite)" },
+  { id: "D10", floor: 4, defaultPrice: 3000, features: "Central A/C · Interior (Focus Room)" },
+  { id: "D11", floor: 4, defaultPrice: 3000, features: "Central A/C · Interior (Focus Room)" },
+  { id: "E2", floor: 5, defaultPrice: 7800, features: "Private A/C · Top Floor Light (Top Floor Pro)" },
+  { id: "E3", floor: 5, defaultPrice: 7800, features: "Private A/C · Top Floor Light (Top Floor Pro)" },
+  { id: "E4-5", floor: 5, defaultPrice: 9600, features: "Private A/C · Top Floor Combined Studio" },
+  { id: "E6", floor: 5, defaultPrice: 3800, features: "Central A/C · Top Floor Interior (Quiet Studio)" },
+  { id: "E7", floor: 5, defaultPrice: 3800, features: "Central A/C · Top Floor Interior (Quiet Studio)" },
+  { id: "E8", floor: 5, defaultPrice: 5800, features: "Private A/C · Top Floor Window Unit" },
+  { id: "E9", floor: 5, defaultPrice: 6000, features: "Private A/C · Top Floor Studio" },
+  { id: "E10", floor: 5, defaultPrice: 3000, features: "Central A/C · Top Floor Interior (Focus Solo)" },
 ];
 
 function ContractContent() {
@@ -227,7 +227,7 @@ function ContractContent() {
 
   // State
   const [selectedRoomId, setSelectedRoomId] = useState(initRoom);
-  const [discountRate, setDiscountRate] = useState<number>(0.8); // 8折 default (20% OFF)
+  const [discountRate, setDiscountRate] = useState<number>(0.8); // Default 20% OFF (0.8 rate)
   
   // Tenant Info
   const [tenantType, setTenantType] = useState<"individual" | "company">("individual");
@@ -296,32 +296,32 @@ function ContractContent() {
   const validateForm = (): boolean => {
     const errors: string[] = [];
     if (tenantType === "individual" && !tenantName.trim()) {
-      errors.push("请填写承租人真实姓名 (Full Name)");
+      errors.push("Please enter Tenant Full Legal Name (as shown in Passport / ID).");
     }
     if (tenantType === "company") {
-      if (!companyName.trim()) errors.push("请填写企业法定全称 (Company Name)");
-      if (!signatoryName.trim()) errors.push("请填写授权签署代表姓名 (Authorized Representative)");
+      if (!companyName.trim()) errors.push("Please enter Company Full Registered Legal Name.");
+      if (!signatoryName.trim()) errors.push("Please enter Authorized Representative Full Name.");
     }
     if (!tenantIdNumber.trim()) {
-      errors.push("请填写有效的护照号码或身份证/税号 (Passport / Tax ID)");
+      errors.push("Please enter a valid Passport No. / National ID / Tax ID.");
     }
     if (!tenantPhone.trim()) {
-      errors.push("请填写联系电话 (Phone Number)");
+      errors.push("Please enter a valid Phone / WhatsApp Number.");
     }
     if (!tenantAddress.trim()) {
-      errors.push("请填写承租人法定/常住地址 (Address)");
+      errors.push("Please enter Legal / Registered Residential Address.");
     }
     if (!idImage) {
-      errors.push("请上传护照信息页或身份证证件照片 (Passport / ID Document)");
+      errors.push("Please upload a photo of Passport Photo Page or National ID Document.");
     }
     if (!hasValidSignature) {
-      errors.push("请在手写签名区绘制真实有效的笔迹签名 (Valid Handwritten Signature)");
+      errors.push("Please draw a valid handwritten digital signature in the signing pad.");
     }
     if (!agreedToTerms) {
-      errors.push("请阅读并勾选同意《办公室租赁合同全部法定条款》");
+      errors.push("Please review and check the agreement to all Lease Agreement Terms (Clauses 1 to 7).");
     }
     if (!agreedToPdpa) {
-      errors.push("请阅读并勾选同意《泰国 PDPA 个人数据隐私合规保护声明》");
+      errors.push("Please review and check the agreement to the PDPA Personal Data Privacy Protection Notice.");
     }
 
     setValidationErrors(errors);
@@ -547,13 +547,13 @@ function ContractContent() {
     // MIME type check
     const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
     if (!allowedTypes.includes(file.type)) {
-      setUploadError("仅支持 JPG, PNG 或 WebP 格式的图片文件。");
+      setUploadError("Only JPG, PNG, or WebP image files are supported.");
       return;
     }
 
     // Size limit 5MB
     if (file.size > 5 * 1024 * 1024) {
-      setUploadError("文件大小超过 5MB 限制，请压缩或更换后重新上传。");
+      setUploadError("File size exceeds 5MB limit. Please select a smaller photo.");
       return;
     }
 
@@ -593,7 +593,7 @@ function ContractContent() {
           ctx.textAlign = "center";
           ctx.translate(w / 2, h / 2);
           ctx.rotate(-Math.PI / 6);
-          const wmText = "FOR COLASOLA CO., LTD. LEASE ONLY";
+          const wmText = "FOR CMAI / COLASOLA CO., LTD. LEASE ONLY";
           ctx.strokeText(wmText, 0, 0);
           ctx.fillText(wmText, 0, 0);
           ctx.restore();
@@ -601,11 +601,11 @@ function ContractContent() {
           const watermarkedUrl = canvas.toDataURL("image/jpeg", 0.85);
           setIdImage(watermarkedUrl);
         } catch {
-          setUploadError("图片解析失败，请使用标准相册图片上传。");
+          setUploadError("Failed to parse image. Please upload a standard photo file.");
         }
       };
       img.onerror = () => {
-        setUploadError("无法加载所选图片文件。");
+        setUploadError("Unable to load the selected image file.");
       };
       img.src = event.target?.result as string;
     };
@@ -725,14 +725,14 @@ function ContractContent() {
             <Link
               href="/"
               className="p-2.5 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-600 dark:text-neutral-300 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
-              title="返回官网"
+              title="Back to Home"
             >
               <ArrowLeft className="w-5 h-5" />
             </Link>
             <div>
               <div className="flex items-center gap-2 flex-wrap">
                 <h1 className="text-base sm:text-lg font-bold tracking-tight text-neutral-900 dark:text-white">
-                  在线办公室租赁合同
+                  Online Office Lease Agreement
                 </h1>
                 <span className="text-[11px] font-mono px-2 py-0.5 rounded-md bg-blue-500/10 text-blue-600 dark:text-blue-400 font-semibold">
                   LEASE AGREEMENT
@@ -754,12 +754,12 @@ function ContractContent() {
               {isSubmitting ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>正在提交存证...</span>
+                  <span>Submitting Agreement...</span>
                 </>
               ) : (
                 <>
                   <FileCheck className="w-4 h-4" />
-                  <span>确认签署并存证合同</span>
+                  <span>Confirm & Sign Agreement</span>
                 </>
               )}
             </button>
@@ -773,7 +773,7 @@ function ContractContent() {
           <div className="p-4 rounded-2xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 text-red-700 dark:text-red-300 text-xs space-y-1.5 shadow-sm">
             <div className="font-bold flex items-center gap-2 text-sm">
               <AlertCircle className="w-4 h-4 text-red-600" />
-              <span>合同签署前请完善以下必填项：</span>
+              <span>Please complete the following required fields before signing:</span>
             </div>
             <ul className="list-disc list-inside space-y-0.5 pl-1 font-medium">
               {validationErrors.map((err, idx) => (
@@ -790,22 +790,22 @@ function ContractContent() {
         {/* Left Interactive Control Form - Hide on Print */}
         <div className="print:hidden lg:col-span-5 space-y-6">
           
-          {/* Box 1: Room & 8-Discount Selector */}
+          {/* Box 1: Room & Special Discount Selector */}
           <div className="bg-white dark:bg-[#111113] border border-neutral-200 dark:border-neutral-800/80 rounded-2xl p-6 shadow-sm">
             <h2 className="text-sm font-semibold text-neutral-900 dark:text-white flex items-center justify-between mb-4 pb-3 border-b border-neutral-100 dark:border-neutral-800">
               <span className="flex items-center gap-2">
                 <Building2 className="w-4 h-4 text-blue-600" />
-                <span>1. 选择房源与官方折扣方案</span>
+                <span>1. Select Office Unit & Discount Rate</span>
               </span>
               <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-semibold font-mono">
-                限时 8 折特惠
+                20% OFF Deal
               </span>
             </h2>
 
             <div className="space-y-4 text-xs">
               <div>
                 <label htmlFor="room-select" className="block text-neutral-600 dark:text-neutral-400 font-medium mb-1.5">
-                  选择租赁房间 (Room Selection) *
+                  Select Office Unit (Room Selection) *
                 </label>
                 <select
                   id="room-select"
@@ -815,7 +815,7 @@ function ContractContent() {
                 >
                   {defaultRooms.map((room) => (
                     <option key={room.id} value={room.id}>
-                      房间 {room.id} ({room.floor}楼) - {room.features} - 原价 ฿{room.defaultPrice.toLocaleString()}/月
+                      Room {room.id} ({room.floor}F) - {room.features} - Standard ฿{room.defaultPrice.toLocaleString()}/mo
                     </option>
                   ))}
                 </select>
@@ -824,14 +824,14 @@ function ContractContent() {
               {/* Discount Selector */}
               <div>
                 <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-neutral-600 dark:text-neutral-400 font-medium">官方核准租金折扣</span>
-                  <span className="text-neutral-400 font-mono text-[11px]">标准原价: ฿{standardRoomPrice.toLocaleString()}/月</span>
+                  <span className="text-neutral-600 dark:text-neutral-400 font-medium">Approved Rent Discount</span>
+                  <span className="text-neutral-400 font-mono text-[11px]">Standard Rate: ฿{standardRoomPrice.toLocaleString()}/mo</span>
                 </div>
                 <div className="grid grid-cols-3 gap-2">
                   {[
-                    { label: "8 折特惠", rate: 0.8, desc: "20% OFF (推荐)" },
-                    { label: "9 折优惠", rate: 0.9, desc: "10% OFF" },
-                    { label: "标准原价", rate: 1.0, desc: "Standard (100%)" },
+                    { label: "20% OFF", rate: 0.8, desc: "Special Deal" },
+                    { label: "10% OFF", rate: 0.9, desc: "Standard Discount" },
+                    { label: "Standard", rate: 1.0, desc: "Standard Rate (100%)" },
                   ].map((d) => (
                     <button
                       key={d.label}
@@ -853,17 +853,17 @@ function ContractContent() {
               {/* Final Cost Summary Badge */}
               <div className="p-4 rounded-xl bg-neutral-50 dark:bg-neutral-900/80 border border-neutral-200 dark:border-neutral-800 space-y-2">
                 <div className="flex justify-between items-center text-xs">
-                  <span className="text-neutral-600 dark:text-neutral-400">合同最终月租金 (Monthly Rent):</span>
+                  <span className="text-neutral-600 dark:text-neutral-400">Final Monthly Rent:</span>
                   <span className="text-base font-bold text-blue-600 dark:text-blue-400">
-                    ฿{finalMonthlyRent.toLocaleString()} <span className="text-[11px] font-normal text-neutral-400">/月</span>
+                    ฿{finalMonthlyRent.toLocaleString()} <span className="text-[11px] font-normal text-neutral-400">/mo</span>
                   </span>
                 </div>
                 <div className="flex justify-between items-center text-[11px] text-neutral-500">
-                  <span>押金 (Security Deposit, 2个月):</span>
+                  <span>Security Deposit (2 Months):</span>
                   <span className="font-mono font-semibold text-neutral-800 dark:text-neutral-200">฿{securityDeposit.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between items-center text-[11px] text-neutral-500">
-                  <span>首期付款总额 (首月租金 + 2个月押金):</span>
+                  <span>Total Initial Payment (1st Month + 2 Mo Deposit):</span>
                   <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">฿{totalInitialPayment.toLocaleString()}</span>
                 </div>
               </div>
@@ -875,7 +875,7 @@ function ContractContent() {
             <h2 className="text-sm font-semibold text-neutral-900 dark:text-white flex items-center justify-between mb-4 pb-3 border-b border-neutral-100 dark:border-neutral-800">
               <span className="flex items-center gap-2">
                 <ShieldCheck className="w-4 h-4 text-blue-600" />
-                <span>2. 承租人信息与证件核验 (KYC)</span>
+                <span>2. Tenant Information & ID Verification (KYC)</span>
               </span>
               <div className="flex gap-1 bg-neutral-100 dark:bg-neutral-900 p-0.5 rounded-lg">
                 <button
@@ -887,7 +887,7 @@ function ContractContent() {
                       : "text-neutral-500"
                   }`}
                 >
-                  个人承租
+                  Individual
                 </button>
                 <button
                   type="button"
@@ -898,7 +898,7 @@ function ContractContent() {
                       : "text-neutral-500"
                   }`}
                 >
-                  企业承租
+                  Company / Enterprise
                 </button>
               </div>
             </h2>
@@ -907,13 +907,13 @@ function ContractContent() {
               {tenantType === "individual" ? (
                 <div>
                   <label htmlFor="tenant-name" className="block text-neutral-600 dark:text-neutral-400 font-medium mb-1">
-                    承租人姓名 (Full Name / 英文或拼音，与护照一致) *
+                    Tenant Full Legal Name (As in Passport / ID) *
                   </label>
                   <input
                     id="tenant-name"
                     type="text"
                     required
-                    placeholder="例如: ADAM MAR / LI WEI"
+                    placeholder="e.g., ADAM MAR / LI WEI"
                     value={tenantName}
                     onChange={(e) => setTenantName(e.target.value)}
                     className="w-full px-3.5 py-2.5 bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl text-neutral-900 dark:text-white focus:outline-none focus:border-blue-500 min-h-[44px]"
@@ -923,13 +923,13 @@ function ContractContent() {
                 <>
                   <div>
                     <label htmlFor="company-name" className="block text-neutral-600 dark:text-neutral-400 font-medium mb-1">
-                      企业法定注册全称 (Company Full Legal Name) *
+                      Company Full Registered Legal Name *
                     </label>
                     <input
                       id="company-name"
                       type="text"
                       required
-                      placeholder="例如: Tech Global Innovation Co., Ltd."
+                      placeholder="e.g., Tech Global Innovation Co., Ltd."
                       value={companyName}
                       onChange={(e) => setCompanyName(e.target.value)}
                       className="w-full px-3.5 py-2.5 bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl text-neutral-900 dark:text-white focus:outline-none focus:border-blue-500 min-h-[44px]"
@@ -938,13 +938,13 @@ function ContractContent() {
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <label htmlFor="signatory-name" className="block text-neutral-600 dark:text-neutral-400 font-medium mb-1">
-                        授权签署代表姓名 *
+                        Authorized Representative Name *
                       </label>
                       <input
                         id="signatory-name"
                         type="text"
                         required
-                        placeholder="法定代表人 / 董事"
+                        placeholder="Full Name of Director"
                         value={signatoryName}
                         onChange={(e) => setSignatoryName(e.target.value)}
                         className="w-full px-3.5 py-2 bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl text-neutral-900 dark:text-white focus:outline-none focus:border-blue-500"
@@ -952,7 +952,7 @@ function ContractContent() {
                     </div>
                     <div>
                       <label htmlFor="signatory-title" className="block text-neutral-600 dark:text-neutral-400 font-medium mb-1">
-                        代表职务 (Title)
+                        Title / Position
                       </label>
                       <input
                         id="signatory-title"
@@ -969,13 +969,13 @@ function ContractContent() {
 
               <div>
                 <label htmlFor="id-number" className="block text-neutral-600 dark:text-neutral-400 font-medium mb-1">
-                  {tenantType === "individual" ? "护照号码 / 身份证号 (Passport / ID No.) *" : "公司商政注册号 / 税号 (DBD / Tax ID) *"}
+                  {tenantType === "individual" ? "Passport No. / National ID No. *" : "Company Registration No. / Tax ID (DBD) *"}
                 </label>
                 <input
                   id="id-number"
                   type="text"
                   required
-                  placeholder={tenantType === "individual" ? "例如: EJ12345678 / 110105..." : "例如: 0505566000000"}
+                  placeholder={tenantType === "individual" ? "e.g., EJ12345678 / 110105..." : "e.g., 0505566000000"}
                   value={tenantIdNumber}
                   onChange={(e) => setTenantIdNumber(e.target.value)}
                   className="w-full px-3.5 py-2.5 bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl text-neutral-900 dark:text-white focus:outline-none focus:border-blue-500 font-mono min-h-[44px]"
@@ -985,7 +985,7 @@ function ContractContent() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label htmlFor="phone-number" className="block text-neutral-600 dark:text-neutral-400 font-medium mb-1">
-                    联系电话 (Phone Number) *
+                    Phone / WhatsApp Number *
                   </label>
                   <input
                     id="phone-number"
@@ -999,7 +999,7 @@ function ContractContent() {
                 </div>
                 <div>
                   <label htmlFor="email-address" className="block text-neutral-600 dark:text-neutral-400 font-medium mb-1">
-                    电子邮箱 (Email Address)
+                    Email Address (Optional)
                   </label>
                   <input
                     id="email-address"
@@ -1014,13 +1014,13 @@ function ContractContent() {
 
               <div>
                 <label htmlFor="legal-address" className="block text-neutral-600 dark:text-neutral-400 font-medium mb-1">
-                  法定/常住通讯地址 (Legal / Residential Address) *
+                  Legal / Registered Residential Address *
                 </label>
                 <input
                   id="legal-address"
                   type="text"
                   required
-                  placeholder="例如: 123 Sukhumvit Rd, Bangkok / 北京市海淀区..."
+                  placeholder="e.g., 123 Sukhumvit Rd, Bangkok, Thailand"
                   value={tenantAddress}
                   onChange={(e) => setTenantAddress(e.target.value)}
                   className="w-full px-3.5 py-2.5 bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl text-neutral-900 dark:text-white focus:outline-none focus:border-blue-500 min-h-[44px]"
@@ -1032,9 +1032,9 @@ function ContractContent() {
                 <div className="flex items-center justify-between mb-1.5">
                   <span className="text-neutral-600 dark:text-neutral-400 font-medium flex items-center gap-1.5">
                     <Camera className="w-3.5 h-3.5 text-blue-500" />
-                    <span>上传护照信息页 / 身份证原件照片 *</span>
+                    <span>Upload Passport Photo Page / National ID Photo *</span>
                   </span>
-                  <span className="text-[10px] text-neutral-400">（自动添加防盗用水印）</span>
+                  <span className="text-[10px] text-neutral-400">(Watermarked for Security)</span>
                 </div>
 
                 <input
@@ -1056,10 +1056,10 @@ function ContractContent() {
                   >
                     <Upload className="w-6 h-6 text-neutral-400 group-hover:text-blue-500 mb-1.5 transition-colors" />
                     <p className="text-xs text-neutral-700 dark:text-neutral-300 font-semibold">
-                      点击拍照或从本地相册选择证件文件
+                      Click to take photo or choose image from gallery
                     </p>
                     <p className="text-[10px] text-neutral-400 mt-0.5">
-                      支持 JPG / PNG / WebP 格式（文件上限 5MB）
+                      Supports JPG / PNG / WebP formats (Max 5MB)
                     </p>
                   </div>
                 ) : (
@@ -1076,7 +1076,7 @@ function ContractContent() {
                         className="px-3 py-1.5 rounded-full bg-white/20 hover:bg-white/30 text-white text-xs backdrop-blur-sm flex items-center gap-1 min-h-[36px]"
                       >
                         <RotateCcw className="w-3.5 h-3.5" />
-                        <span>重新上传</span>
+                        <span>Replace</span>
                       </button>
                       <button
                         type="button"
@@ -1084,7 +1084,7 @@ function ContractContent() {
                         className="px-3 py-1.5 rounded-full bg-red-600 hover:bg-red-700 text-white text-xs flex items-center gap-1 min-h-[36px]"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
-                        <span>删除</span>
+                        <span>Remove</span>
                       </button>
                     </div>
                   </div>
@@ -1097,13 +1097,13 @@ function ContractContent() {
           <div className="bg-white dark:bg-[#111113] border border-neutral-200 dark:border-neutral-800/80 rounded-2xl p-6 shadow-sm">
             <h2 className="text-sm font-semibold text-neutral-900 dark:text-white flex items-center gap-2 mb-4 pb-3 border-b border-neutral-100 dark:border-neutral-800">
               <Calendar className="w-4 h-4 text-blue-600" />
-              <span>3. 租期与起止日期 (Term & Schedule)</span>
+              <span>3. Lease Term & Effective Dates</span>
             </h2>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
               <div>
                 <label htmlFor="start-date" className="block text-neutral-600 dark:text-neutral-400 font-medium mb-1">
-                  起租日期 (Start Date) *
+                  Lease Start Date *
                 </label>
                 <input
                   id="start-date"
@@ -1117,7 +1117,7 @@ function ContractContent() {
 
               <div>
                 <label htmlFor="duration-months" className="block text-neutral-600 dark:text-neutral-400 font-medium mb-1">
-                  租赁期限 (Duration) *
+                  Lease Duration *
                 </label>
                 <select
                   id="duration-months"
@@ -1125,17 +1125,17 @@ function ContractContent() {
                   onChange={(e) => setDurationMonths(parseInt(e.target.value, 10))}
                   className="w-full px-3.5 py-2.5 bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl text-neutral-900 dark:text-white focus:outline-none focus:border-blue-500 min-h-[44px]"
                 >
-                  <option value={6}>6 个月 (6 Months - 半年)</option>
-                  <option value={12}>1 年 (1 Year - 标准租期)</option>
-                  <option value={24}>2 年 (2 Years - 长期优惠)</option>
-                  <option value={36}>3 年 (3 Years - 战略签约)</option>
+                  <option value={6}>6 Months (Half-Year)</option>
+                  <option value={12}>1 Year (12 Months - Standard)</option>
+                  <option value={24}>2 Years (24 Months - Long Term)</option>
+                  <option value={36}>3 Years (36 Months - Multi-Year)</option>
                 </select>
               </div>
             </div>
 
             <div className="mt-3 p-3 bg-neutral-50 dark:bg-neutral-900/50 rounded-xl border border-neutral-200 dark:border-neutral-800 text-[11px] text-neutral-500 space-y-1">
-              <div>合同到期日 (Calculated End Date): <strong className="text-neutral-900 dark:text-white font-mono">{endDate}</strong></div>
-              <div>租金每月缴纳日 (Monthly Rent Due): 每月 <strong className="text-neutral-900 dark:text-white font-mono">{rentDueDay}</strong> 日前</div>
+              <div>Calculated Lease End Date: <strong className="text-neutral-900 dark:text-white font-mono">{endDate}</strong></div>
+              <div>Monthly Rent Due: On or before the <strong className="text-neutral-900 dark:text-white font-mono">{rentDueDay}th</strong> of each month</div>
             </div>
           </div>
 
@@ -1144,22 +1144,22 @@ function ContractContent() {
             <h2 className="text-sm font-semibold text-neutral-900 dark:text-white flex items-center justify-between mb-4 pb-3 border-b border-neutral-100 dark:border-neutral-800">
               <span className="flex items-center gap-2">
                 <PenTool className="w-4 h-4 text-blue-600" />
-                <span>4. 承租人在线手写电子签名 *</span>
+                <span>4. Tenant Digital Signature *</span>
               </span>
               {hasValidSignature ? (
                 <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
                   <CheckCircle2 className="w-3.5 h-3.5" />
-                  <span>笔迹已采集</span>
+                  <span>Signature Captured</span>
                 </span>
               ) : (
                 <span className="text-[11px] text-amber-500 font-mono">
-                  {strokeCount === 0 ? "待手写签名" : "笔迹不足，请完整书写"}
+                  {strokeCount === 0 ? "Awaiting Signature" : "Insufficient strokes, please sign clearly"}
                 </span>
               )}
             </h2>
 
             <p className="text-[11px] text-neutral-500 mb-2">
-              请在下方签名框内完成连续手写签名（需包含有效书写笔迹）：
+              Please draw your handwritten digital signature in the box below:
             </p>
 
             <div className="relative border-2 border-neutral-300 dark:border-neutral-700 rounded-xl overflow-hidden bg-white touch-none">
@@ -1178,7 +1178,7 @@ function ContractContent() {
               />
               {!hasValidSignature && (
                 <div className="absolute inset-0 pointer-events-none flex items-center justify-center text-neutral-300 text-xs font-mono select-none">
-                  ✍️ 在此手写签名 (Sign Here)
+                  ✍️ Sign Here (Handwritten Signature)
                 </div>
               )}
             </div>
@@ -1191,21 +1191,21 @@ function ContractContent() {
                   className="text-xs text-neutral-600 dark:text-neutral-400 hover:text-red-500 transition-colors flex items-center gap-1 py-1 px-2 rounded min-h-[36px]"
                 >
                   <RotateCcw className="w-3.5 h-3.5" />
-                  <span>清除重签 (Clear)</span>
+                  <span>Clear Signature</span>
                 </button>
                 <button
                   type="button"
                   onClick={handleGenerateTypedSignature}
                   className="text-xs text-neutral-600 dark:text-neutral-400 hover:text-blue-500 transition-colors flex items-center gap-1 py-1 px-2 rounded min-h-[36px]"
-                  title="为键盘用户生成规范印签"
+                  title="Generate cursive signature script"
                 >
                   <Type className="w-3.5 h-3.5" />
-                  <span>规范草书签名</span>
+                  <span>Generate Script Signature</span>
                 </button>
               </div>
 
               <span className="text-[10px] text-neutral-400 font-mono">
-                笔迹段数: {strokeCount} | 采样点: {totalPoints}
+                Strokes: {strokeCount} | Points: {totalPoints}
               </span>
             </div>
           </div>
@@ -1214,7 +1214,7 @@ function ContractContent() {
           <div className="bg-white dark:bg-[#111113] border border-neutral-200 dark:border-neutral-800/80 rounded-2xl p-6 shadow-sm space-y-4">
             <h2 className="text-sm font-semibold text-neutral-900 dark:text-white flex items-center gap-2 pb-3 border-b border-neutral-100 dark:border-neutral-800">
               <Lock className="w-4 h-4 text-blue-600" />
-              <span>5. 法律确认与 PDPA 隐私声明</span>
+              <span>5. Legal Disclaimers & PDPA Consent</span>
             </h2>
 
             <div className="space-y-3 text-xs">
@@ -1226,7 +1226,7 @@ function ContractContent() {
                   className="mt-0.5 w-4 h-4 rounded text-blue-600 border-neutral-300 focus:ring-blue-500 cursor-pointer"
                 />
                 <span className="text-neutral-700 dark:text-neutral-300 leading-relaxed font-medium">
-                  我已仔细审阅并完全同意上述《办公室租赁合同》包含的全部 1 ~ 7 条条款细则（包含租金支付、2个月押金及违约处置）。
+                  I have thoroughly reviewed and fully agree to all terms and conditions (Clauses 1 to 7) of this Office Lease Agreement, including payment schedules, 2-month security deposit, and termination policies.
                 </span>
               </label>
 
@@ -1238,12 +1238,12 @@ function ContractContent() {
                   className="mt-0.5 w-4 h-4 rounded text-blue-600 border-neutral-300 focus:ring-blue-500 cursor-pointer"
                 />
                 <span className="text-neutral-700 dark:text-neutral-300 leading-relaxed font-medium">
-                  <strong>PDPA 个人数据保护同意：</strong> 本人同意 Colasola Co., Ltd. 仅出于本次租赁签约与法定税务合规目的处理本人提交的姓名、证件及联系方式，本数据不会向任何无关第三方提供。
+                  <strong>PDPA Privacy Consent:</strong> I hereby consent to Chiang Mai AI Center (Colasola Co., Ltd.) collecting and processing my submitted identity and contact details solely for this tenancy agreement and statutory legal/tax compliance in Thailand. This data will never be disclosed to unauthorized third parties.
                 </span>
               </label>
 
               <div className="p-3 bg-neutral-50 dark:bg-neutral-900/60 rounded-xl border border-neutral-200 dark:border-neutral-800 text-[10.5px] text-neutral-500 leading-relaxed">
-                <strong>⚖️ 法律效力提示 (Legal Notice)：</strong> 本在线合同确立双方在泰国《民商法典》及《电子交易法》（B.E. 2544）第 9 条下的租赁合意要约。如中英泰文本出现歧义，依据泰国法律程序以泰文本为准。
+                <strong>⚖️ Legal Validity Notice:</strong> This electronic agreement constitutes a legally binding contract under the Civil and Commercial Code and Section 9 of the Electronic Transactions Act (B.E. 2544) of Thailand. In the event of any discrepancies between language versions, the Thai version shall prevail in accordance with Thai legal proceedings.
               </div>
             </div>
           </div>
@@ -1529,7 +1529,7 @@ function ContractContent() {
                   />
                 ) : (
                   <span className="text-red-500 text-[11px] italic font-mono">
-                    (Pending Tenant Signature / 待手写签名)
+                    (Pending Tenant Signature)
                   </span>
                 )}
               </div>
@@ -1580,28 +1580,28 @@ function ContractContent() {
 
             <div className="text-center space-y-1">
               <h3 className="text-lg font-bold text-neutral-900 dark:text-white">
-                合同已完成签署与电子存证！
+                Agreement Successfully Signed & Digitally Archived!
               </h3>
               <p className="text-xs text-neutral-500">
-                签约记录已自动生成防篡改校验码并归档
+                Your contract has been cryptographically sealed and archived.
               </p>
             </div>
 
             <div className="p-4 bg-neutral-50 dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 text-xs space-y-2 font-mono">
               <div className="flex justify-between">
-                <span className="text-neutral-500">合同编号:</span>
+                <span className="text-neutral-500">Contract Ref:</span>
                 <span className="font-bold text-neutral-900 dark:text-white">{contractSerial}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-neutral-500">房间与租金:</span>
-                <span className="text-blue-600 font-semibold">{selectedRoomId} (฿{finalMonthlyRent.toLocaleString()}/月)</span>
+                <span className="text-neutral-500">Unit & Rent:</span>
+                <span className="text-blue-600 font-semibold">{selectedRoomId} (฿{finalMonthlyRent.toLocaleString()}/mo)</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-neutral-500">承租人:</span>
+                <span className="text-neutral-500">Tenant:</span>
                 <span className="text-neutral-800 dark:text-neutral-200">{effectiveTenantName}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-neutral-500">完整性哈希:</span>
+                <span className="text-neutral-500">Digital Hash:</span>
                 <span className="text-[10px] text-neutral-400 truncate max-w-[160px]">SHA256:{contractHash}</span>
               </div>
             </div>
@@ -1613,7 +1613,7 @@ function ContractContent() {
                 className="w-full py-3 bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-semibold text-xs rounded-xl transition-colors flex items-center justify-center gap-2 shadow-sm cursor-pointer"
               >
                 <Download className="w-4 h-4" />
-                <span>立即下载离线完整合同副本 (HTML/PDF)</span>
+                <span>Download Offline Signed Contract (.html)</span>
               </button>
 
               <button
@@ -1622,15 +1622,15 @@ function ContractContent() {
                 className="w-full py-3 bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 text-neutral-800 dark:text-neutral-200 font-semibold text-xs rounded-xl transition-colors flex items-center justify-center gap-2 cursor-pointer"
               >
                 <Printer className="w-4 h-4" />
-                <span>调用系统打印 / 导出为 PDF</span>
+                <span>Print / Save as PDF Document</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setIsSignedAndArchived(false)}
-                className="w-full py-2 text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-300 text-xs font-medium text-center"
+                className="w-full py-2 text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-300 text-xs font-medium text-center cursor-pointer"
               >
-                关闭并留在页面
+                Close & Return to Document
               </button>
             </div>
           </div>
