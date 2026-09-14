@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
 import { useTranslation, Language } from "@/context/LanguageContext";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -1133,13 +1134,30 @@ export default function PricingCalculator() {
                 </p>
               )}
 
+              {/* Generate Online Lease Contract Action */}
+              <Link
+                href={`/contract?room=${selectedRooms.length > 0 ? selectedRooms[0] : "C4"}&price=${selectedRooms.length > 0 ? officeCost : 7800}`}
+                className="w-full flex items-center justify-center gap-2 py-3.5 bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-[13px] font-semibold rounded-full transition-all shadow-md shadow-blue-500/20 group text-center"
+              >
+                <FileSpreadsheet className="w-4 h-4" />
+                <span>
+                  {language === "zh"
+                    ? "签署在线租赁合同 (8折特惠)"
+                    : language === "th"
+                    ? "สร้างสัญญาเช่าออนไลน์ (ลด 20%)"
+                    : language === "ja"
+                    ? "オンライン賃貸契約書を作成 (20%OFF)"
+                    : "Sign Online Lease Agreement (20% OFF)"}
+                </span>
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </Link>
+
               {/* Inquire Quote Action */}
               <button
                 onClick={handleInquireQuote}
-                className="w-full flex items-center justify-center gap-2 py-3.5 bg-neutral-950 hover:bg-neutral-800 dark:bg-white dark:hover:bg-neutral-100 text-white dark:text-neutral-950 text-[13px] font-semibold rounded-full transition-all shadow-sm group"
+                className="w-full flex items-center justify-center gap-2 py-3 bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-900 dark:hover:bg-neutral-800 text-neutral-800 dark:text-neutral-200 text-[13px] font-medium rounded-full transition-all shadow-sm group cursor-pointer"
               >
                 <span>{t("pricingInquireQuote")}</span>
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </button>
             </div>
           </div>

@@ -56,6 +56,11 @@ export default function Footer() {
                   {t("navGallery")}
                 </a>
               </li>
+              <li>
+                <a href="/contract" className="text-blue-400 hover:text-blue-300 transition-colors font-medium">
+                  在线租赁合同 (Lease Agreement)
+                </a>
+              </li>
             </ul>
           </div>
 

@@ -164,6 +164,13 @@ export default function Navbar({ onOpenSandbox, onPreheat }: NavbarProps) {
           </button>
 
           <a
+            href="/contract"
+            className="px-3.5 py-1.5 border border-blue-500/30 hover:border-blue-500/60 bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400 text-xs sm:text-[13px] font-semibold rounded-full transition-all shadow-sm"
+          >
+            {language === "zh" ? "在线签约" : language === "th" ? "สัญญาออนไลน์" : language === "ja" ? "契約書" : "Lease"}
+          </a>
+
+          <a
             href="#contact"
             onClick={(e) => handleScrollTo(e, "#contact")}
             className="px-5 py-2 bg-neutral-950 hover:bg-neutral-800 dark:bg-white dark:hover:bg-neutral-100 text-white dark:text-neutral-950 text-[13px] font-medium rounded-full transition-colors shadow-sm"
@@ -257,6 +264,13 @@ export default function Navbar({ onOpenSandbox, onPreheat }: NavbarProps) {
               >
                 AI 商业决策沙盘
               </button>
+              
+              <a
+                href="/contract"
+                className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-center font-semibold text-[14px] rounded-2xl shadow-sm"
+              >
+                {language === "zh" ? "签署在线租赁合同 (8折特惠)" : "Online Lease Agreement"}
+              </a>
               
               {navItems.map((item) => (
                 <a
