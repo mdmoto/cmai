@@ -203,6 +203,9 @@ function ContractContent() {
   const [signingDateIso, setSigningDateIso] = useState<string>("");
 
   useEffect(() => {
+    // Ensure document lang is English for the contract page
+    document.documentElement.lang = "en";
+
     const today = new Date();
     const yStr = today.getFullYear().toString();
     const mStr = String(today.getMonth() + 1).padStart(2, "0");
@@ -716,15 +719,15 @@ function ContractContent() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f4f5f7] dark:bg-[#08080a] text-neutral-900 dark:text-neutral-100 transition-colors font-sans pb-28">
+    <div className="min-h-screen bg-[#f4f5f7] dark:bg-[#08080a] text-neutral-900 dark:text-neutral-100 transition-colors font-sans pb-28 overflow-x-clip">
       
       {/* Top Header Bar - Hide on Print */}
       <header className="print:hidden sticky top-0 z-40 bg-white/95 dark:bg-black/95 backdrop-blur-md border-b border-neutral-200 dark:border-neutral-800 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-8 py-3 flex flex-wrap items-center justify-between gap-3">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-3 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <Link
               href="/"
-              className="p-2.5 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-600 dark:text-neutral-300 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
+              className="p-2 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-600 dark:text-neutral-300 transition-colors min-h-[40px] min-w-[40px] flex items-center justify-center"
               title="Back to Home"
             >
               <ArrowLeft className="w-5 h-5" />
@@ -749,7 +752,7 @@ function ContractContent() {
               type="button"
               onClick={handleConfirmAndSign}
               disabled={isSubmitting}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-semibold bg-[#2563eb] hover:bg-[#1d4ed8] text-white shadow-md shadow-blue-500/25 transition-all min-h-[44px] cursor-pointer"
+              className="flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-full text-xs font-semibold bg-[#2563eb] hover:bg-[#1d4ed8] text-white shadow-md shadow-blue-500/25 transition-all min-h-[44px] cursor-pointer"
             >
               {isSubmitting ? (
                 <>
@@ -769,7 +772,7 @@ function ContractContent() {
 
       {/* Validation Error Banner */}
       {showValidationAlert && validationErrors.length > 0 && (
-        <div className="max-w-7xl mx-auto px-4 sm:px-8 mt-6">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 mt-6">
           <div className="p-4 rounded-2xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 text-red-700 dark:text-red-300 text-xs space-y-1.5 shadow-sm">
             <div className="font-bold flex items-center gap-2 text-sm">
               <AlertCircle className="w-4 h-4 text-red-600" />
@@ -785,13 +788,13 @@ function ContractContent() {
       )}
 
       {/* Main Container */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-8 pt-6 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-6 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         
         {/* Left Interactive Control Form - Hide on Print */}
         <div className="print:hidden lg:col-span-5 space-y-6">
           
           {/* Box 1: Room & Special Discount Selector */}
-          <div className="bg-white dark:bg-[#111113] border border-neutral-200 dark:border-neutral-800/80 rounded-2xl p-6 shadow-sm">
+          <div className="bg-white dark:bg-[#111113] border border-neutral-200 dark:border-neutral-800/80 rounded-2xl p-4 sm:p-6 shadow-sm">
             <h2 className="text-sm font-semibold text-neutral-900 dark:text-white flex items-center justify-between mb-4 pb-3 border-b border-neutral-100 dark:border-neutral-800">
               <span className="flex items-center gap-2">
                 <Building2 className="w-4 h-4 text-blue-600" />
@@ -871,7 +874,7 @@ function ContractContent() {
           </div>
 
           {/* Box 2: Tenant Profile & Passport/ID Upload */}
-          <div className="bg-white dark:bg-[#111113] border border-neutral-200 dark:border-neutral-800/80 rounded-2xl p-6 shadow-sm">
+          <div className="bg-white dark:bg-[#111113] border border-neutral-200 dark:border-neutral-800/80 rounded-2xl p-4 sm:p-6 shadow-sm">
             <h2 className="text-sm font-semibold text-neutral-900 dark:text-white flex items-center justify-between mb-4 pb-3 border-b border-neutral-100 dark:border-neutral-800">
               <span className="flex items-center gap-2">
                 <ShieldCheck className="w-4 h-4 text-blue-600" />
@@ -1094,7 +1097,7 @@ function ContractContent() {
           </div>
 
           {/* Box 3: Lease Term & Schedule */}
-          <div className="bg-white dark:bg-[#111113] border border-neutral-200 dark:border-neutral-800/80 rounded-2xl p-6 shadow-sm">
+          <div className="bg-white dark:bg-[#111113] border border-neutral-200 dark:border-neutral-800/80 rounded-2xl p-4 sm:p-6 shadow-sm">
             <h2 className="text-sm font-semibold text-neutral-900 dark:text-white flex items-center gap-2 mb-4 pb-3 border-b border-neutral-100 dark:border-neutral-800">
               <Calendar className="w-4 h-4 text-blue-600" />
               <span>3. Lease Term & Effective Dates</span>
@@ -1140,7 +1143,7 @@ function ContractContent() {
           </div>
 
           {/* Box 4: Digital Signature Pad with Stroke Verification */}
-          <div className="bg-white dark:bg-[#111113] border border-neutral-200 dark:border-neutral-800/80 rounded-2xl p-6 shadow-sm">
+          <div className="bg-white dark:bg-[#111113] border border-neutral-200 dark:border-neutral-800/80 rounded-2xl p-4 sm:p-6 shadow-sm">
             <h2 className="text-sm font-semibold text-neutral-900 dark:text-white flex items-center justify-between mb-4 pb-3 border-b border-neutral-100 dark:border-neutral-800">
               <span className="flex items-center gap-2">
                 <PenTool className="w-4 h-4 text-blue-600" />
@@ -1211,7 +1214,7 @@ function ContractContent() {
           </div>
 
           {/* Box 5: Legal Disclaimers & PDPA Consent */}
-          <div className="bg-white dark:bg-[#111113] border border-neutral-200 dark:border-neutral-800/80 rounded-2xl p-6 shadow-sm space-y-4">
+          <div className="bg-white dark:bg-[#111113] border border-neutral-200 dark:border-neutral-800/80 rounded-2xl p-4 sm:p-6 shadow-sm space-y-4">
             <h2 className="text-sm font-semibold text-neutral-900 dark:text-white flex items-center gap-2 pb-3 border-b border-neutral-100 dark:border-neutral-800">
               <Lock className="w-4 h-4 text-blue-600" />
               <span>5. Legal Disclaimers & PDPA Consent</span>
@@ -1251,35 +1254,35 @@ function ContractContent() {
         </div>
 
         {/* Right Printable Legal Contract Document Paper */}
-        <div id="printable-contract" className="lg:col-span-7 bg-white text-[#111] p-8 sm:p-12 rounded-2xl shadow-xl border border-neutral-200 dark:border-neutral-800 print:shadow-none print:border-none print:p-0 print:m-0 print:w-full">
+        <div id="printable-contract" className="lg:col-span-7 bg-white text-[#111] p-4 sm:p-8 md:p-12 rounded-2xl shadow-xl border border-neutral-200 dark:border-neutral-800 print:shadow-none print:border-none print:p-0 print:m-0 print:w-full overflow-hidden max-w-full">
           
           {/* Official Document Header with CMAI Logo & Reference */}
           <div className="border-b-2 border-black pb-4 mb-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
               {/* Brand Logo & Company Info */}
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2.5 sm:gap-3">
                 <img
                   src="/images/cmai_header_logo.png"
                   alt="Chiang Mai AI Center"
-                  className="h-12 sm:h-14 md:h-16 w-auto object-contain shrink-0"
+                  className="h-10 sm:h-14 md:h-16 w-auto object-contain shrink-0"
                 />
-                <div className="border-l-2 border-neutral-300 pl-3 py-0.5">
+                <div className="border-l-2 border-neutral-300 pl-2.5 sm:pl-3 py-0.5">
                   <div className="font-extrabold text-xs sm:text-sm tracking-wide text-neutral-900 uppercase">
                     Chiang Mai AI Center
                   </div>
-                  <div className="text-[11px] text-neutral-600 font-medium">
+                  <div className="text-[10px] sm:text-[11px] text-neutral-600 font-medium">
                     Colasola Co., Ltd. (บริษัท โคล่าโซล่า จำกัด)
                   </div>
-                  <div className="text-[10px] text-neutral-500 font-mono">
+                  <div className="text-[9px] sm:text-[10px] text-neutral-500 font-mono break-all">
                     Tax ID: 0505566006478 · Chiang Mai AI Center, Chiang Mai
                   </div>
                 </div>
               </div>
 
               {/* Document Reference, Serial & Hash */}
-              <div className="text-left sm:text-right font-mono text-[11px] text-neutral-500 shrink-0">
-                <div>Ref: <strong className="text-black">{contractSerial || "CMAI-CONTRACT"}</strong></div>
-                <div>Hash: <strong className="text-neutral-800">{contractHash}</strong></div>
+              <div className="text-left sm:text-right font-mono text-[10px] sm:text-[11px] text-neutral-500 shrink-0 w-full sm:w-auto">
+                <div className="break-all">Ref: <strong className="text-black">{contractSerial || "CMAI-CONTRACT"}</strong></div>
+                <div className="break-all">Hash: <strong className="text-neutral-800">{contractHash}</strong></div>
                 <div>Date: <strong className="text-neutral-800">{formatEngDate(signingDateIso)}</strong></div>
               </div>
             </div>
@@ -1322,7 +1325,7 @@ function ContractContent() {
                 </p>
               )}
               <p>
-                <strong>ID / Passport / Tax ID / เลขที่บัตรประชาชน / เลขผู้เสียภาษี:</strong> <span className="font-mono font-bold underline text-blue-900">{tenantIdNumber || "____________________"}</span>
+                <strong>ID / Passport / Tax ID / เลขที่บัตรประชาชน / เลขผู้เสียภาษี:</strong> <span className="font-mono font-bold underline text-blue-900 break-all">{tenantIdNumber || "____________________"}</span>
               </p>
               <p>
                 <strong>Phone / เบอร์โทร:</strong> {tenantPhone || "____________________"} | <strong>Email:</strong> {tenantEmail || "____________________"}
@@ -1489,7 +1492,7 @@ function ContractContent() {
           </div>
 
           {/* Dual Signature Blocks */}
-          <div className="border-t-2 border-black pt-5 grid grid-cols-2 gap-6 text-xs">
+          <div className="border-t-2 border-black pt-5 grid grid-cols-1 sm:grid-cols-2 print:grid-cols-2 gap-6 text-xs">
             {/* Landlord Signature Block */}
             <div className="space-y-2">
               <p className="font-bold uppercase">
@@ -1538,7 +1541,7 @@ function ContractContent() {
                 <p><strong>Written Name / ชื่อเต็ม:</strong> {effectiveSignatoryDisplay}</p>
                 <p><strong>Title / ตำแหน่ง:</strong> {effectiveSignatoryTitle}</p>
                 <p><strong>Date / วันที่:</strong> {formatEngDate(signingDateIso)}</p>
-                <p><strong>Phone / เบอร์โทร:</strong> {tenantPhone || "____________________"}</p>
+                <p className="break-all"><strong>Phone / เบอร์โทร:</strong> {tenantPhone || "____________________"}</p>
               </div>
             </div>
           </div>
@@ -1560,9 +1563,9 @@ function ContractContent() {
           )}
 
           {/* Document Verification Footer */}
-          <div className="mt-6 pt-3 border-t border-neutral-200 flex justify-between items-center text-[10px] text-neutral-400 font-mono">
-            <span>Doc ID: {contractSerial}</span>
-            <span>Checksum: SHA256:{contractHash}</span>
+          <div className="mt-6 pt-3 border-t border-neutral-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-1.5 text-[9.5px] sm:text-[10px] text-neutral-500 font-mono">
+            <span className="break-all">Doc ID: {contractSerial}</span>
+            <span className="break-all">Checksum: SHA256:{contractHash}</span>
             <span>Page 1 of 1</span>
           </div>
 
@@ -1572,8 +1575,8 @@ function ContractContent() {
 
       {/* Confirmation & Archive Modal */}
       {isSignedAndArchived && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-[#111113] border border-neutral-200 dark:border-neutral-800 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl space-y-5 animate-in fade-in zoom-in duration-200">
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
+          <div className="bg-white dark:bg-[#111113] border border-neutral-200 dark:border-neutral-800 rounded-3xl p-5 sm:p-8 max-w-md w-full shadow-2xl space-y-5 animate-in fade-in zoom-in duration-200">
             <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto">
               <CheckCircle2 className="w-7 h-7" />
             </div>
@@ -1588,21 +1591,21 @@ function ContractContent() {
             </div>
 
             <div className="p-4 bg-neutral-50 dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 text-xs space-y-2 font-mono">
-              <div className="flex justify-between">
-                <span className="text-neutral-500">Contract Ref:</span>
-                <span className="font-bold text-neutral-900 dark:text-white">{contractSerial}</span>
+              <div className="flex justify-between items-center gap-2">
+                <span className="text-neutral-500 shrink-0">Contract Ref:</span>
+                <span className="font-bold text-neutral-900 dark:text-white break-all text-right">{contractSerial}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-neutral-500">Unit & Rent:</span>
+              <div className="flex justify-between items-center gap-2">
+                <span className="text-neutral-500 shrink-0">Unit & Rent:</span>
                 <span className="text-blue-600 font-semibold">{selectedRoomId} (฿{finalMonthlyRent.toLocaleString()}/mo)</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-neutral-500">Tenant:</span>
-                <span className="text-neutral-800 dark:text-neutral-200">{effectiveTenantName}</span>
+              <div className="flex justify-between items-center gap-2">
+                <span className="text-neutral-500 shrink-0">Tenant:</span>
+                <span className="text-neutral-800 dark:text-neutral-200 break-words text-right">{effectiveTenantName}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-neutral-500">Digital Hash:</span>
-                <span className="text-[10px] text-neutral-400 truncate max-w-[160px]">SHA256:{contractHash}</span>
+              <div className="flex justify-between items-center gap-2">
+                <span className="text-neutral-500 shrink-0">Digital Hash:</span>
+                <span className="text-[10px] text-neutral-400 break-all text-right">SHA256:{contractHash}</span>
               </div>
             </div>
 
