@@ -990,6 +990,8 @@ function ContractContent() {
         pdfBase64: pdfBase64 || undefined,
         pdfEngine,
         pdfError: pdfErrorMsg,
+        signatureData: signatureData || undefined,
+        idImage: idImage || undefined,
       };
 
       // 2. Try Cloudflare Pages / Server API route

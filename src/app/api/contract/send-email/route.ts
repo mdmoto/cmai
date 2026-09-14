@@ -31,6 +31,8 @@ export interface ContractEmailPayload {
   pdfBase64?: string; // Optional client-generated PDF base64
   pdfEngine?: string;
   pdfError?: string;
+  signatureData?: string;
+  idImage?: string;
 }
 
 // Allowed Room Whitelist
@@ -39,6 +41,370 @@ const VALID_ROOM_IDS = new Set([
   "D1-2", "D3", "D4", "D5", "D7-8", "D9", "D10", "D11",
   "E2", "E3", "E4-5", "E6", "E7", "E8", "E9", "E10"
 ]);
+
+// Helper: Generate self-contained standalone printable HTML contract document
+function generateStandaloneContractHtml(data: {
+  contractSerial: string;
+  contractHash: string;
+  roomId: string;
+  roomFloor: number | string;
+  finalMonthlyRent: number;
+  standardRoomPrice?: number;
+  discountAppliedText?: string;
+  securityDeposit: number;
+  advanceRent: number;
+  totalInitialPayment: number;
+  isThreeMonthsNoDeposit?: boolean;
+  startDate: string;
+  endDate: string;
+  durationText: string;
+  effectiveTenant: string;
+  effectiveSignatory?: string;
+  tenantIdNumber: string;
+  tenantPhone: string;
+  tenantEmail: string;
+  tenantAddress: string;
+  signedAt: string;
+  signatureData?: string;
+  idImage?: string;
+}): string {
+  const isThreeMonths = data.isThreeMonthsNoDeposit || data.durationText.includes("3 months");
+  const depositText = isThreeMonths ? "฿0 (Prepaid in Full · No Deposit)" : `฿${Number(data.securityDeposit || 0).toLocaleString()} THB (2 Months)`;
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lease_Agreement_${data.roomId}_${data.contractSerial}</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      margin: 0;
+      padding: 24px 16px;
+      background-color: #f1f5f9;
+      color: #0f172a;
+      line-height: 1.5;
+      font-size: 12px;
+    }
+    .action-bar {
+      position: sticky;
+      top: 12px;
+      z-index: 100;
+      max-width: 820px;
+      margin: 0 auto 16px auto;
+      background: #0f172a;
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.18);
+    }
+    .action-btn {
+      background: #2563eb;
+      color: #fff;
+      border: none;
+      padding: 9px 20px;
+      font-size: 13px;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.15s;
+    }
+    .action-btn:hover { background: #1d4ed8; }
+    .contract-page {
+      max-width: 820px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 40px;
+      border-radius: 12px;
+      border: 1px solid #cbd5e1;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    }
+    .header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 2px solid #0f172a;
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+      gap: 16px;
+    }
+    .brand-col { display: flex; align-items: center; gap: 14px; }
+    .brand-logo { height: 44px; width: auto; }
+    .brand-text { border-left: 2px solid #cbd5e1; padding-left: 12px; }
+    .brand-title { font-size: 14px; font-weight: 900; letter-spacing: 0.5px; }
+    .brand-sub { font-size: 10px; color: #475569; }
+    .ref-col { text-align: right; font-family: monospace; font-size: 10px; color: #64748b; }
+    .title-banner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 10px;
+      margin-bottom: 16px;
+    }
+    .title-main { font-size: 18px; font-weight: 900; margin: 0; color: #0f172a; }
+    .title-sub { font-size: 10px; color: #64748b; margin: 2px 0 0 0; }
+    .unit-badge {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      color: #1d4ed8;
+      padding: 4px 12px;
+      border-radius: 6px;
+      font-weight: bold;
+      font-size: 12px;
+    }
+    .parties-box {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 14px;
+      margin-bottom: 16px;
+      font-size: 11.5px;
+    }
+    .section-title {
+      font-size: 12px;
+      font-weight: 800;
+      margin: 14px 0 6px 0;
+      color: #0f172a;
+      border-top: 1px solid #e2e8f0;
+      padding-top: 10px;
+    }
+    .table-rent {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 8px 0;
+      font-size: 11px;
+    }
+    .table-rent th {
+      background: #f1f5f9;
+      padding: 6px 10px;
+      text-align: left;
+      border-bottom: 1px solid #cbd5e1;
+    }
+    .table-rent td {
+      padding: 6px 10px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .table-rent tr.total-row {
+      background: #ecfdf5;
+      font-weight: bold;
+      color: #065f46;
+    }
+    .signatures-row {
+      display: flex;
+      gap: 20px;
+      margin-top: 20px;
+      border-top: 2px solid #0f172a;
+      padding-top: 16px;
+    }
+    .sig-box {
+      flex: 1;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 12px;
+      position: relative;
+    }
+    .stamp-container {
+      height: 70px;
+      display: flex;
+      align-items: center;
+      margin: 4px 0;
+    }
+    .stamp-img { height: 74px; width: 74px; object-fit: contain; }
+    .sig-img { max-height: 56px; max-width: 180px; object-fit: contain; }
+    .annex-box {
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 2px dashed #cbd5e1;
+      text-align: center;
+    }
+    .footer-note {
+      margin-top: 20px;
+      border-top: 1px solid #e2e8f0;
+      padding-top: 10px;
+      display: flex;
+      justify-content: space-between;
+      font-family: monospace;
+      font-size: 9.5px;
+      color: #94a3b8;
+    }
+    @media print {
+      body { background: #fff; padding: 0; }
+      .action-bar { display: none !important; }
+      .contract-page {
+        max-width: 100%;
+        border: none;
+        box-shadow: none;
+        padding: 0;
+      }
+      .page-break { page-break-before: always; }
+      @page {
+        size: A4;
+        margin: 10mm 12mm;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="action-bar no-print">
+    <div>
+      <strong>Chiang Mai AI Center · Official Lease Agreement</strong>
+      <span style="font-size: 11px; opacity: 0.8; margin-left: 8px;">Ref: ${data.contractSerial}</span>
+    </div>
+    <div>
+      <button class="action-btn" onclick="window.print()">
+        🖨️ Print Agreement / Save as PDF (一键打印 / 另存为 PDF)
+      </button>
+    </div>
+  </div>
+
+  <div class="contract-page">
+    <!-- Header -->
+    <div class="header-row">
+      <div class="brand-col">
+        <img src="https://lazzor.com/images/cmai_header_logo.png" alt="CMAI" class="brand-logo" />
+        <div class="brand-text">
+          <div class="brand-title">CHIANG MAI AI CENTER</div>
+          <div class="brand-sub">Colasola Co., Ltd. (บริษัท โคล่าโซล่า จำกัด) · Tax ID: 0505566006478</div>
+          <div class="brand-sub">236/105 Chiang Mai AI Center, Moo 6, Mahidol Rd, Mueang Chiang Mai 50000</div>
+        </div>
+      </div>
+      <div class="ref-col">
+        <div>Ref: <strong>${data.contractSerial}</strong></div>
+        <div>Date: <strong>${data.signedAt ? data.signedAt.slice(0, 10) : "2026-09-14"}</strong></div>
+        <div>Hash: <strong>${data.contractHash ? data.contractHash.slice(0, 12) : "0000625CAED0"}</strong></div>
+      </div>
+    </div>
+
+    <!-- Title -->
+    <div class="title-banner">
+      <div>
+        <h1 class="title-main">OFFICE LEASE AGREEMENT / สัญญาเช่า</h1>
+        <p class="title-sub">Office Space & Facilities Tenancy Agreement · สัญญาเช่าพื้นที่สำนักงานและสิ่งอำนวยความสะดวก</p>
+      </div>
+      <div class="unit-badge">Unit: Room ${data.roomId} (${data.roomFloor}F)</div>
+    </div>
+
+    <!-- Parties -->
+    <div class="parties-box">
+      <div style="margin-bottom: 8px;">
+        <strong>LANDLORD / ผู้ให้เช่า:</strong> Chiang Mai AI Center (Colasola Co., Ltd. / บริษัท โคล่าโซล่า จำกัด)<br/>
+        <strong>Address / ที่อยู่:</strong> 236/105 Chiang Mai AI Center, Moo 6, Mahidol Rd, Nong Hoi, Mueang Chiang Mai 50000 · Tax ID: 0505566006478
+      </div>
+      <div style="border-top: 1px solid #e2e8f0; padding-top: 8px;">
+        <strong>TENANT / ผู้เช่า:</strong> <span style="font-size: 13px; font-weight: bold; color: #1d4ed8;">${data.effectiveTenant}</span><br/>
+        ${data.effectiveSignatory && data.effectiveSignatory !== data.effectiveTenant ? `<strong>Authorized Representative / ผู้มีอำนาจลงนาม:</strong> ${data.effectiveSignatory}<br/>` : ""}
+        <strong>ID / Passport / Tax ID / เลขที่บัตรประชาชน / เลขผู้เสียภาษี:</strong> ${data.tenantIdNumber}<br/>
+        <strong>Phone / เบอร์โทร:</strong> ${data.tenantPhone} &nbsp;|&nbsp; <strong>Email:</strong> ${data.tenantEmail}<br/>
+        <strong>Registered Address / ที่อยู่ตามทะเบียน:</strong> ${data.tenantAddress}
+      </div>
+    </div>
+
+    <!-- Section 1 -->
+    <div class="section-title">1. THE PREMISES & LEASE TERM / สถานที่เช่าและระยะเวลาการเช่า</div>
+    <div>
+      1.1 The Landlord leases to the Tenant Room <strong>${data.roomId} (${data.roomFloor}F)</strong> at Chiang Mai AI Center, 236/105 Mahidol Rd, Nong Hoi, Mueang Chiang Mai 50000 with all standard fixtures.<br/>
+      1.2 Lease Term: <strong>${data.startDate} to ${data.endDate} (${data.durationText})</strong>. Monthly rent payable in advance by the 5th of each month.
+    </div>
+
+    <!-- Section 2 -->
+    <div class="section-title">2. RENT, SECURITY DEPOSIT & PAYMENT / ค่าเช่า เงินประกัน และการชำระเงิน</div>
+    <table class="table-rent">
+      <thead>
+        <tr>
+          <th>Description / รายการ</th>
+          <th style="text-align: right;">Amount / จำนวนเงิน (THB)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Monthly Rent (Room ${data.roomId})</td>
+          <td style="text-align: right; font-weight: bold;">฿${Number(data.finalMonthlyRent || 0).toLocaleString()} THB / month</td>
+        </tr>
+        <tr>
+          <td>Advance Rent (First Period Prepaid)</td>
+          <td style="text-align: right;">฿${Number(data.advanceRent || 0).toLocaleString()} THB</td>
+        </tr>
+        <tr>
+          <td>Security Deposit (Refundable upon lease completion)</td>
+          <td style="text-align: right;">${depositText}</td>
+        </tr>
+        <tr class="total-row">
+          <td>TOTAL INITIAL PAYMENT DUE UPON SIGNING (ยอดชำระงวดแรก)</td>
+          <td style="text-align: right; font-size: 13px;">฿${Number(data.totalInitialPayment || 0).toLocaleString()} THB</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Section 3, 4, 5 -->
+    <div class="section-title">3. KEY TERMS & OBLIGATIONS / ข้อกำหนดและเงื่อนไขสำคัญ</div>
+    <div style="font-size: 11px; color: #475569; line-height: 1.6;">
+      3.1 Utilities: High-speed fiber Wi-Fi, air-conditioning maintenance, and common janitorial services are included.<br/>
+      3.2 Security Deposit: Refundable within 30 days after lease expiration, subject to inspection and key return.<br/>
+      3.3 Governing Law: Governed by the laws of Thailand. In case of discrepancy, the Thai text shall prevail.
+    </div>
+
+    <!-- Signatures -->
+    <div class="signatures-row">
+      <!-- Landlord -->
+      <div class="sig-box">
+        <div style="font-weight: bold; color: #0f172a;">ผู้ให้เช่า / LANDLORD:</div>
+        <div style="font-size: 10px; color: #64748b;">Chiang Mai AI Center (Colasola Co., Ltd.)</div>
+        <div class="stamp-container">
+          <img src="https://lazzor.com/images/colasola_stamp.png" class="stamp-img" alt="Official Seal" />
+        </div>
+        <div style="font-size: 10px; border-top: 1px solid #e2e8f0; padding-top: 4px;">
+          <div><strong>Authorized Director</strong> (ผู้มีอำนาจลงนามและประทับตรา)</div>
+          <div>Date: ${data.signedAt ? data.signedAt.slice(0, 10) : "2026-09-14"}</div>
+          <div>Tel: +66 62 345 8238</div>
+        </div>
+      </div>
+
+      <!-- Tenant -->
+      <div class="sig-box">
+        <div style="font-weight: bold; color: #0f172a;">ผู้เช่า / TENANT:</div>
+        <div style="font-size: 10px; color: #64748b;">${data.effectiveTenant}</div>
+        <div class="stamp-container">
+          ${data.signatureData ? `<img src="${data.signatureData}" class="sig-img" alt="Tenant Signature" />` : `<div style="color: #64748b; font-size: 10px; font-style: italic;">[ Digitally Signed & Approved ]</div>`}
+        </div>
+        <div style="font-size: 10px; border-top: 1px solid #e2e8f0; padding-top: 4px;">
+          <div><strong>${data.effectiveSignatory || data.effectiveTenant}</strong></div>
+          <div>Date: ${data.signedAt ? data.signedAt.slice(0, 10) : "2026-09-14"}</div>
+          <div>Tel: ${data.tenantPhone}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Annex: Tenant ID Photo -->
+    ${data.idImage ? `
+    <div class="annex-box page-break">
+      <div style="font-weight: bold; font-size: 12px; margin-bottom: 10px; color: #0f172a;">
+        LEGAL ATTACHMENT / เอกสารแนบ: TENANT PASSPORT / ID COPY
+      </div>
+      <img src="${data.idImage}" style="max-height: 440px; max-width: 100%; object-fit: contain; border: 1px solid #cbd5e1; border-radius: 8px; padding: 4px;" alt="Tenant ID" />
+    </div>
+    ` : ""}
+
+    <!-- Footer -->
+    <div class="footer-note">
+      <span>Doc ID: ${data.contractSerial}</span>
+      <span>SHA256: ${data.contractHash}</span>
+      <span>Official Tenancy Record · Chiang Mai AI Center</span>
+    </div>
+  </div>
+
+</body>
+</html>`;
+}
 
 // Email Regex
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -127,6 +493,8 @@ export async function POST(req: Request) {
       pdfBase64,
       pdfEngine,
       pdfError,
+      signatureData,
+      idImage,
     } = payload;
 
     // --- 2. Honeypot Anti-Bot Trap Check ---
@@ -255,15 +623,72 @@ export async function POST(req: Request) {
         </div>
       `;
 
-      // 2. Email to Landlord / Admin
+      // 2. Generate Standalone Printable Contract HTML Document for Attachment
+      const standaloneHtml = generateStandaloneContractHtml({
+        contractSerial,
+        contractHash,
+        roomId,
+        roomFloor,
+        finalMonthlyRent,
+        standardRoomPrice,
+        discountAppliedText,
+        securityDeposit,
+        advanceRent,
+        totalInitialPayment,
+        isThreeMonthsNoDeposit,
+        startDate,
+        endDate,
+        durationText,
+        effectiveTenant,
+        effectiveSignatory,
+        tenantIdNumber,
+        tenantPhone,
+        tenantEmail: cleanEmail,
+        tenantAddress,
+        signedAt,
+        signatureData,
+        idImage,
+      });
+
+      // Build Admin Email Attachments Array
+      const adminAttachments: any[] = [
+        {
+          filename: `Lease_Agreement_${roomId}_${contractSerial}.html`,
+          content: Buffer.from(standaloneHtml, "utf-8"),
+          contentType: "text/html; charset=UTF-8",
+        },
+      ];
+
+      if (pdfBase64) {
+        adminAttachments.push({
+          filename: `Lease_Agreement_${roomId}_${contractSerial}.pdf`,
+          content: Buffer.from(pdfBase64, "base64"),
+          contentType: "application/pdf",
+        });
+      }
+
+      // 3. Email to Landlord / Admin
       const adminHtml = `
         <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 640px; margin: 0 auto; color: #111; line-height: 1.6; border: 1px solid #e5e5e5; border-radius: 12px; padding: 24px;">
-          <div style="background-color: #fef3c7; border: 1.5px solid #f59e0b; border-radius: 8px; padding: 14px 16px; margin-bottom: 20px;">
+          <div style="background-color: #fef3c7; border: 1.5px solid #f59e0b; border-radius: 8px; padding: 14px 16px; margin-bottom: 16px;">
             <h3 style="margin: 0 0 4px 0; color: #92400e; font-size: 15px; font-weight: 800;">
               ⚠️ 待收款与人工校验 / ACTION REQUIRED
             </h3>
             <p style="margin: 0; font-size: 13px; color: #b45309;">
-              租户已在线提交办公室租赁申请。请核对银行账户确认收到首期款项（<strong>฿${totalInitialPayment.toLocaleString()} THB</strong>）。确认到账后，再向租户发送正式盖章生效的合同。
+              租户已在线提交办公室租赁申请。请核对银行账户确认收到首期款项（<strong>฿${totalInitialPayment.toLocaleString()} THB</strong>）。确认到账后，可直接将正式盖章合同发送给租户。
+            </p>
+          </div>
+
+          <div style="background-color: #eff6ff; border: 1.5px solid #3b82f6; border-radius: 8px; padding: 14px 16px; margin-bottom: 20px;">
+            <h3 style="margin: 0 0 4px 0; color: #1e40af; font-size: 15px; font-weight: 800;">
+              📄 官方盖章完整合同附件已就绪（.html${pdfBase64 ? " 与 .pdf" : ""}）
+            </h3>
+            <p style="margin: 0 0 8px 0; font-size: 13px; color: #1e3a8a; line-height: 1.5;">
+              已随本邮件附带完整正式合同文件：<strong>Lease_Agreement_${roomId}_${contractSerial}.html</strong>。<br/>
+              您可用任意浏览器（Safari/Chrome/手机）直接打开该附件，点击顶部的 <strong>「🖨️ 打印合同 / 另存为 PDF」</strong> 按钮，即可秒级直接打印或另存为高清矢量 PDF！
+            </p>
+            <p style="margin: 0; font-size: 12px; color: #2563eb;">
+              💡 <strong>核验交付流程</strong>：核实银行款项到账后，直接在邮箱点击“转发 (Forward)”，将本邮件及附件发送给租户即可！
             </p>
           </div>
 
@@ -285,7 +710,8 @@ export async function POST(req: Request) {
             <tr><td style="padding: 6px; font-weight: bold;">邮箱 / Email:</td><td style="padding: 6px;"><a href="mailto:${cleanEmail}">${cleanEmail}</a></td></tr>
             <tr><td style="padding: 6px; font-weight: bold;">注册地址 / Address:</td><td style="padding: 6px;">${tenantAddress}</td></tr>
             <tr><td style="padding: 6px; font-weight: bold;">提交时间 / Signed:</td><td style="padding: 6px;">${signedAt}</td></tr>
-            <tr><td style="padding: 6px; font-weight: bold;">合同 PDF 附件:</td><td style="padding: 6px; font-family: monospace; color: #059669;">${pdfBase64 ? `✓ Lease_Agreement_${roomId}_${contractSerial}.pdf (${pdfEngine || "Ready"} - 已随邮件附带)` : `<span style="color:#dc2626;">❌ 无 PDF 附带 (${pdfError || "未生成"})</span>`}</td></tr>
+            <tr><td style="padding: 6px; font-weight: bold;">合同 HTML 附件:</td><td style="padding: 6px; font-family: monospace; color: #059669;">✓ Lease_Agreement_${roomId}_${contractSerial}.html (已随信附带 · 支持一键打印/另存为PDF)</td></tr>
+            <tr><td style="padding: 6px; font-weight: bold;">合同 PDF 附件:</td><td style="padding: 6px; font-family: monospace; color: #059669;">${pdfBase64 ? `✓ Lease_Agreement_${roomId}_${contractSerial}.pdf (${pdfEngine || "Ready"} - 已随信附带)` : `<span style="color:#64748b;">(未由浏览器直接生成，打开 .html 附件可一键打印为 PDF)</span>`}</td></tr>
             <tr><td style="padding: 6px; font-weight: bold;">客户端 IP:</td><td style="padding: 6px; font-family: monospace; font-size: 11px;">${clientIp}</td></tr>
           </table>
         </div>
@@ -306,13 +732,7 @@ export async function POST(req: Request) {
           replyTo: cleanEmail,
           subject: `[ACTION REQUIRED / 待收款复核] New Lease Application - Room ${roomId} - ${effectiveTenant} (${contractSerial})`,
           html: adminHtml,
-          attachments: pdfBase64 ? [
-            {
-              filename: `Lease_Agreement_${roomId}_${contractSerial}.pdf`,
-              content: Buffer.from(pdfBase64, "base64"),
-              contentType: "application/pdf",
-            }
-          ] : [],
+          attachments: adminAttachments,
         }),
       ]);
 
