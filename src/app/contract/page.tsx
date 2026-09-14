@@ -866,6 +866,10 @@ function ContractContent() {
 
             origImages.forEach((origImg, index) => {
               try {
+                if (origImg.src && origImg.src.startsWith("data:")) {
+                  cloneImages[index].src = origImg.src;
+                  return;
+                }
                 if (origImg && origImg.complete && origImg.naturalWidth > 0) {
                   const canvas = document.createElement("canvas");
                   canvas.width = origImg.naturalWidth;
@@ -1276,6 +1280,10 @@ function ContractContent() {
 
     origImages.forEach((origImg, index) => {
       try {
+        if (origImg.src && origImg.src.startsWith("data:")) {
+          cloneImages[index].src = origImg.src;
+          return;
+        }
         if (origImg && origImg.complete && origImg.naturalWidth > 0) {
           const canvas = document.createElement("canvas");
           canvas.width = origImg.naturalWidth;
