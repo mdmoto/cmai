@@ -1024,8 +1024,24 @@ function ContractContent() {
     .font-medium { font-weight: 500; }
     @media print {
       body { padding: 0; max-width: 100%; font-size: 11px; }
-      .action-bar { display: none !important; }
+      .action-bar, .no-print { display: none !important; }
       @page { margin: 1.2cm; size: A4 portrait; }
+
+      /* Prevent slicing text and images across printed pages */
+      p, h1, h2, h3, h4, .avoid-break, .grid, blockquote, figure {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+      }
+      
+      .page-break-before, .break-before-page {
+        break-before: page !important;
+        page-break-before: always !important;
+      }
+
+      img {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+      }
     }
   </style>
 </head>
@@ -1068,22 +1084,125 @@ function ContractContent() {
 
           const canvas = await Promise.race([canvasPromise, timeoutPromise]);
           if (canvas && canvas.width > 0 && canvas.height > 0) {
-            const imgData = canvas.toDataURL("image/jpeg", 0.82);
             const pdf = new jsPDF({ orientation: "p", unit: "mm", format: "a4", compress: true });
-            const imgWidth = 210;
-            const pageHeight = 297;
-            const imgHeight = (canvas.height * imgWidth) / canvas.width;
-            let heightLeft = imgHeight;
-            let position = 0;
 
-            pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight, undefined, "FAST");
-            heightLeft -= pageHeight;
+            // Map DOM elements to identify safe cut positions between blocks
+            const containerRect = printableDoc.getBoundingClientRect();
+            const scale = canvas.width / printableDoc.offsetWidth;
 
-            while (heightLeft > 0) {
-              position = heightLeft - imgHeight;
-              pdf.addPage();
-              pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight, undefined, "FAST");
-              heightLeft -= pageHeight;
+            // Gather all structural blocks that should not be split across pages
+            const blockEls = Array.from(
+              printableDoc.querySelectorAll<HTMLElement>(
+                "p, h1, h2, h3, h4, div.grid, div.page-break-before, .border-t-2"
+              )
+            );
+
+            const blocks = blockEls
+              .map((el) => {
+                const r = el.getBoundingClientRect();
+                return {
+                  el,
+                  tag: el.tagName.toUpperCase(),
+                  top: (r.top - containerRect.top) * scale,
+                  bottom: (r.bottom - containerRect.top) * scale,
+                  isPageBreakBefore:
+                    el.classList.contains("page-break-before") || el.hasAttribute("data-page-break-before"),
+                };
+              })
+              .filter((b) => b.bottom > b.top && b.top >= 0);
+
+            // A4 page parameters
+            const a4Ratio = 297 / 210;
+            const pageCanvasHeight = Math.floor(canvas.width * a4Ratio);
+            const pagePadding = Math.round(canvas.width * 0.035); // ~7-8mm margin for content breathing room
+            const maxSliceHeight = pageCanvasHeight - pagePadding * 2;
+
+            let currentY = 0;
+            let pageIndex = 0;
+
+            while (currentY < canvas.height - 5) {
+              const currentMaxSlice = pageIndex === 0 ? pageCanvasHeight - pagePadding : maxSliceHeight;
+              const idealLimit = currentY + currentMaxSlice;
+
+              let sliceEnd = idealLimit;
+
+              if (idealLimit >= canvas.height) {
+                sliceEnd = canvas.height;
+              } else {
+                // 1. Check if an explicit page break element (e.g. Passport Annex) exists within this slice
+                const pbBlock = blocks.find(
+                  (b) => b.isPageBreakBefore && b.top > currentY + currentMaxSlice * 0.25 && b.top <= idealLimit
+                );
+
+                if (pbBlock) {
+                  sliceEnd = pbBlock.top - 2;
+                } else {
+                  // 2. Find any block that straddles the cut line
+                  const straddling = blocks.find((b) => b.top < idealLimit && b.bottom > idealLimit);
+
+                  if (straddling && straddling.top > currentY) {
+                    // Check if preceding sibling is a heading; if so, break before the heading to prevent orphans
+                    const precedingHeading = blocks.find(
+                      (b) =>
+                        /^H[1-6]$/.test(b.tag) &&
+                        b.top >= currentY &&
+                        b.bottom >= straddling.top - 40 &&
+                        b.top < straddling.top
+                    );
+                    if (precedingHeading && precedingHeading.top > currentY) {
+                      sliceEnd = precedingHeading.top - 2;
+                    } else {
+                      sliceEnd = straddling.top - 2;
+                    }
+                  } else {
+                    // 3. Find the last block that ends safely before idealLimit
+                    const preceding = blocks.filter((b) => b.bottom <= idealLimit && b.bottom > currentY);
+                    if (preceding.length > 0) {
+                      sliceEnd = preceding[preceding.length - 1].bottom + 2;
+                    }
+                  }
+                }
+              }
+
+              // Safeguard against infinite loop or tiny slice
+              if (sliceEnd <= currentY + 30) {
+                sliceEnd = Math.min(canvas.height, currentY + currentMaxSlice);
+              }
+
+              const sliceHeight = sliceEnd - currentY;
+
+              // Render individual page canvas with clean white background
+              const pageCanvas = document.createElement("canvas");
+              pageCanvas.width = canvas.width;
+              pageCanvas.height = pageCanvasHeight;
+              const pctx = pageCanvas.getContext("2d");
+
+              if (pctx) {
+                pctx.fillStyle = "#ffffff";
+                pctx.fillRect(0, 0, pageCanvas.width, pageCanvas.height);
+
+                const destY = pageIndex === 0 ? 0 : pagePadding;
+                pctx.drawImage(
+                  canvas,
+                  0,
+                  currentY,
+                  canvas.width,
+                  sliceHeight, // Source slice
+                  0,
+                  destY,
+                  canvas.width,
+                  sliceHeight // Destination on pageCanvas
+                );
+
+                const pageImgData = pageCanvas.toDataURL("image/jpeg", 0.85);
+                if (pageIndex > 0) {
+                  pdf.addPage("a4", "p");
+                }
+                pdf.addImage(pageImgData, "JPEG", 0, 0, 210, 297, undefined, "FAST");
+              }
+
+              currentY = sliceEnd;
+              pageIndex++;
             }
 
             const rawDataUri = pdf.output("datauristring");
@@ -1409,6 +1528,22 @@ function ContractContent() {
     @media print {
       body { padding: 0; max-width: 100%; font-size: 11px; }
       @page { margin: 1.2cm; size: A4 portrait; }
+
+      /* Prevent slicing text and images across printed pages */
+      p, h1, h2, h3, h4, .avoid-break, .grid, blockquote, figure {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+      }
+      
+      .page-break-before, .break-before-page {
+        break-before: page !important;
+        page-break-before: always !important;
+      }
+
+      img {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+      }
     }
   </style>
 </head>
@@ -2611,7 +2746,7 @@ function ContractContent() {
           <div className="mt-6 pt-3 border-t border-neutral-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-1.5 text-[9.5px] sm:text-[10px] text-neutral-500 font-mono">
             <span className="break-all">Doc ID: {contractSerial}</span>
             <span className="break-all">Checksum: SHA256:{contractHash}</span>
-            <span>Page 1 of 1</span>
+            <span>Official Electronic Record</span>
           </div>
 
         </div>

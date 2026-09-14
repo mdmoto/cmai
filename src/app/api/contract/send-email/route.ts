@@ -213,8 +213,24 @@ function generateStandaloneContractHtml(data: {
     .font-medium { font-weight: 500; }
     @media print {
       body { padding: 0; max-width: 100%; font-size: 11px; }
-      .action-bar { display: none !important; }
+      .action-bar, .no-print { display: none !important; }
       @page { margin: 1.2cm; size: A4 portrait; }
+
+      /* Prevent slicing text and images across printed pages */
+      p, h1, h2, h3, h4, .avoid-break, .grid, blockquote, figure {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+      }
+      
+      .page-break-before, .break-before-page {
+        break-before: page !important;
+        page-break-before: always !important;
+      }
+
+      img {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+      }
     }
   </style>
 </head>
@@ -407,7 +423,7 @@ function generateStandaloneContractHtml(data: {
   <div class="mt-6 pt-3 border-t border-neutral-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-1.5 text-[9.5px] sm:text-[10px] text-neutral-500 font-mono">
     <span class="break-all">Doc ID: ${data.contractSerial}</span>
     <span class="break-all">Checksum: SHA256:${data.contractHash ? data.contractHash.slice(0, 12) : "00004E4E4295"}</span>
-    <span>Page 1 of 1</span>
+    <span>Official Electronic Record</span>
   </div>
 
 </body>
