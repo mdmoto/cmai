@@ -72,22 +72,25 @@ export async function POST(req: Request) {
     const effectiveTenant = tenantType === "company" ? (companyName || tenantName) : tenantName;
     const effectiveSignatory = tenantType === "company" ? `${signatoryName || tenantName} (${signatoryTitle || "Representative"})` : tenantName;
 
-    const smtpUser = process.env.SMTP_USER;
+    const smtpUser = process.env.SMTP_USER || "mdmoto@gmail.com";
     const smtpPass = process.env.SMTP_PASS;
     const smtpHost = process.env.SMTP_HOST || "smtp.gmail.com";
-    const smtpPort = Number(process.env.SMTP_PORT) || 465;
-    const adminEmail = process.env.ADMIN_EMAIL || "mdmoto@gmail.com";
-    const fromAddress = process.env.SMTP_FROM || `"Chiang Mai AI Center" <${smtpUser || "leasing@lazzor.com"}>`;
+    const smtpPort = Number(process.env.SMTP_PORT) || 587;
+    const adminEmail = process.env.ADMIN_EMAIL || "cmai@lazzor.com";
+    const fromAddress = process.env.SMTP_FROM || `"Chiang Mai AI Center" <cmai@lazzor.com>`;
 
     // --- Scenario 1: Google Workspace / Gmail SMTP Configured ---
-    if (smtpUser && smtpPass) {
+    if (smtpPass) {
       const transporter = nodemailer.createTransport({
         host: smtpHost,
         port: smtpPort,
-        secure: smtpPort === 465,
+        secure: smtpPort === 465, // true for port 465, false for port 587 (STARTTLS)
         auth: {
           user: smtpUser,
           pass: smtpPass,
+        },
+        tls: {
+          rejectUnauthorized: true,
         },
       });
 
