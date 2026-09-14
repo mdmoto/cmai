@@ -187,6 +187,8 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
       signedAt,
       bot_honeypot,
       pdfBase64,
+      pdfEngine,
+      pdfError,
     } = payload;
 
     // 1. Honeypot Anti-Bot Trap Check
@@ -318,7 +320,7 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
           <tr><td style="padding: 6px; font-weight: bold;">邮箱 / Email:</td><td style="padding: 6px;"><a href="mailto:${cleanEmail}">${cleanEmail}</a></td></tr>
           <tr><td style="padding: 6px; font-weight: bold;">注册地址 / Address:</td><td style="padding: 6px;">${tenantAddress}</td></tr>
           <tr><td style="padding: 6px; font-weight: bold;">提交时间 / Signed:</td><td style="padding: 6px;">${signedAt}</td></tr>
-          <tr><td style="padding: 6px; font-weight: bold;">合同 PDF 附件:</td><td style="padding: 6px; font-family: monospace; color: #2563eb;">${pdfBase64 ? `Lease_Agreement_${roomId}_${contractSerial}.pdf (已随邮件附带)` : "无 PDF 附带"}</td></tr>
+          <tr><td style="padding: 6px; font-weight: bold;">合同 PDF 附件:</td><td style="padding: 6px; font-family: monospace; color: #059669;">${pdfBase64 ? `✓ Lease_Agreement_${roomId}_${contractSerial}.pdf (${pdfEngine || "Ready"} - 已随邮件附带)` : `<span style="color:#dc2626;">❌ 无 PDF 附带 (${pdfError || "未生成"})</span>`}</td></tr>
         </table>
       </div>
     `;

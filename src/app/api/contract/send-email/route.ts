@@ -29,6 +29,8 @@ export interface ContractEmailPayload {
   signedAt: string;
   bot_honeypot?: string; // Invisible anti-bot field
   pdfBase64?: string; // Optional client-generated PDF base64
+  pdfEngine?: string;
+  pdfError?: string;
 }
 
 // Allowed Room Whitelist
@@ -123,6 +125,8 @@ export async function POST(req: Request) {
       signedAt,
       bot_honeypot,
       pdfBase64,
+      pdfEngine,
+      pdfError,
     } = payload;
 
     // --- 2. Honeypot Anti-Bot Trap Check ---
@@ -281,6 +285,7 @@ export async function POST(req: Request) {
             <tr><td style="padding: 6px; font-weight: bold;">邮箱 / Email:</td><td style="padding: 6px;"><a href="mailto:${cleanEmail}">${cleanEmail}</a></td></tr>
             <tr><td style="padding: 6px; font-weight: bold;">注册地址 / Address:</td><td style="padding: 6px;">${tenantAddress}</td></tr>
             <tr><td style="padding: 6px; font-weight: bold;">提交时间 / Signed:</td><td style="padding: 6px;">${signedAt}</td></tr>
+            <tr><td style="padding: 6px; font-weight: bold;">合同 PDF 附件:</td><td style="padding: 6px; font-family: monospace; color: #059669;">${pdfBase64 ? `✓ Lease_Agreement_${roomId}_${contractSerial}.pdf (${pdfEngine || "Ready"} - 已随邮件附带)` : `<span style="color:#dc2626;">❌ 无 PDF 附带 (${pdfError || "未生成"})</span>`}</td></tr>
             <tr><td style="padding: 6px; font-weight: bold;">客户端 IP:</td><td style="padding: 6px; font-family: monospace; font-size: 11px;">${clientIp}</td></tr>
           </table>
         </div>

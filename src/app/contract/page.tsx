@@ -248,6 +248,305 @@ export const VALID_PROMO_CODES: Record<string, PromoCodeInfo> = {
   },
 };
 
+// --- Pure jsPDF Vector Generator (Universal 100% Reliable Fallback) ---
+async function generateVectorContractPdf(data: {
+  contractSerial: string;
+  contractHash: string;
+  signingDateStr: string;
+  roomId: string;
+  roomFloor: number;
+  effectiveTenantName: string;
+  effectiveSignatoryDisplay: string;
+  effectiveSignatoryTitle: string;
+  tenantType: "individual" | "company";
+  tenantIdNumber: string;
+  tenantPhone: string;
+  tenantEmail: string;
+  tenantAddress: string;
+  startDate: string;
+  endDate: string;
+  durationEngText: string;
+  finalMonthlyRent: number;
+  advanceRent: number;
+  securityDeposit: number;
+  totalInitialPayment: number;
+  isThreeMonthsNoDeposit: boolean;
+  logoDataUrl?: string;
+  stampDataUrl?: string;
+  signatureData?: string | null;
+  idImage?: string | null;
+}): Promise<string> {
+  const { jsPDF } = await import("jspdf");
+  const doc = new jsPDF({
+    orientation: "portrait",
+    unit: "mm",
+    format: "a4",
+    compress: true,
+  });
+
+  const pageWidth = 210;
+  const pageHeight = 297;
+  const margin = 14;
+  const contentWidth = pageWidth - margin * 2;
+
+  // Header Logo
+  if (data.logoDataUrl && data.logoDataUrl.startsWith("data:")) {
+    try {
+      doc.addImage(data.logoDataUrl, "PNG", margin, 12, 28, 14, undefined, "FAST");
+    } catch {}
+  }
+
+  // Header Company Info
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(13);
+  doc.setTextColor(15, 23, 42);
+  doc.text("CHIANG MAI AI CENTER", margin + 32, 17);
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(8.5);
+  doc.setTextColor(100, 116, 139);
+  doc.text("Colasola Co., Ltd. · Tax ID: 0505566006478", margin + 32, 22);
+  doc.text("236/105 Chiang Mai AI Center, Moo 6, Mahidol Rd, Mueang Chiang Mai 50000", margin + 32, 26);
+
+  // Right Reference Info
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(8.5);
+  doc.setTextColor(15, 23, 42);
+  doc.text(`Ref: ${data.contractSerial || "CMAI-CONTRACT"}`, pageWidth - margin, 17, { align: "right" });
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(7.5);
+  doc.setTextColor(100, 116, 139);
+  doc.text(`Date: ${data.signingDateStr || "14 September 2026"}`, pageWidth - margin, 22, { align: "right" });
+  doc.text(`Hash: ${data.contractHash ? data.contractHash.slice(0, 16) : "0000625CAED0"}`, pageWidth - margin, 26, { align: "right" });
+
+  // Header Divider
+  doc.setDrawColor(15, 23, 42);
+  doc.setLineWidth(0.6);
+  doc.line(margin, 30, pageWidth - margin, 30);
+
+  // Title
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(14);
+  doc.setTextColor(15, 23, 42);
+  doc.text("OFFICE LEASE AGREEMENT", margin, 38);
+  doc.setFontSize(8.5);
+  doc.setFont("helvetica", "normal");
+  doc.setTextColor(71, 85, 105);
+  doc.text("Office Space & Facilities Tenancy Agreement · Chiang Mai AI Center", margin, 43);
+
+  // Unit Badge
+  doc.setFillColor(239, 246, 255);
+  doc.setDrawColor(191, 219, 254);
+  doc.roundedRect(pageWidth - margin - 46, 33, 46, 12, 2, 2, "FD");
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(9);
+  doc.setTextColor(37, 99, 235);
+  doc.text(`Unit: Room ${data.roomId} (${data.roomFloor}F)`, pageWidth - margin - 23, 40, { align: "center" });
+
+  let y = 50;
+
+  // Parties Box
+  doc.setFillColor(248, 250, 252);
+  doc.setDrawColor(226, 232, 240);
+  doc.roundedRect(margin, y, contentWidth, 34, 2, 2, "FD");
+
+  doc.setFontSize(8);
+  doc.setTextColor(15, 23, 42);
+  doc.setFont("helvetica", "bold");
+  doc.text("LANDLORD:", margin + 4, y + 6);
+  doc.setFont("helvetica", "normal");
+  doc.text("Chiang Mai AI Center (Colasola Co., Ltd.) · Tax ID: 0505566006478", margin + 34, y + 6);
+  doc.text("236/105 Chiang Mai AI Center, Moo 6, Mahidol Rd, Nong Hoi, Mueang Chiang Mai 50000", margin + 34, y + 10);
+
+  doc.setFont("helvetica", "bold");
+  doc.text("TENANT:", margin + 4, y + 17);
+  doc.setFont("helvetica", "normal");
+  doc.text(`${data.effectiveTenantName || "Tenant"} ${data.tenantType === "company" ? `(Rep: ${data.effectiveSignatoryDisplay})` : ""}`, margin + 34, y + 17);
+  doc.setFont("helvetica", "bold");
+  doc.text("ID / Tax No:", margin + 4, y + 22);
+  doc.setFont("helvetica", "normal");
+  doc.text(String(data.tenantIdNumber || "-"), margin + 34, y + 22);
+  doc.setFont("helvetica", "bold");
+  doc.text("Phone & Email:", margin + 4, y + 27);
+  doc.setFont("helvetica", "normal");
+  doc.text(`${data.tenantPhone || "-"}  |  ${data.tenantEmail || "-"}`, margin + 34, y + 27);
+  doc.setFont("helvetica", "bold");
+  doc.text("Legal Address:", margin + 4, y + 31);
+  doc.setFont("helvetica", "normal");
+  const truncatedAddr = data.tenantAddress && data.tenantAddress.length > 70 ? data.tenantAddress.slice(0, 67) + "..." : (data.tenantAddress || "-");
+  doc.text(truncatedAddr, margin + 34, y + 31);
+
+  y += 40;
+
+  // Section 1: Premises & Term
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(9);
+  doc.setTextColor(15, 23, 42);
+  doc.text("1. PREMISES & LEASE TERM", margin, y);
+  y += 5;
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(8);
+  doc.setTextColor(51, 65, 85);
+  doc.text(`1.1 Premises: Room ${data.roomId} (${data.roomFloor}F), Chiang Mai AI Center, 236/105 Mahidol Rd, Nong Hoi, Chiang Mai.`, margin, y);
+  y += 4.5;
+  doc.text(`1.2 Term: ${data.startDate} to ${data.endDate} (${data.durationEngText}). Monthly rent payable in advance by the 5th.`, margin, y);
+
+  y += 8;
+
+  // Section 2: Rent, Security Deposit & Payment Table
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(9);
+  doc.setTextColor(15, 23, 42);
+  doc.text("2. RENT, SECURITY DEPOSIT & PAYMENT SCHEDULE", margin, y);
+  y += 5;
+
+  doc.setFillColor(241, 245, 249);
+  doc.rect(margin, y, contentWidth, 6, "F");
+  doc.setFontSize(7.5);
+  doc.setFont("helvetica", "bold");
+  doc.text("Description", margin + 4, y + 4.2);
+  doc.text("Amount (THB)", pageWidth - margin - 4, y + 4.2, { align: "right" });
+  y += 6;
+
+  const rentItems = [
+    [`Monthly Rent (Room ${data.roomId})`, `THB ${Number(data.finalMonthlyRent || 0).toLocaleString()} / month`],
+    ["Advance Rent (Prepaid)", `THB ${Number(data.advanceRent || 0).toLocaleString()}`],
+    ["Security Deposit (Refundable upon lease completion)", data.isThreeMonthsNoDeposit ? "THB 0 (Waived)" : `THB ${Number(data.securityDeposit || 0).toLocaleString()}`],
+    ["TOTAL INITIAL PAYMENT DUE UPON SIGNING", `THB ${Number(data.totalInitialPayment || 0).toLocaleString()}`],
+  ];
+
+  rentItems.forEach(([desc, amt], idx) => {
+    const isTotal = idx === rentItems.length - 1;
+    if (isTotal) {
+      doc.setFillColor(236, 253, 245);
+      doc.rect(margin, y, contentWidth, 7, "F");
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(6, 95, 70);
+    } else {
+      doc.setTextColor(51, 65, 85);
+      doc.setFont("helvetica", "normal");
+    }
+    doc.text(desc, margin + 4, y + 4.5);
+    doc.text(amt, pageWidth - margin - 4, y + 4.5, { align: "right" });
+    doc.setDrawColor(226, 232, 240);
+    doc.line(margin, y + (isTotal ? 7 : 6), pageWidth - margin, y + (isTotal ? 7 : 6));
+    y += isTotal ? 7 : 6;
+  });
+
+  y += 6;
+
+  // Section 3: Key Conditions
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(9);
+  doc.setTextColor(15, 23, 42);
+  doc.text("3. KEY TERMS & OBLIGATIONS", margin, y);
+  y += 5;
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(7.5);
+  doc.setTextColor(71, 85, 105);
+  const clauses = [
+    "3.1 Utilities: High-speed fiber Wi-Fi, air conditioning maintenance, and common janitorial services are included.",
+    "3.2 Security Deposit: Refundable within 30 days after lease expiration, subject to inspection and key return.",
+    "3.3 Early Termination: 30 days prior written notice required. Governing law: Laws of the Kingdom of Thailand.",
+  ];
+  clauses.forEach((c) => {
+    doc.text(c, margin, y);
+    y += 4.2;
+  });
+
+  y += 6;
+
+  // Dual Signatures Block
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(9);
+  doc.setTextColor(15, 23, 42);
+  doc.text("SIGNATURES & OFFICIAL COUNTERSIGNATURE", margin, y);
+  y += 5;
+
+  const sigBoxWidth = (contentWidth - 6) / 2;
+  const sigBoxHeight = 44;
+
+  // Landlord Box
+  doc.setFillColor(255, 255, 255);
+  doc.setDrawColor(203, 213, 225);
+  doc.roundedRect(margin, y, sigBoxWidth, sigBoxHeight, 2, 2, "D");
+  doc.setFontSize(8);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(15, 23, 42);
+  doc.text("LANDLORD / ผู้ให้เช่า:", margin + 4, y + 5);
+  doc.setFontSize(7.5);
+  doc.setFont("helvetica", "normal");
+  doc.setTextColor(100, 116, 139);
+  doc.text("Chiang Mai AI Center (Colasola Co., Ltd.)", margin + 4, y + 9);
+
+  // Official Stamp
+  if (data.stampDataUrl && data.stampDataUrl.startsWith("data:")) {
+    try {
+      doc.addImage(data.stampDataUrl, "PNG", margin + 28, y + 10, 24, 24, undefined, "FAST");
+    } catch {}
+  }
+
+  doc.setFontSize(7);
+  doc.setTextColor(15, 23, 42);
+  doc.text("Authorized Director (ผู้มีอำนาจลงนามและประทับตรา)", margin + 4, y + 36);
+  doc.text(`Date: ${data.signingDateStr || "14 September 2026"}`, margin + 4, y + 40);
+
+  // Tenant Box
+  const tenantX = margin + sigBoxWidth + 6;
+  doc.roundedRect(tenantX, y, sigBoxWidth, sigBoxHeight, 2, 2, "D");
+  doc.setFontSize(8);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(15, 23, 42);
+  doc.text("TENANT / ผู้เช่า:", tenantX + 4, y + 5);
+  doc.setFontSize(7.5);
+  doc.setFont("helvetica", "normal");
+  doc.setTextColor(100, 116, 139);
+  doc.text(String(data.effectiveTenantName || "Tenant"), tenantX + 4, y + 9);
+
+  // Tenant Handwritten Signature
+  if (data.signatureData && data.signatureData.startsWith("data:")) {
+    try {
+      doc.addImage(data.signatureData, "PNG", tenantX + 6, y + 11, sigBoxWidth - 12, 22, undefined, "FAST");
+    } catch {}
+  }
+
+  doc.setFontSize(7);
+  doc.setTextColor(15, 23, 42);
+  doc.text(`Signed by: ${data.effectiveSignatoryDisplay || data.effectiveTenantName}`, tenantX + 4, y + 36);
+  doc.text(`Date: ${data.signingDateStr || "14 September 2026"}`, tenantX + 4, y + 40);
+
+  // Footer on Page 1
+  doc.setFontSize(7);
+  doc.setTextColor(148, 163, 184);
+  doc.text("Official Tenancy Document · Chiang Mai AI Center · Colasola Co., Ltd. · Tax ID: 0505566006478", pageWidth / 2, pageHeight - 8, { align: "center" });
+
+  // Optional Page 2: Tenant Identity / Passport Document Attachment
+  if (data.idImage && data.idImage.startsWith("data:")) {
+    doc.addPage();
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(12);
+    doc.setTextColor(15, 23, 42);
+    doc.text("ANNEX 1: TENANT IDENTITY DOCUMENT / PASSPORT COPY", margin, 20);
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(8);
+    doc.setTextColor(100, 116, 139);
+    doc.text(`Attached for Contract Reference: ${data.contractSerial || "CMAI-CONTRACT"} · Tenant: ${data.effectiveTenantName}`, margin, 26);
+
+    try {
+      const imgFormat = data.idImage.includes("png") ? "PNG" : "JPEG";
+      doc.addImage(data.idImage, imgFormat, margin, 32, contentWidth, 140, undefined, "FAST");
+    } catch {}
+
+    doc.setFontSize(7);
+    doc.setTextColor(148, 163, 184);
+    doc.text("Official Tenancy Document · Chiang Mai AI Center · Colasola Co., Ltd.", pageWidth / 2, pageHeight - 8, { align: "center" });
+  }
+
+  const rawUri = doc.output("datauristring");
+  return rawUri.split(",")[1];
+}
+
 function ContractContent() {
   const searchParams = useSearchParams();
 
@@ -255,6 +554,10 @@ function ContractContent() {
   const [contractSerial, setContractSerial] = useState<string>("");
   const [contractHash, setContractHash] = useState<string>("");
   const [signingDateIso, setSigningDateIso] = useState<string>("");
+
+  // Preloaded Base64 Image Assets for 100% Reliable PDF & Canvas Rendering
+  const [logoDataUrl, setLogoDataUrl] = useState<string>("/images/cmai_header_logo.png");
+  const [stampDataUrl, setStampDataUrl] = useState<string>("/images/colasola_stamp.png");
 
   useEffect(() => {
     // Ensure document lang is English for the contract page
@@ -278,9 +581,28 @@ function ContractContent() {
     }
     setContractHash(Math.abs(hash).toString(16).padStart(8, "0"));
 
-    // Preload landlord official seal in memory cache for smooth PDF generation
-    const sealImg = new Image();
-    sealImg.src = "/images/colasola_stamp.png";
+    // Preload & convert images to Data URLs to prevent canvas iframe CORS/network failures
+    const toDataUrl = async (url: string): Promise<string> => {
+      try {
+        const res = await fetch(url);
+        const blob = await res.blob();
+        return new Promise<string>((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result as string);
+          reader.onerror = () => resolve(url);
+          reader.readAsDataURL(blob);
+        });
+      } catch {
+        return url;
+      }
+    };
+
+    toDataUrl("/images/cmai_header_logo.png").then((d) => {
+      if (d && d.startsWith("data:")) setLogoDataUrl(d);
+    });
+    toDataUrl("/images/colasola_stamp.png").then((d) => {
+      if (d && d.startsWith("data:")) setStampDataUrl(d);
+    });
   }, []);
 
   // Initial query values with strict whitelist validation
@@ -371,12 +693,6 @@ function ContractContent() {
   // Submission & Confirmation Modal State
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSignedAndArchived, setIsSignedAndArchived] = useState(false);
-
-  // Preload corporate stamp image in memory for instant canvas capture
-  useEffect(() => {
-    const img = new Image();
-    img.src = "/images/colasola_stamp.png";
-  }, []);
 
   // Dynamic discount rate from verified promo code
   const discountRate = appliedPromo ? appliedPromo.rate : 1.0;
@@ -515,11 +831,15 @@ function ContractContent() {
     try {
       // 1. Generate full multi-page PDF of the stamped agreement in browser for Admin copy
       let pdfBase64: string | undefined = undefined;
+      let pdfEngine: string = "none";
+      let pdfErrorMsg: string | undefined = undefined;
+
       const pendingStampEl = document.getElementById("landlord-pending-stamp");
       const officialStampEl = document.getElementById("landlord-official-stamp");
       const landlordDateEl = document.getElementById("landlord-date-text");
       const landlordSignatoryEl = document.getElementById("landlord-signatory-text");
 
+      // Attempt Engine 1: DOM canvas capture via html2canvas-pro
       try {
         const printableDoc = document.getElementById("printable-contract");
         if (printableDoc) {
@@ -533,55 +853,56 @@ function ContractContent() {
             }
           }
 
-          // Ensure stamp image is loaded
-          const stampImg = document.getElementById("official-stamp-img") as HTMLImageElement;
-          if (stampImg && !stampImg.complete) {
-            await new Promise((res) => {
-              stampImg.onload = res;
-              stampImg.onerror = res;
-              setTimeout(res, 500);
-            });
-          }
-
-          // Allow DOM to settle
-          await new Promise((r) => setTimeout(r, 100));
+          // Allow DOM to settle and image to repaint
+          await new Promise((r) => setTimeout(r, 120));
 
           const { jsPDF } = await import("jspdf");
           const html2canvas = (await import("html2canvas-pro")).default;
 
-          const canvas = await html2canvas(printableDoc, {
-            scale: 1.3,
+          // Timeout wrapper to guarantee html2canvas never hangs indefinitely
+          const canvasPromise = html2canvas(printableDoc, {
+            scale: 1.4,
             useCORS: true,
+            allowTaint: true,
+            backgroundColor: "#ffffff",
             logging: false,
             windowWidth: 1024,
           });
 
-          const imgData = canvas.toDataURL("image/jpeg", 0.82);
-          const pdf = new jsPDF("p", "mm", "a4");
-          const imgWidth = 210;
-          const pageHeight = 297;
-          const imgHeight = (canvas.height * imgWidth) / canvas.width;
-          let heightLeft = imgHeight;
-          let position = 0;
+          const timeoutPromise = new Promise<never>((_, reject) =>
+            setTimeout(() => reject(new Error("html2canvas capture timed out after 3.5s")), 3500)
+          );
 
-          pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight);
-          heightLeft -= pageHeight;
+          const canvas = await Promise.race([canvasPromise, timeoutPromise]);
+          if (canvas && canvas.width > 0 && canvas.height > 0) {
+            const imgData = canvas.toDataURL("image/jpeg", 0.82);
+            const pdf = new jsPDF({ orientation: "p", unit: "mm", format: "a4", compress: true });
+            const imgWidth = 210;
+            const pageHeight = 297;
+            const imgHeight = (canvas.height * imgWidth) / canvas.width;
+            let heightLeft = imgHeight;
+            let position = 0;
 
-          while (heightLeft > 0) {
-            position = heightLeft - imgHeight;
-            pdf.addPage();
-            pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight);
+            pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight, undefined, "FAST");
             heightLeft -= pageHeight;
-          }
 
-          const rawDataUri = pdf.output("datauristring");
-          if (rawDataUri.includes(",")) {
-            pdfBase64 = rawDataUri.split(",")[1];
+            while (heightLeft > 0) {
+              position = heightLeft - imgHeight;
+              pdf.addPage();
+              pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight, undefined, "FAST");
+              heightLeft -= pageHeight;
+            }
+
+            const rawDataUri = pdf.output("datauristring");
+            if (rawDataUri.includes(",")) {
+              pdfBase64 = rawDataUri.split(",")[1];
+              pdfEngine = "html2canvas-pro";
+            }
           }
-          console.log("[Client PDF Generation]", pdfBase64 ? `OK (${Math.round(pdfBase64.length / 1024)} KB)` : "Empty");
         }
-      } catch (pdfErr) {
-        console.error("[Client PDF Generation Error]:", pdfErr);
+      } catch (domErr: any) {
+        console.warn("[DOM PDF Generation Failed, falling back to Vector Generator]:", domErr);
+        pdfErrorMsg = domErr?.message || String(domErr);
       } finally {
         // Always restore Landlord block back to pending verification for the on-screen visitor
         if (pendingStampEl && officialStampEl && landlordDateEl) {
@@ -593,6 +914,47 @@ function ContractContent() {
           }
         }
       }
+
+      // FAIL-SAFE BACKUP ENGINE 2: If DOM capture failed or returned empty, generate via Pure Vector Engine
+      if (!pdfBase64) {
+        try {
+          console.log("[Triggering Pure jsPDF Vector Fallback Generator]...");
+          pdfBase64 = await generateVectorContractPdf({
+            contractSerial,
+            contractHash,
+            signingDateStr: formatEngDate(signingDateIso),
+            roomId: currentRoomObj.id,
+            roomFloor: currentRoomObj.floor,
+            effectiveTenantName,
+            effectiveSignatoryDisplay,
+            effectiveSignatoryTitle,
+            tenantType,
+            tenantIdNumber,
+            tenantPhone,
+            tenantEmail: tenantEmail.trim(),
+            tenantAddress,
+            startDate,
+            endDate,
+            durationEngText,
+            finalMonthlyRent,
+            advanceRent,
+            securityDeposit,
+            totalInitialPayment,
+            isThreeMonthsNoDeposit,
+            logoDataUrl,
+            stampDataUrl,
+            signatureData,
+            idImage,
+          });
+          pdfEngine = "jspdf-vector";
+          console.log("[Vector PDF Generated Successfully]:", Math.round(pdfBase64.length / 1024), "KB");
+        } catch (vecErr: any) {
+          console.error("[Vector Generator Also Failed]:", vecErr);
+          pdfErrorMsg = (pdfErrorMsg ? pdfErrorMsg + " | " : "") + (vecErr?.message || String(vecErr));
+        }
+      }
+
+      console.log("[Client PDF Result]:", { engine: pdfEngine, sizeKb: pdfBase64 ? Math.round(pdfBase64.length / 1024) : 0, error: pdfErrorMsg });
 
       const promoText = appliedPromo
         ? `Promo Code: ${appliedPromo.code.toUpperCase()} (${appliedPromo.percentOff}% OFF, saving ฿${monthlySavings.toLocaleString()}/mo)`
@@ -626,6 +988,8 @@ function ContractContent() {
         signedAt: record.signedAt,
         bot_honeypot: honeypot,
         pdfBase64: pdfBase64 || undefined,
+        pdfEngine,
+        pdfError: pdfErrorMsg,
       };
 
       // 2. Try Cloudflare Pages / Server API route
@@ -1684,7 +2048,7 @@ function ContractContent() {
               {/* Brand Logo & Company Info */}
               <div className="flex items-center gap-2.5 sm:gap-3">
                 <img
-                  src="/images/cmai_header_logo.png"
+                  src={logoDataUrl}
                   alt="Chiang Mai AI Center"
                   className="h-10 sm:h-14 md:h-16 w-auto object-contain shrink-0"
                 />
@@ -1963,7 +2327,7 @@ function ContractContent() {
               {/* Unverified Placeholder (Shown on public screen & unverified printouts) */}
               <div
                 id="landlord-pending-stamp"
-                className="h-20 border-b border-black flex items-center justify-center relative py-1 bg-neutral-50/60 print:bg-transparent rounded-sm"
+                className="h-20 border-b border-black flex items-center justify-center relative py-1 bg-[#f8fafc] print:bg-transparent rounded-sm"
               >
                 <div className="border border-dashed border-neutral-400 dark:border-neutral-600 px-3 py-1.5 text-center text-[10px] text-neutral-500 font-mono">
                   <span className="block font-semibold text-neutral-700 uppercase tracking-wider">
@@ -1983,7 +2347,7 @@ function ContractContent() {
               >
                 <img
                   id="official-stamp-img"
-                  src="/images/colasola_stamp.png"
+                  src={stampDataUrl}
                   alt="Official Corporate Seal - Colasola Co., Ltd."
                   className="h-24 w-24 object-contain opacity-95 pointer-events-none select-none -my-2"
                 />
