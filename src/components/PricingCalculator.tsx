@@ -105,7 +105,7 @@ export default function PricingCalculator() {
   const [selectedFloors, setSelectedFloors] = useState<number[]>([]);
   const [selectedRooms, setSelectedRooms] = useState<string[]>([]);
   const [meetingRoomType, setMeetingRoomType] = useState<"s" | "m" | "l" | "conf">("s");
-  const [meetingHours, setMeetingHours] = useState<number>(1);
+  const [meetingHours, setMeetingHours] = useState<number>(2);
   const [visaEmployees, setVisaEmployees] = useState<number>(1);
   const [duration, setDuration] = useState<number>(1);
   const [warningMessage, setWarningMessage] = useState<string>("");
@@ -263,13 +263,13 @@ export default function PricingCalculator() {
     {
       id: "meeting_rental",
       nameKey: "servicesMeetingRental",
-      basePrice: 200, // S
-      mPrice: 400,   // M
-      lPrice: 600,   // L
-      confPrice: 1000, // Conference
+      basePrice: 100, // S (C11)
+      mPrice: 200,   // M (C9)
+      lPrice: 300,   // L (B5)
+      confPrice: 500, // Conference
       unitKey: "pricingOnce",
       isMonthly: false,
-      notesKey: "独立会客空间及中大型会议厅临时小时预约租用（本服务与长期办公及公司注册等入驻服务互斥）。",
+      notesKey: "独立会客空间及中大型会议厅临时小时预约租用（起订2小时，每小时按基础价格累加；本服务与长期办公及公司注册等入驻服务互斥）。",
       icon: <Clock className="w-4 h-4" />,
     },
     {
@@ -281,6 +281,13 @@ export default function PricingCalculator() {
       notesKey: "挂靠我们已成立的泰国合规本土公司开展本地业务与电商开店（如 TikTok, Lazada 等）。月租 ฿23,000，押金 2 个月，支持按月结束挂靠，机动灵活。",
       icon: <Building className="w-4 h-4" />,
     },
+  ];
+
+  const meetingRoomOptions = [
+    { key: "s" as const, labelZh: "会客室 S (C11)", labelEn: "Lounge S (C11)", labelTh: "ห้องรับรอง S (C11)", labelJa: "ラウンジ S (C11)", price: 100 },
+    { key: "m" as const, labelZh: "会客室 M (C9)", labelEn: "Lounge M (C9)", labelTh: "ห้องรับรอง M (C9)", labelJa: "ラウンジ M (C9)", price: 200 },
+    { key: "l" as const, labelZh: "会客室 L (B5)", labelEn: "Lounge L (B5)", labelTh: "ห้องรับรอง L (B5)", labelJa: "ラウンジ L (B5)", price: 300 },
+    { key: "conf" as const, labelZh: "会议厅", labelEn: "Conference Hall", labelTh: "ห้องประชุมใหญ่", labelJa: "カンファレンスルーム", price: 500 },
   ];
 
   // Translations for new items
@@ -499,11 +506,11 @@ export default function PricingCalculator() {
     }, 0);
   }
 
-  // 6. Meeting Room Hour-based pricing
-  let hourlyRate = 200;
-  if (meetingRoomType === "m") hourlyRate = 400;
-  else if (meetingRoomType === "l") hourlyRate = 600;
-  else if (meetingRoomType === "conf") hourlyRate = 1000;
+  // 6. Meeting Room Hour-based pricing (起订2小时，每小时增加基础价格)
+  let hourlyRate = 100;
+  if (meetingRoomType === "m") hourlyRate = 200;
+  else if (meetingRoomType === "l") hourlyRate = 300;
+  else if (meetingRoomType === "conf") hourlyRate = 500;
 
   const meetingTotalCost = selected.meeting_rental ? hourlyRate * meetingHours : 0;
 
@@ -594,8 +601,8 @@ export default function PricingCalculator() {
       if (selected.annual_audit) quoteText += `- 公司年审审计服务: ฿15,000 (一次性)\n`;
       if (selected.visa_support) quoteText += `- 泰国工作签证与工作准证 (${visaEmployees} 人): ฿${visaTotalCost} (一次性)\n`;
       if (selected.meeting_rental) {
-        const typeLabel = meetingRoomType === "conf" ? "智能会议室" : `独立会客室 ${meetingRoomType.toUpperCase()}`;
-        quoteText += `- ${typeLabel} 租用 (${meetingHours} 小时): ฿${meetingTotalCost} (一次性)\n`;
+        const typeLabel = meetingRoomType === "conf" ? "智能会议厅 (฿500/h)" : meetingRoomType === "l" ? "会客室 L [B5] (฿300/h)" : meetingRoomType === "m" ? "会客室 M [C9] (฿200/h)" : "会客室 S [C11] (฿100/h)";
+        quoteText += `- ${typeLabel} 租用 (${meetingHours} 小时，起订2小时): ฿${meetingTotalCost} (一次性)\n`;
       }
       quoteText += `-------------------------------------\n`;
       quoteText += `租期时长: ${duration} 个月\n`;
@@ -625,8 +632,8 @@ export default function PricingCalculator() {
       if (selected.annual_audit) quoteText += `- Annual Audit / Review: ฿15,000 (One-time)\n`;
       if (selected.visa_support) quoteText += `- Visas & Work Permits (${visaEmployees} Pax): ฿${visaTotalCost} (One-time)\n`;
       if (selected.meeting_rental) {
-        const typeLabel = meetingRoomType === "conf" ? "Conference Room" : `Guest Lounge ${meetingRoomType.toUpperCase()}`;
-        quoteText += `- ${typeLabel} Rental (${meetingHours} Hr): ฿${meetingTotalCost} (One-time)\n`;
+        const typeLabel = meetingRoomType === "conf" ? "Conference Hall (฿500/h)" : meetingRoomType === "l" ? "Lounge L [B5] (฿300/h)" : meetingRoomType === "m" ? "Lounge M [C9] (฿200/h)" : "Lounge S [C11] (฿100/h)";
+        quoteText += `- ${typeLabel} Rental (${meetingHours} Hours, min 2h): ฿${meetingTotalCost} (One-time)\n`;
       }
       quoteText += `-------------------------------------\n`;
       quoteText += `Lease Term: ${duration} Months\n`;
@@ -885,49 +892,53 @@ export default function PricingCalculator() {
                           {item.id === "meeting_rental" && isSelected && (
                             <div className="space-y-3 pt-2">
                               <div className="flex flex-wrap gap-2">
-                                {(["s", "m", "l", "conf"] as const).map((size) => (
+                                {meetingRoomOptions.map((r) => (
                                   <button
-                                    key={size}
+                                    key={r.key}
                                     onClick={(e) => {
                                       e.stopPropagation();
-                                      setMeetingRoomType(size);
+                                      setMeetingRoomType(r.key);
                                     }}
-                                    className={`px-3 py-1 text-[11px] font-medium rounded-full border transition-all ${
-                                      meetingRoomType === size
-                                        ? "bg-neutral-900 border-neutral-900 dark:bg-white dark:border-white text-white dark:text-neutral-950"
+                                    className={`px-3 py-1.5 text-[11px] font-medium rounded-full border transition-all ${
+                                      meetingRoomType === r.key
+                                        ? "bg-neutral-900 border-neutral-900 dark:bg-white dark:border-white text-white dark:text-neutral-950 shadow-sm"
                                         : "border-neutral-200 hover:border-neutral-300 dark:border-neutral-800 dark:hover:border-neutral-700 text-neutral-600 dark:text-neutral-400"
                                     }`}
                                   >
-                                    {size === "s" && `${language === "zh" ? "会客室 S" : "Lounge S"} (฿200)`}
-                                    {size === "m" && `${language === "zh" ? "会客室 M" : "Lounge M"} (฿400)`}
-                                    {size === "l" && `${language === "zh" ? "会客室 L" : "Lounge L"} (฿600)`}
-                                    {size === "conf" && `${language === "zh" ? "会议厅" : "Conference"} (฿1000)`}
+                                    <span>
+                                      {language === "zh" ? r.labelZh : language === "th" ? r.labelTh : language === "ja" ? r.labelJa : r.labelEn} (฿{r.price}/h)
+                                    </span>
                                   </button>
                                 ))}
                               </div>
                               <div className="flex items-center gap-3">
                                 <span className="text-[11px] text-neutral-500 dark:text-neutral-400">
-                                  {language === "zh" ? "租用时长 (小时):" : "Hours to Rent:"}
+                                  {language === "zh" ? "租用时长 (起订2小时):" : language === "th" ? "ระยะเวลา (ขั้นต่ำ 2 ชม.):" : "Duration (Min 2h):"}
                                 </span>
                                 <div className="flex items-center gap-1.5">
                                   <button
                                     onClick={(e) => {
                                       e.stopPropagation();
-                                      setMeetingHours((prev) => Math.max(1, prev - 1));
+                                      setMeetingHours((prev) => Math.max(2, prev - 1));
                                     }}
-                                    className="w-5 h-5 border border-neutral-200 dark:border-neutral-800 rounded-full flex items-center justify-center text-xs hover:bg-neutral-100 dark:hover:bg-neutral-900 text-neutral-700 dark:text-neutral-300"
+                                    disabled={meetingHours <= 2}
+                                    className={`w-6 h-6 border rounded-full flex items-center justify-center text-xs transition-colors ${
+                                      meetingHours <= 2
+                                        ? "border-neutral-200 dark:border-neutral-800 text-neutral-300 dark:text-neutral-700 cursor-not-allowed"
+                                        : "border-neutral-300 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-900 text-neutral-700 dark:text-neutral-300 cursor-pointer"
+                                    }`}
                                   >
                                     -
                                   </button>
-                                  <span className="text-xs font-semibold px-2 w-8 text-center text-neutral-800 dark:text-white">
-                                    {meetingHours}
+                                  <span className="text-xs font-semibold px-2 w-12 text-center text-neutral-800 dark:text-white font-mono">
+                                    {meetingHours} {language === "zh" ? "小时" : "h"}
                                   </span>
                                   <button
                                     onClick={(e) => {
                                       e.stopPropagation();
                                       setMeetingHours((prev) => Math.min(100, prev + 1));
                                     }}
-                                    className="w-5 h-5 border border-neutral-200 dark:border-neutral-800 rounded-full flex items-center justify-center text-xs hover:bg-neutral-100 dark:hover:bg-neutral-900 text-neutral-700 dark:text-neutral-300"
+                                    className="w-6 h-6 border border-neutral-300 dark:border-neutral-700 rounded-full flex items-center justify-center text-xs hover:bg-neutral-100 dark:hover:bg-neutral-900 text-neutral-700 dark:text-neutral-300 cursor-pointer"
                                   >
                                     +
                                   </button>
