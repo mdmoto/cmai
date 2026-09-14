@@ -473,7 +473,7 @@ function ContractContent() {
 
     // Send to Web3Forms for official email dispatch
     try {
-      const accessKey = process.env.NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY || "YOUR_ACCESS_KEY_HERE";
+      const accessKey = process.env.NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY || "87a78bc8-e588-4925-bc58-7546e77afa45";
       const promoText = appliedPromo
         ? `Promo Code: ${appliedPromo.code.toUpperCase()} (${appliedPromo.percentOff}% OFF, saving ฿${monthlySavings.toLocaleString()}/mo)`
         : "Standard Rate (No Promo Code)";

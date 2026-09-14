@@ -19,7 +19,7 @@ export default function Contact() {
     setIsSubmitting(true);
     setErrorState("");
 
-    const accessKey = process.env.NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY || "YOUR_ACCESS_KEY_HERE";
+    const accessKey = process.env.NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY || "87a78bc8-e588-4925-bc58-7546e77afa45";
 
     try {
       const response = await fetch("https://api.web3forms.com/submit", {
