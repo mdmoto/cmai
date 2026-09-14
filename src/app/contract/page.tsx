@@ -339,6 +339,7 @@ function ContractContent() {
   const [tenantPhone, setTenantPhone] = useState<string>("");
   const [tenantEmail, setTenantEmail] = useState<string>("");
   const [tenantAddress, setTenantAddress] = useState<string>("");
+  const [honeypot, setHoneypot] = useState<string>(""); // Anti-bot trap
 
   // Dates
   const [startDate, setStartDate] = useState<string>(getTomorrowDateString());
@@ -535,6 +536,7 @@ function ContractContent() {
           tenantEmail: tenantEmail.trim(),
           tenantAddress,
           signedAt: record.signedAt,
+          bot_honeypot: honeypot,
         }),
       });
 
@@ -1287,6 +1289,20 @@ function ContractContent() {
                   value={tenantAddress}
                   onChange={(e) => setTenantAddress(e.target.value)}
                   className="w-full px-3.5 py-2.5 bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl text-neutral-900 dark:text-white focus:outline-none focus:border-blue-500 min-h-[44px]"
+                />
+              </div>
+
+              {/* Invisible Honeypot Field for anti-bot spam protection */}
+              <div className="hidden pointer-events-none" aria-hidden="true" style={{ display: "none" }}>
+                <label htmlFor="company-fax-code">Fax Code (Do not fill)</label>
+                <input
+                  id="company-fax-code"
+                  type="text"
+                  name="company_fax_code"
+                  value={honeypot}
+                  onChange={(e) => setHoneypot(e.target.value)}
+                  tabIndex={-1}
+                  autoComplete="off"
                 />
               </div>
 

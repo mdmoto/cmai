@@ -27,10 +27,71 @@ export interface ContractEmailPayload {
   tenantEmail: string;
   tenantAddress: string;
   signedAt: string;
+  bot_honeypot?: string; // Invisible anti-bot field
+}
+
+// Allowed Room Whitelist
+const VALID_ROOM_IDS = new Set([
+  "B1-2", "B6", "B7", "C1-2", "C4", "C5", "C6", "C7-8", "C9", "C11", "C12",
+  "D1-2", "D3", "D4", "D5", "D7-8", "D9", "D10", "D11",
+  "E2", "E3", "E4-5", "E6", "E7", "E8", "E9", "E10"
+]);
+
+// Email Regex
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+// --- In-Memory Sliding Window Rate Limiter ---
+interface RateLimitRecord {
+  timestamps: number[];
+}
+
+const ipRateLimits = new Map<string, RateLimitRecord>();
+const emailRateLimits = new Map<string, RateLimitRecord>();
+
+const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000; // 10 minutes sliding window
+const MAX_REQUESTS_PER_IP = 5;               // Max 5 submissions per 10 minutes per IP
+const MAX_REQUESTS_PER_EMAIL = 3;            // Max 3 submissions per 10 minutes per Email
+
+function isRateLimited(key: string, map: Map<string, RateLimitRecord>, maxLimit: number): boolean {
+  const now = Date.now();
+  const record = map.get(key) || { timestamps: [] };
+  const activeTimestamps = record.timestamps.filter((t) => now - t < RATE_LIMIT_WINDOW_MS);
+
+  if (activeTimestamps.length >= maxLimit) {
+    map.set(key, { timestamps: activeTimestamps });
+    return true;
+  }
+
+  activeTimestamps.push(now);
+  map.set(key, { timestamps: activeTimestamps });
+  return false;
+}
+
+function getClientIp(req: Request): string {
+  const cfConnectingIp = req.headers.get("cf-connecting-ip");
+  if (cfConnectingIp) return cfConnectingIp.trim();
+  const forwarded = req.headers.get("x-forwarded-for");
+  if (forwarded) return forwarded.split(",")[0].trim();
+  const realIp = req.headers.get("x-real-ip");
+  if (realIp) return realIp.trim();
+  return "unknown-client-ip";
 }
 
 export async function POST(req: Request) {
   try {
+    const clientIp = getClientIp(req);
+
+    // --- 1. IP Rate Limiting Check ---
+    if (clientIp !== "unknown-client-ip" && isRateLimited(clientIp, ipRateLimits, MAX_REQUESTS_PER_IP)) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Rate limit exceeded. Too many contract submissions from your IP. Please wait 10 minutes.",
+        },
+        { status: 429 }
+      );
+    }
+
     const payload: ContractEmailPayload = await req.json();
 
     const {
@@ -59,13 +120,51 @@ export async function POST(req: Request) {
       tenantEmail,
       tenantAddress,
       signedAt,
+      bot_honeypot,
     } = payload;
 
-    // Validate required fields
-    if (!contractSerial || !roomId || !tenantEmail || !tenantIdNumber) {
+    // --- 2. Honeypot Anti-Bot Trap Check ---
+    // If a bot fills out the hidden trap field, silently pretend success without sending any emails
+    if (bot_honeypot && bot_honeypot.trim().length > 0) {
+      console.warn(`[Anti-Spam] Bot detected via honeypot trap from IP: ${clientIp}`);
+      return NextResponse.json({
+        success: true,
+        method: "honeypot",
+        message: "Agreement processed.",
+      });
+    }
+
+    // --- 3. Strict Input & Whitelist Validation ---
+    if (!contractSerial || !roomId || !tenantEmail || !tenantIdNumber || !tenantName) {
       return NextResponse.json(
         { success: false, error: "Missing required contract fields." },
         { status: 400 }
+      );
+    }
+
+    const cleanEmail = tenantEmail.trim().toLowerCase();
+    if (!EMAIL_REGEX.test(cleanEmail)) {
+      return NextResponse.json(
+        { success: false, error: "Invalid tenant email address format." },
+        { status: 400 }
+      );
+    }
+
+    if (!VALID_ROOM_IDS.has(roomId)) {
+      return NextResponse.json(
+        { success: false, error: `Invalid room unit identifier: ${roomId}` },
+        { status: 400 }
+      );
+    }
+
+    // --- 4. Email Address Rate Limiting Check ---
+    if (isRateLimited(cleanEmail, emailRateLimits, MAX_REQUESTS_PER_EMAIL)) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Too many submissions for this email address. Please wait a few minutes before submitting again.",
+        },
+        { status: 429 }
       );
     }
 
@@ -150,9 +249,10 @@ export async function POST(req: Request) {
             <tr><td style="padding: 6px; font-weight: bold;">Authorized Signer:</td><td style="padding: 6px;">${effectiveSignatory}</td></tr>
             <tr><td style="padding: 6px; font-weight: bold;">ID / Tax No:</td><td style="padding: 6px; font-family: monospace;">${tenantIdNumber}</td></tr>
             <tr><td style="padding: 6px; font-weight: bold;">Tenant Phone:</td><td style="padding: 6px;">${tenantPhone}</td></tr>
-            <tr><td style="padding: 6px; font-weight: bold;">Tenant Email:</td><td style="padding: 6px;"><a href="mailto:${tenantEmail}">${tenantEmail}</a></td></tr>
+            <tr><td style="padding: 6px; font-weight: bold;">Tenant Email:</td><td style="padding: 6px;"><a href="mailto:${cleanEmail}">${cleanEmail}</a></td></tr>
             <tr><td style="padding: 6px; font-weight: bold;">Registered Address:</td><td style="padding: 6px;">${tenantAddress}</td></tr>
             <tr><td style="padding: 6px; font-weight: bold;">Signed Timestamp:</td><td style="padding: 6px;">${signedAt}</td></tr>
+            <tr><td style="padding: 6px; font-weight: bold;">Client IP:</td><td style="padding: 6px; font-family: monospace; font-size: 11px;">${clientIp}</td></tr>
           </table>
         </div>
       `;
@@ -160,7 +260,7 @@ export async function POST(req: Request) {
       // Send customer copy
       await transporter.sendMail({
         from: fromAddress,
-        to: tenantEmail.trim(),
+        to: cleanEmail,
         replyTo: adminEmail,
         subject: `[Signed Lease Agreement Copy] Chiang Mai AI Center - Room ${roomId} (${contractSerial})`,
         html: tenantHtml,
@@ -170,7 +270,7 @@ export async function POST(req: Request) {
       await transporter.sendMail({
         from: fromAddress,
         to: adminEmail,
-        replyTo: tenantEmail.trim(),
+        replyTo: cleanEmail,
         subject: `[NEW SIGNED LEASE] Room ${roomId} - ${effectiveTenant} (${contractSerial})`,
         html: adminHtml,
       });
@@ -191,8 +291,8 @@ export async function POST(req: Request) {
       body: JSON.stringify({
         access_key: web3FormsAccessKey,
         name: effectiveTenant,
-        email: tenantEmail.trim(),
-        replyto: tenantEmail.trim(),
+        email: cleanEmail,
+        replyto: cleanEmail,
         from_name: "Chiang Mai AI Center (Colasola Co., Ltd.)",
         subject: `[SIGNED LEASE AGREEMENT] Room ${roomId} - ${effectiveTenant} (${contractSerial})`,
         "Contract Reference": contractSerial,
@@ -206,11 +306,11 @@ export async function POST(req: Request) {
         "Authorized Signatory": effectiveSignatory,
         "Tenant ID or Tax No": tenantIdNumber,
         "Tenant Phone": tenantPhone,
-        "Tenant Email": tenantEmail.trim(),
+        "Tenant Email": cleanEmail,
         "Registered Address": tenantAddress,
         "Discount Applied": discountAppliedText || "Standard Rate (No Promo Code)",
         "Signed Timestamp": signedAt,
-        message: `Official Lease Agreement Signed:\n- Ref: ${contractSerial}\n- Hash: ${contractHash}\n- Tenant: ${effectiveTenant}\n- Signatory: ${effectiveSignatory}\n- ID/Tax: ${tenantIdNumber}\n- Phone: ${tenantPhone}\n- Email: ${tenantEmail}\n- Address: ${tenantAddress}\n- Room: ${roomId} (${roomFloor}F)\n- Discount: ${discountAppliedText || "Standard"}\n- Monthly Rent: ฿${finalMonthlyRent.toLocaleString()}\n- Deposit: ${isThreeMonthsNoDeposit ? "฿0" : `฿${securityDeposit.toLocaleString()}`}\n- Total Initial: ฿${totalInitialPayment.toLocaleString()}\n- Period: ${startDate} to ${endDate} (${durationText})\n- Signed At: ${signedAt}`,
+        message: `Official Lease Agreement Signed:\n- Ref: ${contractSerial}\n- Hash: ${contractHash}\n- Tenant: ${effectiveTenant}\n- Signatory: ${effectiveSignatory}\n- ID/Tax: ${tenantIdNumber}\n- Phone: ${tenantPhone}\n- Email: ${cleanEmail}\n- Address: ${tenantAddress}\n- Room: ${roomId} (${roomFloor}F)\n- Discount: ${discountAppliedText || "Standard"}\n- Monthly Rent: ฿${finalMonthlyRent.toLocaleString()}\n- Deposit: ${isThreeMonthsNoDeposit ? "฿0" : `฿${securityDeposit.toLocaleString()}`}\n- Total Initial: ฿${totalInitialPayment.toLocaleString()}\n- Period: ${startDate} to ${endDate} (${durationText})\n- Signed At: ${signedAt}`,
       }),
     });
 
