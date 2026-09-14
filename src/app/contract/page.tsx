@@ -387,24 +387,143 @@ function ContractContent() {
     const printableDoc = document.getElementById("printable-contract");
     if (!printableDoc) return;
 
+    // Clone element and convert all images to base64 Data URLs so offline HTML is 100% self-contained
+    const clone = printableDoc.cloneNode(true) as HTMLElement;
+    const origImages = printableDoc.querySelectorAll("img");
+    const cloneImages = clone.querySelectorAll("img");
+
+    origImages.forEach((origImg, index) => {
+      try {
+        if (origImg && origImg.complete && origImg.naturalWidth > 0) {
+          const canvas = document.createElement("canvas");
+          canvas.width = origImg.naturalWidth;
+          canvas.height = origImg.naturalHeight;
+          const ctx = canvas.getContext("2d");
+          if (ctx) {
+            ctx.drawImage(origImg, 0, 0);
+            cloneImages[index].src = canvas.toDataURL("image/png");
+          }
+        }
+      } catch (err) {
+        console.warn("Could not inline image to base64", err);
+      }
+    });
+
     const htmlContent = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Lease_Agreement_${contractSerial}.html</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lease_Agreement_${selectedRoomId}_${contractSerial}.html</title>
   <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: #111; padding: 40px; max-width: 800px; margin: 0 auto; line-height: 1.5; font-size: 13px; }
-    h2, h3, h4 { margin: 10px 0; color: #000; }
-    .border-box { border: 1px solid #ccc; padding: 12px; margin: 10px 0; background: #fafafa; border-radius: 6px; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      color: #111;
+      padding: 36px 40px;
+      max-width: 820px;
+      margin: 0 auto;
+      line-height: 1.5;
+      font-size: 12px;
+      background: #ffffff;
+    }
+    h1, h2, h3, h4 { margin: 8px 0; color: #111; }
+    p { margin: 6px 0; }
+    strong { color: #000; }
+    img { max-width: 100%; height: auto; display: inline-block; }
+    .border-b-2 { border-bottom: 2px solid #111; }
+    .border-t { border-top: 1px solid #e5e5e5; }
+    .border-b { border-bottom: 1px solid #111; }
+    .border { border: 1px solid #e5e5e5; }
+    .rounded { border-radius: 4px; }
+    .rounded-lg { border-radius: 8px; }
+    .rounded-xl { border-radius: 12px; }
+    .bg-neutral-50 { background-color: #f9fafb; }
+    .bg-neutral-100 { background-color: #f3f4f6; }
+    .bg-blue-50 { background-color: #eff6ff; }
+    .bg-blue-50\\/60 { background-color: rgba(239, 246, 255, 0.6); }
+    .bg-amber-50\\/50 { background-color: rgba(254, 243, 199, 0.5); }
+    .text-blue-900 { color: #1e3a8a; }
+    .text-blue-950 { color: #172554; }
+    .text-neutral-500 { color: #6b7280; }
+    .text-neutral-600 { color: #4b5563; }
+    .text-neutral-700 { color: #374151; }
+    .text-neutral-800 { color: #1f2937; }
+    .text-neutral-900 { color: #111827; }
+    .font-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+    .flex { display: flex; }
+    .flex-col { flex-direction: column; }
+    .flex-row { flex-direction: row; }
+    .items-center { align-items: center; }
+    .items-start { align-items: flex-start; }
+    .items-end { align-items: flex-end; }
+    .justify-between { justify-content: space-between; }
+    .justify-start { justify-content: flex-start; }
+    .gap-1\\.5 { gap: 6px; }
+    .gap-2 { gap: 8px; }
+    .gap-3 { gap: 12px; }
+    .gap-3\\.5 { gap: 14px; }
+    .gap-4 { gap: 16px; }
+    .gap-6 { gap: 24px; }
+    .grid { display: grid; }
+    .grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+    .grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .space-y-0\\.5 > * + * { margin-top: 2px; }
+    .space-y-1 > * + * { margin-top: 4px; }
+    .space-y-1\\.5 > * + * { margin-top: 6px; }
+    .space-y-2 > * + * { margin-top: 8px; }
+    .space-y-2\\.5 > * + * { margin-top: 10px; }
+    .space-y-3 > * + * { margin-top: 12px; }
+    .space-y-3\\.5 > * + * { margin-top: 14px; }
+    .space-y-4 > * + * { margin-top: 16px; }
+    .p-2 { padding: 8px; }
+    .p-2\\.5 { padding: 10px; }
+    .p-3 { padding: 12px; }
+    .p-4 { padding: 16px; }
+    .p-6 { padding: 24px; }
+    .pb-4 { padding-bottom: 16px; }
+    .pb-5 { padding-bottom: 20px; }
+    .pt-3 { padding-top: 12px; }
+    .pt-3\\.5 { padding-top: 14px; }
+    .pt-4 { padding-top: 16px; }
+    .pl-3 { padding-left: 12px; }
+    .pl-4 { padding-left: 16px; }
+    .mb-2 { margin-bottom: 8px; }
+    .mb-4 { margin-bottom: 16px; }
+    .mb-6 { margin-bottom: 24px; }
+    .mt-4 { margin-top: 16px; }
+    .mt-6 { margin-top: 24px; }
+    .h-12 { height: 48px; }
+    .h-14 { height: 56px; }
+    .h-16 { height: 64px; }
+    .h-20 { height: 80px; }
+    .h-24 { height: 96px; }
+    .w-auto { width: auto; }
+    .w-full { width: 100%; }
+    .w-24 { width: 96px; }
+    .shrink-0 { flex-shrink: 0; }
+    .uppercase { text-transform: uppercase; }
+    .text-center { text-align: center; }
     .text-right { text-align: right; }
-    .grid-2 { display: flex; justify-content: space-between; margin-top: 20px; }
-    .sig-box { width: 45%; }
-    img { max-width: 100%; height: auto; }
-    @media print { body { padding: 0; } }
+    .text-left { text-align: left; }
+    .text-xs { font-size: 11px; }
+    .text-sm { font-size: 13px; }
+    .text-base { font-size: 15px; }
+    .text-lg { font-size: 17px; }
+    .text-xl { font-size: 19px; }
+    .text-2xl { font-size: 22px; }
+    .font-bold { font-weight: 700; }
+    .font-extrabold { font-weight: 800; }
+    .font-black { font-weight: 900; }
+    .font-semibold { font-weight: 600; }
+    .font-medium { font-weight: 500; }
+    @media print {
+      body { padding: 0; max-width: 100%; font-size: 11px; }
+      @page { margin: 1.2cm; size: A4 portrait; }
+    }
   </style>
 </head>
 <body>
-  ${printableDoc.innerHTML}
+  ${clone.innerHTML}
 </body>
 </html>`;
 
@@ -1134,19 +1253,53 @@ function ContractContent() {
         {/* Right Printable Legal Contract Document Paper */}
         <div id="printable-contract" className="lg:col-span-7 bg-white text-[#111] p-8 sm:p-12 rounded-2xl shadow-xl border border-neutral-200 dark:border-neutral-800 print:shadow-none print:border-none print:p-0 print:m-0 print:w-full">
           
-          {/* Header & Serial */}
-          <div className="border-b-2 border-black pb-4 mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-2">
-            <div>
-              <h2 className="text-xl sm:text-2xl font-bold tracking-tight uppercase">
-                LEASE AGREEMENT / สัญญาเช่า
-              </h2>
-              <p className="text-xs text-neutral-600 font-mono mt-0.5">
-                Colasola Co., Ltd. · P.Work Co-Space Chiang Mai
-              </p>
+          {/* Official Document Header with CMAI Logo & Reference */}
+          <div className="border-b-2 border-black pb-4 mb-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+              {/* Brand Logo & Company Info */}
+              <div className="flex items-center gap-3">
+                <img
+                  src="/images/cmai_header_logo.png"
+                  alt="Chiang Mai AI Center"
+                  className="h-12 sm:h-14 md:h-16 w-auto object-contain shrink-0"
+                />
+                <div className="border-l-2 border-neutral-300 pl-3 py-0.5">
+                  <div className="font-extrabold text-xs sm:text-sm tracking-wide text-neutral-900 uppercase">
+                    Chiang Mai AI Center
+                  </div>
+                  <div className="text-[11px] text-neutral-600 font-medium">
+                    Colasola Co., Ltd. (บริษัท โคล่าโซล่า จำกัด)
+                  </div>
+                  <div className="text-[10px] text-neutral-500 font-mono">
+                    Tax ID: 0505566006478 · P.Work Co-Space, Chiang Mai
+                  </div>
+                </div>
+              </div>
+
+              {/* Document Reference, Serial & Hash */}
+              <div className="text-left sm:text-right font-mono text-[11px] text-neutral-500 shrink-0">
+                <div>Ref: <strong className="text-black">{contractSerial || "CMAI-CONTRACT"}</strong></div>
+                <div>Hash: <strong className="text-neutral-800">{contractHash}</strong></div>
+                <div>Date: <strong className="text-neutral-800">{formatEngDate(signingDateIso)}</strong></div>
+              </div>
             </div>
-            <div className="text-right font-mono text-[11px] text-neutral-500">
-              <div>Ref: <strong className="text-black">{contractSerial || "CMAI-CONTRACT"}</strong></div>
-              <div>Hash: <strong className="text-black">{contractHash}</strong></div>
+
+            {/* Document Title Banner */}
+            <div className="mt-4 pt-3 border-t border-neutral-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+              <div>
+                <h2 className="text-xl sm:text-2xl font-black tracking-tight uppercase text-neutral-900">
+                  LEASE AGREEMENT / สัญญาเช่า
+                </h2>
+                <p className="text-[11px] text-neutral-600 font-medium">
+                  Office Space & Facilities Tenancy Agreement · สัญญาเช่าพื้นที่สำนักงานและสิ่งอำนวยความสะดวก
+                </p>
+              </div>
+              <div className="inline-flex items-center gap-1.5 bg-neutral-100 border border-neutral-300 text-neutral-900 px-2.5 py-1 rounded text-xs font-semibold">
+                <span>Unit:</span>
+                <strong className="font-mono text-sm font-bold text-blue-900">{selectedRoomId}</strong>
+                <span className="text-neutral-400">|</span>
+                <span>{currentRoomObj?.floor || 2}F</span>
+              </div>
             </div>
           </div>
 
