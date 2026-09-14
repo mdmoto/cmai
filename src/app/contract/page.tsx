@@ -25,7 +25,8 @@ import {
   Loader2,
   Type,
   ExternalLink,
-  ShieldAlert
+  ShieldAlert,
+  Tag
 } from "lucide-react";
 
 // --- Number to Words Utilities ---
@@ -194,6 +195,59 @@ const defaultRooms = [
   { id: "E10", floor: 5, defaultPrice: 3000, features: "Central A/C · Top Floor Interior (Focus Solo)" },
 ];
 
+// --- Official Promo & Discount Code Definitions ---
+export interface PromoCodeInfo {
+  code: string;
+  rate: number;
+  percentOff: number;
+  name: string;
+  tagEng: string;
+  tagThai: string;
+}
+
+export const VALID_PROMO_CODES: Record<string, PromoCodeInfo> = {
+  cmai2026: {
+    code: "cmai2026",
+    rate: 0.95,
+    percentOff: 5,
+    name: "CMAI Member Deal (95折 / 5% OFF)",
+    tagEng: "5% OFF",
+    tagThai: "ลด 5%",
+  },
+  colasola20206: {
+    code: "colasola20206",
+    rate: 0.90,
+    percentOff: 10,
+    name: "Colasola Special Partner (9折 / 10% OFF)",
+    tagEng: "10% OFF",
+    tagThai: "ลด 10%",
+  },
+  colasola2026: {
+    code: "colasola2026",
+    rate: 0.90,
+    percentOff: 10,
+    name: "Colasola Special Partner (9折 / 10% OFF)",
+    tagEng: "10% OFF",
+    tagThai: "ลด 10%",
+  },
+  festival2026: {
+    code: "festival2026",
+    rate: 0.85,
+    percentOff: 15,
+    name: "Festival Promotion (85折 / 15% OFF)",
+    tagEng: "15% OFF",
+    tagThai: "ลด 15%",
+  },
+  newcome2026: {
+    code: "newcome2026",
+    rate: 0.80,
+    percentOff: 20,
+    name: "Newcomer Welcome Deal (8折 / 20% OFF)",
+    tagEng: "20% OFF",
+    tagThai: "ลด 20%",
+  },
+};
+
 function ContractContent() {
   const searchParams = useSearchParams();
 
@@ -227,10 +281,51 @@ function ContractContent() {
 
   // Initial query values
   const initRoom = searchParams.get("room") || "C4";
+  const initCode = (searchParams.get("code") || "").trim().toLowerCase();
+  const initialAppliedPromo = initCode && VALID_PROMO_CODES[initCode] ? VALID_PROMO_CODES[initCode] : null;
 
   // State
   const [selectedRoomId, setSelectedRoomId] = useState(initRoom);
-  const [discountRate, setDiscountRate] = useState<number>(0.8); // Default 20% OFF (0.8 rate)
+  
+  // Promo / Discount Code state
+  const [promoInput, setPromoInput] = useState<string>(initialAppliedPromo ? initialAppliedPromo.code : "");
+  const [appliedPromo, setAppliedPromo] = useState<PromoCodeInfo | null>(initialAppliedPromo);
+  const [promoMessage, setPromoMessage] = useState<{ type: "success" | "error"; text: string } | null>(
+    initialAppliedPromo
+      ? { type: "success", text: `Promo code "${initialAppliedPromo.code}" verified! ${initialAppliedPromo.percentOff}% discount applied.` }
+      : null
+  );
+
+  const handleVerifyPromo = (codeToTest?: string) => {
+    const raw = codeToTest !== undefined ? codeToTest : promoInput;
+    const cleanCode = raw.trim().toLowerCase();
+    if (!cleanCode) {
+      setPromoMessage({ type: "error", text: "Please enter a valid promo / discount code." });
+      setAppliedPromo(null);
+      return;
+    }
+    const found = VALID_PROMO_CODES[cleanCode];
+    if (found) {
+      setAppliedPromo(found);
+      setPromoInput(found.code);
+      setPromoMessage({
+        type: "success",
+        text: `Promo code "${found.code}" verified! ${found.percentOff}% discount applied (${found.name}).`,
+      });
+    } else {
+      setAppliedPromo(null);
+      setPromoMessage({
+        type: "error",
+        text: `Invalid or expired discount code "${raw}". Please check and try again.`,
+      });
+    }
+  };
+
+  const handleRemovePromo = () => {
+    setAppliedPromo(null);
+    setPromoInput("");
+    setPromoMessage(null);
+  };
   
   // Tenant Info
   const [tenantType, setTenantType] = useState<"individual" | "company">("individual");
@@ -270,6 +365,9 @@ function ContractContent() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSignedAndArchived, setIsSignedAndArchived] = useState(false);
 
+  // Dynamic discount rate from verified promo code
+  const discountRate = appliedPromo ? appliedPromo.rate : 1.0;
+
   // Sync selected room to price with strict floor guarantee (Cannot be manipulated to 1 THB)
   const currentRoomObj = defaultRooms.find((r) => r.id === selectedRoomId);
   const standardRoomPrice = currentRoomObj ? currentRoomObj.defaultPrice : 7800;
@@ -277,6 +375,7 @@ function ContractContent() {
   // Safe price calculation
   const calculatedRent = Math.round(standardRoomPrice * discountRate);
   const finalMonthlyRent = Math.max(calculatedRent, 1000); // Strict floor protection
+  const monthlySavings = standardRoomPrice - finalMonthlyRent;
   const securityDeposit = finalMonthlyRent * 2;
   const advanceRent = finalMonthlyRent;
   const totalInitialPayment = securityDeposit + advanceRent;
@@ -346,6 +445,9 @@ function ContractContent() {
       hash: contractHash,
       room: selectedRoomId,
       rent: finalMonthlyRent,
+      standardRent: standardRoomPrice,
+      promoCode: appliedPromo ? appliedPromo.code : null,
+      discountPercent: appliedPromo ? appliedPromo.percentOff : 0,
       deposit: securityDeposit,
       totalInitial: totalInitialPayment,
       tenant: effectiveTenantName,
@@ -369,6 +471,10 @@ function ContractContent() {
     // Send to Web3Forms for official email dispatch
     try {
       const accessKey = process.env.NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY || "YOUR_ACCESS_KEY_HERE";
+      const promoText = appliedPromo
+        ? `Promo Code: ${appliedPromo.code.toUpperCase()} (${appliedPromo.percentOff}% OFF, saving ฿${monthlySavings.toLocaleString()}/mo)`
+        : "Standard Rate (No Promo Code)";
+
       await fetch("https://api.web3forms.com/submit", {
         method: "POST",
         headers: { "Content-Type": "application/json", Accept: "application/json" },
@@ -376,7 +482,7 @@ function ContractContent() {
           access_key: accessKey,
           subject: `[SIGNED LEASE AGREEMENT] Room ${selectedRoomId} - ${effectiveTenantName} (${contractSerial})`,
           from_name: "CMAI Online Lease System",
-          message: `Official Lease Agreement Signed:\n- Ref: ${contractSerial}\n- Hash: ${contractHash}\n- Tenant: ${effectiveTenantName}\n- Signatory: ${effectiveSignatoryDisplay} (${effectiveSignatoryTitle})\n- ID/Tax: ${tenantIdNumber}\n- Phone: ${tenantPhone}\n- Email: ${tenantEmail}\n- Address: ${tenantAddress}\n- Room: ${selectedRoomId} (${currentRoomObj?.floor}F)\n- Monthly Rent: ฿${finalMonthlyRent.toLocaleString()} (${discountRate * 100}% of ฿${standardRoomPrice})\n- Deposit: ฿${securityDeposit.toLocaleString()}\n- Total Initial: ฿${totalInitialPayment.toLocaleString()}\n- Period: ${startDate} to ${endDate} (${durationMonths} mos)\n- Signed At: ${record.signedAt}`,
+          message: `Official Lease Agreement Signed:\n- Ref: ${contractSerial}\n- Hash: ${contractHash}\n- Tenant: ${effectiveTenantName}\n- Signatory: ${effectiveSignatoryDisplay} (${effectiveSignatoryTitle})\n- ID/Tax: ${tenantIdNumber}\n- Phone: ${tenantPhone}\n- Email: ${tenantEmail}\n- Address: ${tenantAddress}\n- Room: ${selectedRoomId} (${currentRoomObj?.floor}F)\n- Discount: ${promoText}\n- Monthly Rent: ฿${finalMonthlyRent.toLocaleString()} (Standard: ฿${standardRoomPrice.toLocaleString()})\n- Deposit: ฿${securityDeposit.toLocaleString()}\n- Total Initial: ฿${totalInitialPayment.toLocaleString()}\n- Period: ${startDate} to ${endDate} (${durationMonths} mos)\n- Signed At: ${record.signedAt}`,
         }),
       });
     } catch {}
@@ -793,19 +899,27 @@ function ContractContent() {
         {/* Left Interactive Control Form - Hide on Print */}
         <div className="print:hidden lg:col-span-5 space-y-6">
           
-          {/* Box 1: Room & Special Discount Selector */}
+          {/* Box 1: Room & Promo Code Selector */}
           <div className="bg-white dark:bg-[#111113] border border-neutral-200 dark:border-neutral-800/80 rounded-2xl p-4 sm:p-6 shadow-sm">
             <h2 className="text-sm font-semibold text-neutral-900 dark:text-white flex items-center justify-between mb-4 pb-3 border-b border-neutral-100 dark:border-neutral-800">
               <span className="flex items-center gap-2">
                 <Building2 className="w-4 h-4 text-blue-600" />
-                <span>1. Select Office Unit & Discount Rate</span>
+                <span>1. Select Office Unit & Promo Code</span>
               </span>
-              <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-semibold font-mono">
-                20% OFF Deal
-              </span>
+              {appliedPromo ? (
+                <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-semibold font-mono flex items-center gap-1">
+                  <CheckCircle2 className="w-3 h-3" />
+                  <span>{appliedPromo.tagEng} Code Applied</span>
+                </span>
+              ) : (
+                <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-500 font-medium font-mono">
+                  Standard Rate
+                </span>
+              )}
             </h2>
 
             <div className="space-y-4 text-xs">
+              {/* Room Selection */}
               <div>
                 <label htmlFor="room-select" className="block text-neutral-600 dark:text-neutral-400 font-medium mb-1.5">
                   Select Office Unit (Room Selection) *
@@ -824,32 +938,109 @@ function ContractContent() {
                 </select>
               </div>
 
-              {/* Discount Selector */}
-              <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-neutral-600 dark:text-neutral-400 font-medium">Approved Rent Discount</span>
-                  <span className="text-neutral-400 font-mono text-[11px]">Standard Rate: ฿{standardRoomPrice.toLocaleString()}/mo</span>
+              {/* Discount Promo Code Input & Verification */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label htmlFor="promo-code" className="text-neutral-600 dark:text-neutral-400 font-medium flex items-center gap-1.5">
+                    <Tag className="w-3.5 h-3.5 text-blue-500" />
+                    <span>Enter Discount / Promo Code (รหัสส่วนลด)</span>
+                  </label>
+                  <span className="text-neutral-400 font-mono text-[11px]">
+                    Standard: ฿{standardRoomPrice.toLocaleString()}/mo
+                  </span>
                 </div>
-                <div className="grid grid-cols-3 gap-2">
-                  {[
-                    { label: "20% OFF", rate: 0.8, desc: "Special Deal" },
-                    { label: "10% OFF", rate: 0.9, desc: "Standard Discount" },
-                    { label: "Standard", rate: 1.0, desc: "Standard Rate (100%)" },
-                  ].map((d) => (
-                    <button
-                      key={d.label}
-                      type="button"
-                      onClick={() => setDiscountRate(d.rate)}
-                      className={`p-2.5 rounded-xl text-center border transition-all min-h-[44px] ${
-                        discountRate === d.rate
-                          ? "bg-blue-600 text-white border-blue-600 shadow-sm"
-                          : "bg-neutral-50 dark:bg-neutral-900 text-neutral-700 dark:text-neutral-300 border-neutral-200 dark:border-neutral-800 hover:border-neutral-400"
-                      }`}
-                    >
-                      <div className="font-semibold text-xs">{d.label}</div>
-                      <div className="text-[10px] opacity-80 font-mono">{d.desc}</div>
-                    </button>
-                  ))}
+
+                <div className="flex gap-2">
+                  <div className="relative flex-1">
+                    <input
+                      id="promo-code"
+                      type="text"
+                      placeholder="e.g. newcome2026, festival2026..."
+                      value={promoInput}
+                      onChange={(e) => {
+                        setPromoInput(e.target.value);
+                        if (promoMessage) setPromoMessage(null);
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          handleVerifyPromo();
+                        }
+                      }}
+                      className="w-full px-3.5 py-2.5 bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl text-neutral-900 dark:text-white font-mono text-xs focus:outline-none focus:border-blue-500 uppercase tracking-wide min-h-[44px]"
+                    />
+                    {appliedPromo && (
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-emerald-600 dark:text-emerald-400">
+                        <CheckCircle2 className="w-4 h-4" />
+                      </span>
+                    )}
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => handleVerifyPromo()}
+                    className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors text-xs flex items-center gap-1.5 shrink-0 min-h-[44px] cursor-pointer shadow-sm"
+                  >
+                    <span>Verify Code</span>
+                  </button>
+                </div>
+
+                {/* Promo Code Status / Feedback Alert */}
+                {promoMessage && (
+                  <div
+                    className={`p-2.5 rounded-xl text-xs flex items-start justify-between gap-2 animate-in fade-in duration-200 ${
+                      promoMessage.type === "success"
+                        ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800"
+                        : "bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800"
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      {promoMessage.type === "success" ? (
+                        <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                      ) : (
+                        <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
+                      )}
+                      <span>{promoMessage.text}</span>
+                    </div>
+                    {appliedPromo && (
+                      <button
+                        type="button"
+                        onClick={handleRemovePromo}
+                        className="text-[11px] font-semibold underline hover:text-emerald-900 dark:hover:text-emerald-100 shrink-0 cursor-pointer"
+                      >
+                        Remove
+                      </button>
+                    )}
+                  </div>
+                )}
+
+                {/* Quick Selection Chips for Official Codes */}
+                <div className="pt-1">
+                  <div className="text-[11px] text-neutral-500 mb-1.5 font-medium">
+                    Available Special Promotions (Click to apply):
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+                    {[
+                      { code: "newcome2026", label: "8折 (20% OFF)", desc: "newcome2026" },
+                      { code: "festival2026", label: "85折 (15% OFF)", desc: "festival2026" },
+                      { code: "colasola20206", label: "9折 (10% OFF)", desc: "colasola20206" },
+                      { code: "cmai2026", label: "95折 (5% OFF)", desc: "cmai2026" },
+                    ].map((item) => (
+                      <button
+                        key={item.code}
+                        type="button"
+                        onClick={() => handleVerifyPromo(item.code)}
+                        className={`p-2 rounded-lg text-left border transition-all cursor-pointer ${
+                          appliedPromo?.code === item.code
+                            ? "bg-blue-50 dark:bg-blue-950/40 border-blue-500 text-blue-700 dark:text-blue-300 font-semibold shadow-xs"
+                            : "bg-neutral-50/70 dark:bg-neutral-900/50 border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-400 hover:border-neutral-400"
+                        }`}
+                      >
+                        <div className="font-bold text-[11px]">{item.label}</div>
+                        <div className="font-mono text-[9.5px] opacity-75 truncate">{item.desc}</div>
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
 
@@ -857,10 +1048,25 @@ function ContractContent() {
               <div className="p-4 rounded-xl bg-neutral-50 dark:bg-neutral-900/80 border border-neutral-200 dark:border-neutral-800 space-y-2">
                 <div className="flex justify-between items-center text-xs">
                   <span className="text-neutral-600 dark:text-neutral-400">Final Monthly Rent:</span>
-                  <span className="text-base font-bold text-blue-600 dark:text-blue-400">
-                    ฿{finalMonthlyRent.toLocaleString()} <span className="text-[11px] font-normal text-neutral-400">/mo</span>
-                  </span>
+                  <div className="text-right">
+                    {appliedPromo && (
+                      <span className="text-xs text-neutral-400 line-through mr-2 font-mono">
+                        ฿{standardRoomPrice.toLocaleString()}
+                      </span>
+                    )}
+                    <span className="text-base font-bold text-blue-600 dark:text-blue-400">
+                      ฿{finalMonthlyRent.toLocaleString()} <span className="text-[11px] font-normal text-neutral-400">/mo</span>
+                    </span>
+                  </div>
                 </div>
+
+                {appliedPromo && (
+                  <div className="flex justify-between items-center text-[11px] text-emerald-600 dark:text-emerald-400">
+                    <span>Discount Savings ({appliedPromo.percentOff}% OFF):</span>
+                    <span className="font-mono font-semibold">-฿{monthlySavings.toLocaleString()} /mo</span>
+                  </div>
+                )}
+
                 <div className="flex justify-between items-center text-[11px] text-neutral-500">
                   <span>Security Deposit (2 Months):</span>
                   <span className="font-mono font-semibold text-neutral-800 dark:text-neutral-200">฿{securityDeposit.toLocaleString()}</span>
@@ -1597,8 +1803,18 @@ function ContractContent() {
               </div>
               <div className="flex justify-between items-center gap-2">
                 <span className="text-neutral-500 shrink-0">Unit & Rent:</span>
-                <span className="text-blue-600 font-semibold">{selectedRoomId} (฿{finalMonthlyRent.toLocaleString()}/mo)</span>
+                <span className="text-blue-600 font-semibold">
+                  {selectedRoomId} (฿{finalMonthlyRent.toLocaleString()}/mo{appliedPromo ? ` · ${appliedPromo.tagEng}` : ""})
+                </span>
               </div>
+              {appliedPromo && (
+                <div className="flex justify-between items-center gap-2">
+                  <span className="text-neutral-500 shrink-0">Promo Code:</span>
+                  <span className="text-emerald-600 font-semibold font-mono">
+                    {appliedPromo.code.toUpperCase()} ({appliedPromo.percentOff}% OFF)
+                  </span>
+                </div>
+              )}
               <div className="flex justify-between items-center gap-2">
                 <span className="text-neutral-500 shrink-0">Tenant:</span>
                 <span className="text-neutral-800 dark:text-neutral-200 break-words text-right">{effectiveTenantName}</span>

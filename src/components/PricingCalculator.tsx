@@ -1147,7 +1147,7 @@ export default function PricingCalculator() {
 
               {/* Generate Online Lease Contract Action */}
               <Link
-                href={`/contract?room=${selectedRooms.length > 0 ? selectedRooms[0] : "C4"}&price=${selectedRooms.length > 0 ? officeCost : 7800}`}
+                href={`/contract?room=${selectedRooms.length > 0 ? selectedRooms[0] : "C4"}&code=newcome2026`}
                 className="w-full flex items-center justify-center gap-2 py-3.5 bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-[13px] font-semibold rounded-full transition-all shadow-md shadow-blue-500/20 group text-center"
               >
                 <FileSpreadsheet className="w-4 h-4" />
