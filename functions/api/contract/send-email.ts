@@ -101,7 +101,7 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
         email: cleanEmail,
         replyto: cleanEmail,
         from_name: "Chiang Mai AI Center (Colasola Co., Ltd.)",
-        subject: `[SIGNED LEASE AGREEMENT] Room ${roomId} - ${effectiveTenant} (${contractSerial})`,
+        subject: `[LEASE APPLICATION / 待收款复核] Room ${roomId} - ${effectiveTenant} (${contractSerial})`,
         "Contract Reference": contractSerial,
         "Digital Hash Checksum": contractHash,
         "Lease Room Unit": `Room ${roomId} (${roomFloor}F)${roomFeatures ? ` · ${roomFeatures}` : ""}`,
@@ -116,8 +116,9 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
         "Tenant Email": cleanEmail,
         "Registered Address": tenantAddress,
         "Discount Applied": discountAppliedText || "Standard Rate (No Promo Code)",
-        "Signed Timestamp": signedAt,
-        message: `Official Lease Agreement Signed:\n- Ref: ${contractSerial}\n- Hash: ${contractHash}\n- Tenant: ${effectiveTenant}\n- Signatory: ${effectiveSignatory}\n- ID/Tax: ${tenantIdNumber}\n- Phone: ${tenantPhone}\n- Email: ${cleanEmail}\n- Address: ${tenantAddress}\n- Room: ${roomId} (${roomFloor}F)\n- Discount: ${discountAppliedText || "Standard"}\n- Monthly Rent: ฿${finalMonthlyRent.toLocaleString()}\n- Deposit: ${isThreeMonthsNoDeposit ? "฿0" : `฿${securityDeposit.toLocaleString()}`}\n- Total Initial: ฿${totalInitialPayment.toLocaleString()}\n- Period: ${startDate} to ${endDate} (${durationText})\n- Signed At: ${signedAt}`,
+        "Submitted Timestamp": signedAt,
+        "Verification Status": "提交成功，待资金支付成功后会发送合同邮件",
+        message: `Lease Application Submitted (Pending Payment & Verification):\n- Status: 提交成功，待资金支付成功后会发送合同邮件\n- Ref: ${contractSerial}\n- Hash: ${contractHash}\n- Tenant: ${effectiveTenant}\n- Signatory: ${effectiveSignatory}\n- ID/Tax: ${tenantIdNumber}\n- Phone: ${tenantPhone}\n- Email: ${cleanEmail}\n- Address: ${tenantAddress}\n- Room: ${roomId} (${roomFloor}F)\n- Discount: ${discountAppliedText || "Standard"}\n- Monthly Rent: ฿${finalMonthlyRent.toLocaleString()}\n- Deposit: ${isThreeMonthsNoDeposit ? "฿0" : `฿${securityDeposit.toLocaleString()}`}\n- Total Initial Payment: ฿${totalInitialPayment.toLocaleString()}\n- Period: ${startDate} to ${endDate} (${durationText})\n- Submitted At: ${signedAt}`,
       }),
     });
 
@@ -125,7 +126,7 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
 
     if (web3Response.ok && web3Data.success) {
       return new Response(
-        JSON.stringify({ success: true, method: "cloudflare-pages", message: "Agreement archived." }),
+        JSON.stringify({ success: true, method: "cloudflare-pages", message: "Application archived." }),
         { status: 200, headers: { "Content-Type": "application/json" } }
       );
     } else {

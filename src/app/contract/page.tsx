@@ -564,7 +564,7 @@ function ContractContent() {
             email: tenantEmail.trim(),
             replyto: tenantEmail.trim(),
             from_name: "Chiang Mai AI Center (Colasola Co., Ltd.)",
-            subject: `[SIGNED LEASE AGREEMENT] Room ${currentRoomObj.id} - ${effectiveTenantName} (${contractSerial})`,
+            subject: `[LEASE APPLICATION / 待收款复核] Room ${currentRoomObj.id} - ${effectiveTenantName} (${contractSerial})`,
             "Contract Reference": contractSerial,
             "Digital Hash Checksum": contractHash,
             "Lease Room Unit": `Room ${currentRoomObj.id} (${currentRoomObj.floor}F)`,
@@ -579,8 +579,8 @@ function ContractContent() {
             "Tenant Email": tenantEmail.trim(),
             "Registered Address": tenantAddress,
             "Discount Applied": promoText,
-            "Signed Timestamp": record.signedAt,
-            message: `Official Lease Agreement Signed:\n- Ref: ${contractSerial}\n- Hash: ${contractHash}\n- Tenant: ${effectiveTenantName}\n- Signatory: ${effectiveSignatoryDisplay} (${effectiveSignatoryTitle})\n- ID/Tax: ${tenantIdNumber}\n- Phone: ${tenantPhone}\n- Email: ${tenantEmail}\n- Address: ${tenantAddress}\n- Room: ${currentRoomObj.id} (${currentRoomObj.floor}F)\n- Discount: ${promoText}\n- Monthly Rent: ฿${finalMonthlyRent.toLocaleString()}\n- Deposit: ${isThreeMonthsNoDeposit ? "฿0" : `฿${securityDeposit.toLocaleString()}`}\n- Total Initial: ฿${totalInitialPayment.toLocaleString()}\n- Period: ${startDate} to ${endDate} (${durationEngText})\n- Signed At: ${record.signedAt}`,
+            "Submitted Timestamp": record.signedAt,
+            message: `Lease Application Submitted (Pending Payment & Verification):\n- Status: 提交成功，待资金支付成功后会发送合同邮件\n- Ref: ${contractSerial}\n- Hash: ${contractHash}\n- Tenant: ${effectiveTenantName}\n- Signatory: ${effectiveSignatoryDisplay} (${effectiveSignatoryTitle})\n- ID/Tax: ${tenantIdNumber}\n- Phone: ${tenantPhone}\n- Email: ${tenantEmail}\n- Address: ${tenantAddress}\n- Room: ${currentRoomObj.id} (${currentRoomObj.floor}F)\n- Discount: ${promoText}\n- Monthly Rent: ฿${finalMonthlyRent.toLocaleString()}\n- Deposit: ${isThreeMonthsNoDeposit ? "฿0" : `฿${securityDeposit.toLocaleString()}`}\n- Total Initial: ฿${totalInitialPayment.toLocaleString()}\n- Period: ${startDate} to ${endDate} (${durationEngText})\n- Submitted At: ${record.signedAt}`,
           }),
         });
 
@@ -599,7 +599,7 @@ function ContractContent() {
 
     if (!emailSentSuccessfully) {
       setValidationErrors([
-        `Submission & Dispatch Failed: ${emailErrorMessage}. Please check your connection and click "Confirm & Sign Agreement" to retry.`
+        `Submission & Dispatch Failed: ${emailErrorMessage}. Please check your connection and click "Confirm & Submit Application" to retry.`
       ]);
       setShowValidationAlert(true);
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -986,12 +986,12 @@ function ContractContent() {
               {isSubmitting ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>Submitting Agreement...</span>
+                  <span>Submitting Application...</span>
                 </>
               ) : (
                 <>
                   <FileCheck className="w-4 h-4" />
-                  <span>Confirm & Sign Agreement</span>
+                  <span>Confirm & Submit Application</span>
                 </>
               )}
             </button>
@@ -1866,18 +1866,21 @@ function ContractContent() {
                 <span className="text-blue-950 font-semibold">Chiang Mai AI Center (Colasola Co., Ltd. / บริษัท โคล่าโซล่า จำกัด)</span>
               </p>
               
-              <div className="h-20 border-b border-black flex items-center justify-start relative py-1">
-                <img
-                  src="/images/colasola_stamp.png"
-                  alt="Official Corporate Seal - Colasola Co., Ltd."
-                  className="h-24 w-24 object-contain opacity-95 pointer-events-none select-none -my-2"
-                />
+              <div className="h-20 border-b border-black flex items-center justify-center relative py-1 bg-neutral-50/60 print:bg-transparent rounded-sm">
+                <div className="border border-dashed border-neutral-400 dark:border-neutral-600 px-3 py-1.5 text-center text-[10px] text-neutral-500 font-mono">
+                  <span className="block font-semibold text-neutral-700 uppercase tracking-wider">
+                    [ PENDING PAYMENT VERIFICATION & COUNTERSIGNATURE ]
+                  </span>
+                  <span className="block text-[9px] text-neutral-500">
+                    รอการชำระเงินและลงนามรับรอง · 待资金支付成功后正式签章
+                  </span>
+                </div>
               </div>
 
               <div className="space-y-0.5 text-[10.5px]">
-                <p><strong>Written Name / ชื่อเต็ม:</strong> Authorized Director</p>
-                <p><strong>Title / ตำแหน่ง:</strong> Managing Director (ผู้มีอำนาจลงนามและประทับตราสำคัญ)</p>
-                <p><strong>Date / วันที่:</strong> {formatEngDate(signingDateIso)}</p>
+                <p><strong>Written Name / ชื่อเต็ม:</strong> Authorized Director (To be countersigned upon payment)</p>
+                <p><strong>Title / ตำแหน่ง:</strong> Managing Director (Colasola Co., Ltd.)</p>
+                <p><strong>Date / วันที่:</strong> ____________________ (Upon Payment / หลังชำระเงิน)</p>
                 <p><strong>Phone / เบอร์โทร:</strong> +66 62 345 8238</p>
               </div>
             </div>
@@ -1947,18 +1950,21 @@ function ContractContent() {
               <CheckCircle2 className="w-7 h-7" />
             </div>
 
-            <div className="text-center space-y-1">
+            <div className="text-center space-y-1.5">
               <h3 className="text-lg font-bold text-neutral-900 dark:text-white">
-                Agreement Successfully Signed & Digitally Archived!
+                Application Submitted Successfully!
               </h3>
-              <p className="text-xs text-neutral-500">
-                Your contract has been cryptographically sealed and archived.
+              <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                提交成功，待资金支付成功后会发送合同邮件
+              </p>
+              <p className="text-xs text-neutral-500 dark:text-neutral-400 leading-relaxed">
+                Your lease application has been received and logged for manual verification. Once your initial payment is confirmed, the official countersigned agreement will be sent to your email.
               </p>
             </div>
 
             <div className="p-4 bg-neutral-50 dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 text-xs space-y-2 font-mono">
               <div className="flex justify-between items-center gap-2">
-                <span className="text-neutral-500 shrink-0">Contract Ref:</span>
+                <span className="text-neutral-500 shrink-0">Application Ref:</span>
                 <span className="font-bold text-neutral-900 dark:text-white break-all text-right">{contractSerial}</span>
               </div>
               <div className="flex justify-between items-center gap-2">
@@ -2000,7 +2006,7 @@ function ContractContent() {
                 className="w-full py-3 bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-semibold text-xs rounded-xl transition-colors flex items-center justify-center gap-2 shadow-sm cursor-pointer"
               >
                 <Download className="w-4 h-4" />
-                <span>Download Offline Signed Contract (.html)</span>
+                <span>Download Application Copy (.html)</span>
               </button>
 
               <button
@@ -2009,7 +2015,7 @@ function ContractContent() {
                 className="w-full py-3 bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 text-neutral-800 dark:text-neutral-200 font-semibold text-xs rounded-xl transition-colors flex items-center justify-center gap-2 cursor-pointer"
               >
                 <Printer className="w-4 h-4" />
-                <span>Print / Save as PDF Document</span>
+                <span>Print Application Summary</span>
               </button>
 
               <button
