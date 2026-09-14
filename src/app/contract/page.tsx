@@ -367,7 +367,12 @@ function ContractContent() {
   // Submission & Confirmation Modal State
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSignedAndArchived, setIsSignedAndArchived] = useState(false);
-  const [generatedPdfBase64, setGeneratedPdfBase64] = useState<string | null>(null);
+
+  // Preload corporate stamp image in memory for instant canvas capture
+  useEffect(() => {
+    const img = new Image();
+    img.src = "/images/colasola_stamp.png";
+  }, []);
 
   // Dynamic discount rate from verified promo code
   const discountRate = appliedPromo ? appliedPromo.rate : 1.0;
@@ -504,11 +509,26 @@ function ContractContent() {
     let emailErrorMessage = "";
 
     try {
-      // 1. Generate full multi-page PDF of the agreement in browser
+      // 1. Generate full multi-page PDF of the stamped agreement in browser for Admin copy
       let pdfBase64: string | undefined = undefined;
+      const pendingStampEl = document.getElementById("landlord-pending-stamp");
+      const officialStampEl = document.getElementById("landlord-official-stamp");
+      const landlordDateEl = document.getElementById("landlord-date-text");
+      const landlordSignatoryEl = document.getElementById("landlord-signatory-text");
+
       try {
         const printableDoc = document.getElementById("printable-contract");
         if (printableDoc) {
+          // Temporarily activate official corporate seal and date for the admin PDF
+          if (pendingStampEl && officialStampEl && landlordDateEl) {
+            pendingStampEl.style.display = "none";
+            officialStampEl.style.display = "flex";
+            landlordDateEl.textContent = formatEngDate(signingDateIso);
+            if (landlordSignatoryEl) {
+              landlordSignatoryEl.textContent = "Authorized Director";
+            }
+          }
+
           const { jsPDF } = await import("jspdf");
           const html2canvas = (await import("html2canvas")).default;
 
@@ -540,11 +560,20 @@ function ContractContent() {
           const rawDataUri = pdf.output("datauristring");
           if (rawDataUri.includes(",")) {
             pdfBase64 = rawDataUri.split(",")[1];
-            setGeneratedPdfBase64(pdfBase64);
           }
         }
       } catch (pdfErr) {
         console.warn("Could not generate client-side PDF:", pdfErr);
+      } finally {
+        // Always restore Landlord block back to pending verification for the on-screen visitor
+        if (pendingStampEl && officialStampEl && landlordDateEl) {
+          pendingStampEl.style.display = "flex";
+          officialStampEl.style.display = "none";
+          landlordDateEl.textContent = "____________________ (Upon Payment / หลังชำระเงิน)";
+          if (landlordSignatoryEl) {
+            landlordSignatoryEl.textContent = "Authorized Director (To be countersigned upon payment)";
+          }
+        }
       }
 
       const promoText = appliedPromo
@@ -661,31 +690,7 @@ function ContractContent() {
     setIsSignedAndArchived(true);
   };
 
-  // Generate & Download Standalone PDF Document Blob
-  const handleDownloadPdf = () => {
-    if (!generatedPdfBase64) return;
-    try {
-      const byteCharacters = atob(generatedPdfBase64);
-      const byteNumbers = new Array(byteCharacters.length);
-      for (let i = 0; i < byteCharacters.length; i++) {
-        byteNumbers[i] = byteCharacters.charCodeAt(i);
-      }
-      const byteArray = new Uint8Array(byteNumbers);
-      const blob = new Blob([byteArray], { type: "application/pdf" });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `Lease_Agreement_${selectedRoomId}_${contractSerial}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-    } catch (err) {
-      console.error("Failed to download PDF blob:", err);
-    }
-  };
-
-  // Generate Standalone Downloadable HTML / PDF Document Blob
+  // Generate Standalone Downloadable HTML Document Blob
   const handleDownloadOfflineContract = () => {
     const printableDoc = document.getElementById("printable-contract");
     if (!printableDoc) return;
@@ -1937,7 +1942,11 @@ function ContractContent() {
                 <span className="text-blue-950 font-semibold">Chiang Mai AI Center (Colasola Co., Ltd. / บริษัท โคล่าโซล่า จำกัด)</span>
               </p>
               
-              <div className="h-20 border-b border-black flex items-center justify-center relative py-1 bg-neutral-50/60 print:bg-transparent rounded-sm">
+              {/* Unverified Placeholder (Shown on public screen & unverified printouts) */}
+              <div
+                id="landlord-pending-stamp"
+                className="h-20 border-b border-black flex items-center justify-center relative py-1 bg-neutral-50/60 print:bg-transparent rounded-sm"
+              >
                 <div className="border border-dashed border-neutral-400 dark:border-neutral-600 px-3 py-1.5 text-center text-[10px] text-neutral-500 font-mono">
                   <span className="block font-semibold text-neutral-700 uppercase tracking-wider">
                     [ PENDING PAYMENT VERIFICATION & COUNTERSIGNATURE ]
@@ -1948,10 +1957,24 @@ function ContractContent() {
                 </div>
               </div>
 
+              {/* Official Seal Stamp (Activated during PDF capture for Landlord Admin Copy) */}
+              <div
+                id="landlord-official-stamp"
+                style={{ display: "none" }}
+                className="h-20 border-b border-black items-center justify-start relative py-1"
+              >
+                <img
+                  id="official-stamp-img"
+                  src="/images/colasola_stamp.png"
+                  alt="Official Corporate Seal - Colasola Co., Ltd."
+                  className="h-24 w-24 object-contain opacity-95 pointer-events-none select-none -my-2"
+                />
+              </div>
+
               <div className="space-y-0.5 text-[10.5px]">
-                <p><strong>Written Name / ชื่อเต็ม:</strong> Authorized Director (To be countersigned upon payment)</p>
-                <p><strong>Title / ตำแหน่ง:</strong> Managing Director (Colasola Co., Ltd.)</p>
-                <p><strong>Date / วันที่:</strong> ____________________ (Upon Payment / หลังชำระเงิน)</p>
+                <p><strong>Written Name / ชื่อเต็ม:</strong> <span id="landlord-signatory-text">Authorized Director (To be countersigned upon payment)</span></p>
+                <p><strong>Title / ตำแหน่ง:</strong> Managing Director (ผู้มีอำนาจลงนามและประทับตราสำคัญ)</p>
+                <p><strong>Date / วันที่:</strong> <span id="landlord-date-text">____________________ (Upon Payment / หลังชำระเงิน)</span></p>
                 <p><strong>Phone / เบอร์โทร:</strong> +66 62 345 8238</p>
               </div>
             </div>
@@ -2071,24 +2094,13 @@ function ContractContent() {
             </div>
 
             <div className="space-y-2.5">
-              {generatedPdfBase64 && (
-                <button
-                  type="button"
-                  onClick={handleDownloadPdf}
-                  className="w-full py-3 bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-semibold text-xs rounded-xl transition-colors flex items-center justify-center gap-2 shadow-sm cursor-pointer"
-                >
-                  <Download className="w-4 h-4" />
-                  <span>Download Full Contract PDF (.pdf)</span>
-                </button>
-              )}
-
               <button
                 type="button"
                 onClick={handleDownloadOfflineContract}
-                className={`w-full ${generatedPdfBase64 ? "py-2.5 bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 text-neutral-800 dark:text-neutral-200" : "py-3 bg-[#2563eb] hover:bg-[#1d4ed8] text-white"} font-semibold text-xs rounded-xl transition-colors flex items-center justify-center gap-2 shadow-sm cursor-pointer`}
+                className="w-full py-3 bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-semibold text-xs rounded-xl transition-colors flex items-center justify-center gap-2 shadow-sm cursor-pointer"
               >
                 <Download className="w-4 h-4" />
-                <span>Download Standalone Copy (.html)</span>
+                <span>Download Application Copy (.html)</span>
               </button>
 
               <button
