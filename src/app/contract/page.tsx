@@ -279,8 +279,10 @@ function ContractContent() {
     setContractHash(Math.abs(hash).toString(16).padStart(12, "0").toUpperCase());
   }, []);
 
-  // Initial query values
-  const initRoom = searchParams.get("room") || "C4";
+  // Initial query values with strict whitelist validation
+  const rawRoomParam = (searchParams.get("room") || "").trim();
+  const matchedRoomObj = defaultRooms.find((r) => r.id.toLowerCase() === rawRoomParam.toLowerCase());
+  const initRoom = matchedRoomObj ? matchedRoomObj.id : "C4";
   const initCode = (searchParams.get("code") || "").trim().toLowerCase();
   const initialAppliedPromo = initCode && VALID_PROMO_CODES[initCode] ? VALID_PROMO_CODES[initCode] : null;
 
@@ -369,8 +371,8 @@ function ContractContent() {
   const discountRate = appliedPromo ? appliedPromo.rate : 1.0;
 
   // Sync selected room to price with strict floor guarantee (Cannot be manipulated to 1 THB)
-  const currentRoomObj = defaultRooms.find((r) => r.id === selectedRoomId);
-  const standardRoomPrice = currentRoomObj ? currentRoomObj.defaultPrice : 7800;
+  const currentRoomObj = defaultRooms.find((r) => r.id === selectedRoomId) || defaultRooms.find((r) => r.id === "C4")!;
+  const standardRoomPrice = currentRoomObj.defaultPrice;
   
   // Safe price calculation
   const calculatedRent = Math.round(standardRoomPrice * discountRate);
@@ -495,49 +497,73 @@ function ContractContent() {
       signedAt: new Date().toISOString(),
     };
 
-    // Save to local ledger
-    try {
-      localStorage.setItem(`contract_${contractSerial}`, JSON.stringify(record));
-    } catch {}
+    // Send to unified server API for email dispatch (Google Workspace SMTP / Web3Forms)
+    let emailSentSuccessfully = false;
+    let emailErrorMessage = "";
 
-    // Send to Web3Forms for official email dispatch
     try {
-      const accessKey = process.env.NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY || "87a78bc8-e588-4925-bc58-7546e77afa45";
       const promoText = appliedPromo
         ? `Promo Code: ${appliedPromo.code.toUpperCase()} (${appliedPromo.percentOff}% OFF, saving ฿${monthlySavings.toLocaleString()}/mo)`
         : "Standard Rate (No Promo Code)";
 
-      await fetch("https://api.web3forms.com/submit", {
+      const res = await fetch("/api/contract/send-email", {
         method: "POST",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          access_key: accessKey,
-          name: effectiveTenantName,
-          email: tenantEmail.trim(),
-          replyto: tenantEmail.trim(),
-          from_name: "Chiang Mai AI Center (Colasola Co., Ltd.)",
-          subject: `[SIGNED LEASE AGREEMENT] Room ${selectedRoomId} - ${effectiveTenantName} (${contractSerial})`,
-          "Contract Reference": contractSerial,
-          "Digital Hash Checksum": contractHash,
-          "Lease Room Unit": `Room ${selectedRoomId} (${currentRoomObj?.floor || 2}F)`,
-          "Monthly Rent": `฿${finalMonthlyRent.toLocaleString()} THB / month`,
-          "Security Deposit": isThreeMonthsNoDeposit ? "฿0 THB (No Deposit Required)" : `฿${securityDeposit.toLocaleString()} THB (2 Months)`,
-          "Total Initial Payment": `฿${totalInitialPayment.toLocaleString()} THB`,
-          "Lease Term": `${startDate} to ${endDate} (${durationEngText})`,
-          "Tenant Legal Name": effectiveTenantName,
-          "Authorized Signatory": `${effectiveSignatoryDisplay} (${effectiveSignatoryTitle})`,
-          "Tenant ID or Tax No": tenantIdNumber,
-          "Tenant Phone": tenantPhone,
-          "Tenant Email": tenantEmail.trim(),
-          "Registered Address": tenantAddress,
-          "Discount Applied": promoText,
-          "Signed Timestamp": record.signedAt,
-          message: `Official Lease Agreement Signed:\n- Ref: ${contractSerial}\n- Hash: ${contractHash}\n- Tenant: ${effectiveTenantName}\n- Signatory: ${effectiveSignatoryDisplay} (${effectiveSignatoryTitle})\n- ID/Tax: ${tenantIdNumber}\n- Phone: ${tenantPhone}\n- Email: ${tenantEmail}\n- Address: ${tenantAddress}\n- Room: ${selectedRoomId} (${currentRoomObj?.floor}F)\n- Discount: ${promoText}\n- Monthly Rent: ฿${finalMonthlyRent.toLocaleString()} (Standard: ฿${standardRoomPrice.toLocaleString()})\n- Deposit: ${isThreeMonthsNoDeposit ? "฿0 (No Deposit Required)" : `฿${securityDeposit.toLocaleString()}`}\n- Total Initial: ฿${totalInitialPayment.toLocaleString()}\n- Period: ${startDate} to ${endDate} (${durationEngText})\n- Signed At: ${record.signedAt}`,
+          contractSerial,
+          contractHash,
+          roomId: currentRoomObj.id,
+          roomFloor: currentRoomObj.floor,
+          roomFeatures: currentRoomObj.features,
+          finalMonthlyRent,
+          standardRoomPrice,
+          discountAppliedText: promoText,
+          securityDeposit,
+          advanceRent,
+          totalInitialPayment,
+          isThreeMonthsNoDeposit,
+          startDate,
+          endDate,
+          durationText: durationEngText,
+          tenantType,
+          tenantName: effectiveTenantName,
+          companyName: tenantType === "company" ? companyName : undefined,
+          signatoryName: tenantType === "company" ? signatoryName : undefined,
+          signatoryTitle: tenantType === "company" ? signatoryTitle : undefined,
+          tenantIdNumber,
+          tenantPhone,
+          tenantEmail: tenantEmail.trim(),
+          tenantAddress,
+          signedAt: record.signedAt,
         }),
       });
-    } catch {}
+
+      const resData = await res.json();
+      if (res.ok && resData.success) {
+        emailSentSuccessfully = true;
+      } else {
+        emailErrorMessage = resData.error || resData.message || `Dispatch server returned error ${res.status}`;
+      }
+    } catch (err: any) {
+      emailErrorMessage = err?.message || "Network error. Please check your internet connection.";
+    }
 
     setIsSubmitting(false);
+
+    if (!emailSentSuccessfully) {
+      setValidationErrors([
+        `Submission & Dispatch Failed: ${emailErrorMessage}. Please check your connection and click "Confirm & Sign Agreement" to retry.`
+      ]);
+      setShowValidationAlert(true);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+
+    // Save to local ledger on verified successful dispatch
+    try {
+      localStorage.setItem(`contract_${contractSerial}`, JSON.stringify(record));
+    } catch {}
+
     setIsSignedAndArchived(true);
   };
 
