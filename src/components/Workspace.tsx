@@ -19,10 +19,17 @@ interface OfficeUnit {
 }
 
 export default function Workspace() {
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const [activeFloor, setActiveFloor] = useState<number>(2); // Default to Floor 2 (Workspace)
   const [zoomImage, setZoomImage] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
+
+  const getFloorTabLabel = (num: number) => {
+    if (language === "zh") return `${num} 楼`;
+    if (language === "th") return `ชั้น ${num}`;
+    if (language === "ja") return `${num}階`;
+    return `Floor ${num}`;
+  };
 
   useEffect(() => {
     setMounted(true);
@@ -175,7 +182,7 @@ export default function Workspace() {
             >
               <Layers className="w-3.5 h-3.5" />
               <span>
-                {floor.num} {t("workspaceFloor").toLowerCase()}
+                {getFloorTabLabel(floor.num)}
               </span>
             </button>
           ))}

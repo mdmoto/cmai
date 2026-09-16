@@ -11,7 +11,7 @@ export default function About() {
     {
       number: "1600㎡",
       label: t("aboutStatArea"),
-      sub: "Total workspace area",
+      sub: t("aboutStatAreaSub"),
     },
     {
       number: "5 Floors",
@@ -31,7 +31,7 @@ export default function About() {
     {
       number: "Prime Hub",
       label: t("aboutStatLocation"),
-      sub: "Nong Hoi, Mueang Chiang Mai",
+      sub: t("aboutStatLocationSub"),
     },
     {
       number: "5 km",

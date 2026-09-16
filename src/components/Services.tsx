@@ -272,7 +272,7 @@ export default function Services() {
         title: "Business Address",
         subtitle: "Prestigious Corporate Registration",
         content: [
-          "Establish your company with a professional corporate business address in Mueang Chiang Mai (Nong Hoi), connecting prime airport access and commercial hubs.",
+          "Establish your company with a professional corporate business address in Mueang Chiang Mai (Nong Hoi, Mahidol Road), connecting prime airport access (5 km) and commercial hubs.",
           "Our business address service complies fully with Thai government standards for official company incorporation, Social Security Fund filings, and Value Added Tax (VAT) registry.",
           "Suitable for BOI-promoted technology projects and foreign corporate branch offices. Included in our service is a dedicated mail signature protocol and administrative compliance check for legal notices."
         ]
@@ -281,7 +281,7 @@ export default function Services() {
         title: "商业地址注册",
         subtitle: "清迈地标级企业法定地址",
         content: [
-          "将您的企业设立在清迈核心商务地带（Mueang Chiang Mai · Nong Hoi），紧邻机场与国际商务枢纽，为您的跨国公司树立专业可靠的商业首印形象。",
+          "将您的企业设立在清迈核心商务地带（Mueang Chiang Mai · Nong Hoi 玛希敦路），紧邻清迈国际机场（仅 5 公里，车程约 8 分钟）与国际商务枢纽，为您的跨国公司树立专业可靠的商业首印形象。",
           "我们的商业地址服务完全符合泰国商政厅、税务局的最新标准，支持开设本地公司、办理增值税（VAT）登记、以及日常社会保障基金（Social Security）的申报归档。",
           "适合 BOI 科技促进企业、外国跨国公司代表处在泰落地注册。地址服务内包含邮件代收签收协议及合规的官方邮件与法律文书签收登记服务。"
         ]
@@ -290,7 +290,7 @@ export default function Services() {
         title: "ที่อยู่จดทะเบียนธุรกิจ",
         subtitle: "การจดทะเบียนองค์กรที่มีชื่อเสียง",
         content: [
-          "จัดตั้งบริษัทของคุณด้วยที่อยู่จดทะเบียนธุรกิจระดับมืออาชีพที่ศูนย์ของเราใน อ.เมืองเชียงใหม่ (ต.หนองหอย) เชื่อมต่อเส้นทางธุรกิจและสนามบินได้อย่างสะดวกรวดเร็ว",
+          "จัดตั้งบริษัทของคุณด้วยที่อยู่จดทะเบียนธุรกิจระดับมืออาชีพที่ศูนย์ของเราใน อ.เมืองเชียงใหม่ (ต.หนองหอย ถ.มหิดล) เชื่อมต่อเส้นทางธุรกิจและสนามบินนานาชาติ (5 กม.) ได้อย่างสะดวกรวดเร็ว",
           "บริการที่อยู่จดทะเบียนธุรกิจของเราสอดคล้องกับมาตรฐานของรัฐบาลไทยอย่างสมบูรณ์สำหรับการจดทะเบียนจัดตั้งบริษัทอย่างเป็นทางการ การยื่นเอกสารกองทุนประกันสังคม และการจดทะเบียนภาษีมูลค่าเพิ่ม (VAT)",
           "เหมาะสำหรับโครงการเทคโนโลยีที่ได้รับการส่งเสริมจาก BOI และสำนักงานสาขาของบริษัทต่างประเทศ บริการของเรารวมถึงโปรโตคอลการลงนามจดหมายเฉพาะและการตรวจสอบการปฏิบัติตามกฎระเบียบสำหรับการแจ้งเตือนทางกฎหมาย"
         ]
@@ -299,7 +299,7 @@ export default function Services() {
         title: "登記用住所",
         subtitle: "チェンマイの中心地での企業登録",
         content: [
-          "チェンマイ市中心部（ムアンチェンマイ・ノンホイ地区）に位置する当センターの住所で法人登記を行うことができます。空港へのアクセスも良好です。",
+          "チェンマイ市中心部（ムアンチェンマイ・ノンホイ地区・マヒドン通り）に位置する当センターの住所で法人登記を行うことができます。国際空港（わずか5km）へのアクセスも良好です。",
           "タイの商業登記、社会保険登録、VAT（付加価値税）登録の法的基準に完全に適合したアドレスです。公式なオフィシャルレターの受取先として指定可能です。",
           "BOI（タイ投資委員会）の推奨テック企業や、外国企業のタイ駐在員事務所などの登記にも多数の実績があります。契約時には正式な住所使用承诺書を速やかに発行します。"
         ]

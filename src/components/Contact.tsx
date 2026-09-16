@@ -139,16 +139,19 @@ export default function Contact() {
                 <MapPin className="w-4 h-4 text-neutral-400" />
                 <span>{t("contactLocation")}</span>
               </h3>
-              <div className="space-y-2 text-[13px] text-neutral-600 dark:text-[#86868b] leading-relaxed font-light">
+              <div className="space-y-2.5 text-[13px] text-neutral-600 dark:text-[#86868b] leading-relaxed font-light">
                 <p className="font-semibold text-neutral-900 dark:text-white text-[14px]">
-                  Chiang Mai AI Center
+                  {t("heroTitle")}
                 </p>
-                <p className="leading-normal">
-                  236/105 Moo 6, Nong Hoi, Mueang Chiang Mai District, Chiang Mai 50000, Thailand
+                <p className="leading-normal text-neutral-800 dark:text-neutral-200">
+                  {t("contactAddressOfficial")}
                 </p>
                 <p className="text-[12px] text-neutral-500 dark:text-neutral-400 font-sans leading-normal pt-1.5 border-t border-neutral-100 dark:border-neutral-800/60">
-                  <span className="text-[11px] font-mono text-neutral-400 block mb-0.5">ที่อยู่ภาษาไทย (Official Thai Address):</span>
-                  236/105 หมู่ที่ 6 ตำบลหนองหอย อำเภอเมืองเชียงใหม่ จังหวัดเชียงใหม่ 50000
+                  <span className="text-[11px] font-mono text-neutral-400 block mb-0.5">{t("contactAddressThaiLabel")}</span>
+                  {t("contactAddressThai")}
+                </p>
+                <p className="text-[12px] text-neutral-500 dark:text-neutral-400 leading-normal pt-1">
+                  {t("contactAddressNote")}
                 </p>
               </div>
               

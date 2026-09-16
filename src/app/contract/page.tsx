@@ -306,7 +306,7 @@ async function generateVectorContractPdf(data: {
   doc.setFontSize(8.5);
   doc.setTextColor(100, 116, 139);
   doc.text("Colasola Co., Ltd. · Tax ID: 0505566006478", margin + 32, 22);
-  doc.text("236/105 Chiang Mai AI Center, Moo 6, Mahidol Rd, Mueang Chiang Mai 50000", margin + 32, 26);
+  doc.text("236/105 Chiang Mai AI Center, Moo 6, Mahidol Rd, Nong Hoi, Mueang Chiang Mai 50000", margin + 32, 26);
 
   // Right Reference Info
   doc.setFont("helvetica", "bold");

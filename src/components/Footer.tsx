@@ -26,7 +26,7 @@ export default function Footer() {
               className="h-10 w-auto object-contain invert opacity-90 hover:opacity-100 transition-opacity"
             />
             <p className="text-[13px] text-neutral-500 font-light leading-relaxed max-w-sm">
-              Chiang Mai AI Center is a premium business infrastructure platform, providing dedicated workspace, secure corporate networking, and local setup support for global tech teams.
+              {t("footerDesc")}
             </p>
           </div>
 
@@ -58,7 +58,7 @@ export default function Footer() {
               </li>
               <li>
                 <a href="/contract" className="text-blue-400 hover:text-blue-300 transition-colors font-medium">
-                  在线租赁合同 (Lease Agreement)
+                  {t("footerContract")}
                 </a>
               </li>
             </ul>
