@@ -179,7 +179,6 @@ const defaultRooms = [
   { id: "C12", floor: 3, defaultPrice: 1500, features: "Central A/C · Natural Light Window (Single Window)" },
   { id: "D1-2", floor: 4, defaultPrice: 9700, features: "Private A/C · Panoramic Window (Large Suite)" },
   { id: "D3", floor: 4, defaultPrice: 7800, features: "Private A/C · Natural Light Window (Team Room)" },
-  { id: "D4", floor: 4, defaultPrice: 7800, features: "Private A/C · Natural Light Window (Team Room)" },
   { id: "D5", floor: 4, defaultPrice: 4700, features: "Private A/C · Natural Light Window (Private Pro)" },
   { id: "D7-8", floor: 4, defaultPrice: 5800, features: "Private A/C · Natural Light Window (Dual Studio)" },
   { id: "D9", floor: 4, defaultPrice: 6000, features: "Private A/C · Natural Light Window (Studio Suite)" },

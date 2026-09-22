@@ -63,7 +63,7 @@ const calculatorRooms: CalculatorRoom[] = [
   // Floor 4
   { id: "D1-2", floor: 4, price: 9700, features: "AC, Window", leased: false },
   { id: "D3", floor: 4, price: 6400, features: "AC, Window", leased: false },
-  { id: "D4", floor: 4, price: 7800, features: "AC, Window", leased: false },
+  { id: "D4", floor: 4, price: 7800, features: "AC, Window", leased: true },
   { id: "D5", floor: 4, price: 4700, features: "AC, Window", leased: false },
   { id: "D6", floor: 4, price: 1800, features: "W/o AC, W/o Window", leased: true },
   { id: "D7-8", floor: 4, price: 5400, features: "AC, Window", leased: false },
@@ -164,7 +164,7 @@ export default function PricingCalculator() {
     {
       id: "shared_office",
       nameKey: "servicesSharedOffice",
-      basePrice: 3000,
+      basePrice: 1000,
       unitKey: "pricingMonth",
       isMonthly: true,
       notesKey: "共享移动办公工位。租用即免费赠送专属 IP VPN（支持 1 台设备）。",
@@ -520,7 +520,7 @@ export default function PricingCalculator() {
   // Calculate Subtotals
   let monthlySubtotal = 0;
   monthlySubtotal += officeCost;
-  if (selected.shared_office) monthlySubtotal += 3000;
+  if (selected.shared_office) monthlySubtotal += 1000;
   if (selected.virtual_address) monthlySubtotal += 1000;
   monthlySubtotal += vpnCost;
   if (selected.mail_handling && !isMailFree) monthlySubtotal += 500;
@@ -538,7 +538,7 @@ export default function PricingCalculator() {
   const depositCost = selected.private_office
     ? officeCost * 2
     : selected.shared_office
-    ? 3000 * 2
+    ? 1000 * 2
     : selected.corporate_affiliation
     ? 23000 * 2
     : 0;
@@ -585,7 +585,7 @@ export default function PricingCalculator() {
       if (selected.private_office) {
         quoteText += `- 独立办公室 (房间: ${selectedRooms.length > 0 ? selectedRooms.join(", ") : "未选择"}): ฿${officeCost}/月\n`;
       }
-      if (selected.shared_office) quoteText += `- 共享办公室 (热租工位): ฿3,000/月\n`;
+      if (selected.shared_office) quoteText += `- 共享办公室 (热租工位): ฿1,000/月\n`;
       if (selected.virtual_address) quoteText += `- 虚拟商区地址: ฿1,000/月\n`;
       if (selected.corporate_affiliation) quoteText += `- 泰国公司资质挂靠与托管运营: ฿23,000/月\n`;
       if (selected.shared_vpn) quoteText += `- 共享 IP VPN 服务: ฿${selected.virtual_address || hasVpnPromo ? "0 (赠送)" : "200"}/月\n`;
@@ -616,7 +616,7 @@ export default function PricingCalculator() {
       if (selected.private_office) {
         quoteText += `- Private Office (Rooms: ${selectedRooms.length > 0 ? selectedRooms.join(", ") : "None Selected"}): ฿${officeCost}/mo\n`;
       }
-      if (selected.shared_office) quoteText += `- Shared Workspace: ฿3,000/mo\n`;
+      if (selected.shared_office) quoteText += `- Shared Workspace: ฿1,000/mo\n`;
       if (selected.virtual_address) quoteText += `- Virtual Business Address: ฿1,000/mo\n`;
       if (selected.corporate_affiliation) quoteText += `- Corporate Affiliation & Credentials Hosting: ฿23,000/mo\n`;
       if (selected.shared_vpn) quoteText += `- Shared IP VPN: ฿${selected.virtual_address || hasVpnPromo ? "0 (Bundled)" : "200"}/mo\n`;

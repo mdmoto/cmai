@@ -99,7 +99,7 @@ export default function Workspace() {
       units: [
         { id: "D1-2", type: "Medium", capacity: "2-4 Pax", area: "24 sqm", price: "฿9,700/mo", features: "AC, Window", status: "Available", desks: 4 },
         { id: "D3", type: "Small", capacity: "1-2 Pax", area: "12 sqm", price: "฿6,400/mo", features: "AC, Window", status: "Available", desks: 2 },
-        { id: "D4", type: "Small", capacity: "1-2 Pax", area: "12 sqm", price: "฿7,800/mo", features: "AC, Window", status: "Available", desks: 3 },
+        { id: "D4", type: "Small", capacity: "1-2 Pax", area: "12 sqm", price: "฿7,800/mo", features: "AC, Window", status: "Full", desks: 3 },
         { id: "D5", type: "Medium", capacity: "3-4 Pax", area: "18 sqm", price: "฿4,700/mo", features: "AC, Window", status: "Available", desks: 2 },
         { id: "D6", type: "Medium", capacity: "3-4 Pax", area: "18 sqm", price: "฿1,800/mo", features: "W/o AC, W/o Window", status: "Full", desks: 1 },
         { id: "D7-8", type: "Large", capacity: "4-6 Pax", area: "36 sqm", price: "฿5,400/mo", features: "AC, Window", status: "Available", desks: 2 },
