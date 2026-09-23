@@ -170,6 +170,7 @@ const defaultRooms = [
   { id: "B6", floor: 2, defaultPrice: 3700, features: "Central A/C · Interior (Quiet Focus)" },
   { id: "B7", floor: 2, defaultPrice: 3100, features: "Central A/C · Natural Light Window (Cozy Window)" },
   { id: "C1-2", floor: 3, defaultPrice: 9700, features: "Private A/C · Panoramic Window (Executive Suite)" },
+  { id: "C3", floor: 3, defaultPrice: 5000, features: "Private A/C · Natural Light Window (Standard Pro)" },
   { id: "C4", floor: 3, defaultPrice: 7800, features: "Private A/C · Natural Light Window (Standard Team)" },
   { id: "C5", floor: 3, defaultPrice: 4700, features: "Private A/C · Natural Light Window (Compact Pro)" },
   { id: "C6", floor: 3, defaultPrice: 1800, features: "Central A/C · Interior (Budget Solo)" },

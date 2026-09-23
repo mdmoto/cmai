@@ -38,7 +38,7 @@ export interface ContractEmailPayload {
 
 // Allowed Room Whitelist
 const VALID_ROOM_IDS = new Set([
-  "B1-2", "B6", "B7", "C1-2", "C4", "C5", "C6", "C7-8", "C9", "C11", "C12",
+  "B1-2", "B6", "B7", "C1-2", "C3", "C4", "C5", "C6", "C7-8", "C9", "C11", "C12",
   "D1-2", "D3", "D5", "D7-8", "D9", "D10", "D11",
   "E2", "E3", "E4-5", "E6", "E7", "E8", "E9", "E10"
 ]);

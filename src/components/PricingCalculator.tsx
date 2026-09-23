@@ -50,7 +50,7 @@ const calculatorRooms: CalculatorRoom[] = [
   
   // Floor 3
   { id: "C1-2", floor: 3, price: 9700, features: "AC, Window", leased: false },
-  { id: "C3", floor: 3, price: 6400, features: "AC, Window", leased: true },
+  { id: "C3", floor: 3, price: 5000, features: "AC, Window", leased: false },
   { id: "C4", floor: 3, price: 7800, features: "AC, Window", leased: false },
   { id: "C5", floor: 3, price: 4700, features: "AC, Window", leased: false },
   { id: "C6", floor: 3, price: 1800, features: "W/o AC, W/o Window", leased: false },
