@@ -16,10 +16,26 @@ interface Env {
 
 // Allowed Room Whitelist
 const VALID_ROOM_IDS = new Set([
-  "B1-2", "B6", "B7", "C1-2", "C4", "C5", "C6", "C7-8", "C9", "C11", "C12",
-  "D1-2", "D3", "D4", "D5", "D7-8", "D9", "D10", "D11",
+  "B1-2", "B6", "B7", "C1-2", "C3", "C4", "C5", "C6", "C7-8", "C9", "C11", "C12",
+  "D1-2", "D3", "D5", "D7-8", "D9", "D10", "D11",
   "E2", "E3", "E4-5", "E6", "E7", "E8", "E9", "E10"
 ]);
+
+// Format English ordinal suffix: 1st, 2nd, 3rd, 4th, 21st, 22nd, 23rd, 24th, 31st
+function getOrdinalSuffix(day: number): string {
+  const j = day % 10;
+  const k = day % 100;
+  if (j === 1 && k !== 11) {
+    return `${day}st`;
+  }
+  if (j === 2 && k !== 12) {
+    return `${day}nd`;
+  }
+  if (j === 3 && k !== 13) {
+    return `${day}rd`;
+  }
+  return `${day}th`;
+}
 
 // Email Regex
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -176,6 +192,7 @@ function generateStandaloneContractHtml(data: {
   advanceRent: number;
   totalInitialPayment: number;
   isThreeMonthsNoDeposit?: boolean;
+  rentDueDay?: number;
   startDate: string;
   endDate: string;
   durationText: string;
@@ -193,6 +210,9 @@ function generateStandaloneContractHtml(data: {
   if (data.contractHtml) return data.contractHtml;
 
   const isThreeMonths = data.isThreeMonthsNoDeposit || data.durationText.includes("3 months") || data.durationText.includes("3-month");
+  const isSixMonths = data.durationText.includes("6 months") || data.durationText.includes("6-month");
+  const rentDueDay = Number(data.rentDueDay) || (data.signedAt ? new Date(data.signedAt).getDate() : 15);
+  const rentDueDayStr = getOrdinalSuffix(rentDueDay);
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -452,8 +472,11 @@ function generateStandaloneContractHtml(data: {
     ${isThreeMonths ? `
     <p><strong>2.1</strong> The full rental fee for the entire 3-month lease term is payable in advance upon signing this agreement.<br><span class="text-neutral-600">ค่าเช่าเต็มจำนวนตลอดอายุสัญญาเช่า 3 เดือน จะต้องชำระล่วงหน้าทั้งหมดในวันทำสัญญาฉบับนี้</span></p>
     <p><strong>2.2</strong> For this 3-month lease, Tenant agrees to pay the full prepaid 3-month rental sum of <strong>${Number(data.totalInitialPayment || 0).toLocaleString()} THB</strong>. No security deposit is required for this 3-month term (0 THB Security Deposit).<br><span class="text-neutral-600">สำหรับสัญญาเช่าระยะเวลา 3 เดือนนี้ ผู้เช่าตกลงชำระค่าเช่าล่วงหน้าเต็มจำนวน 3 เดือน เป็นเงินจำนวน <strong>${Number(data.totalInitialPayment || 0).toLocaleString()} บาท</strong> โดยไม่มีการเรียกเก็บเงินประกัน (เงินประกัน 0 บาท)</span></p>
+    ` : isSixMonths ? `
+    <p><strong>2.1</strong> The monthly rent shall be payable by Tenant on or before the <strong>${rentDueDayStr} date</strong> of each month.<br><span class="text-neutral-600">เงินค่าเช่านั้นผู้เช่าจะต้องชำระทุกวันที่ ${rentDueDay} ของเดือน</span></p>
+    <p><strong>2.2</strong> For this 6-month lease, Tenant agrees to pay an initial upfront payment of 3 months totaling <strong>${Number(data.totalInitialPayment || 0).toLocaleString()} THB</strong>, comprising a 2-month security deposit of <strong>${Number(data.securityDeposit || 0).toLocaleString()} THB</strong> and 1 month advance rent of <strong>${Number(data.advanceRent || 0).toLocaleString()} THB</strong>. Thereafter, the agreed monthly rent shall be paid monthly on or before the <strong>${rentDueDayStr} date</strong> of each subsequent month.<br><span class="text-neutral-600">สำหรับสัญญาเช่าระยะเวลา 6 เดือนนี้ ผู้เช่าตกลงชำระเงินงวดแรกจำนวน 3 เดือน รวมเป็นเงิน <strong>${Number(data.totalInitialPayment || 0).toLocaleString()} บาท</strong> ประกอบด้วยเงินประกัน 2 เดือน จำนวน <strong>${Number(data.securityDeposit || 0).toLocaleString()} บาท</strong> และค่าเช่าล่วงหน้า 1 เดือน จำนวน <strong>${Number(data.advanceRent || 0).toLocaleString()} บาท</strong> และชำระค่าเช่ารายเดือนทุกวันที่ ${rentDueDay} ของเดือนถัดไป</span></p>
     ` : `
-    <p><strong>2.1</strong> The monthly rent shall be payable by Tenant on or before the <strong>15th date</strong> of each month.<br><span class="text-neutral-600">เงินค่าเช่านั้นผู้เช่าจะต้องชำระทุกวันที่ 15 ของเดือน</span></p>
+    <p><strong>2.1</strong> The monthly rent shall be payable by Tenant on or before the <strong>${rentDueDayStr} date</strong> of each month.<br><span class="text-neutral-600">เงินค่าเช่านั้นผู้เช่าจะต้องชำระทุกวันที่ ${rentDueDay} ของเดือน</span></p>
     <p><strong>2.2</strong> Tenant agrees to pay the security deposit of <strong>${Number(data.securityDeposit || 0).toLocaleString()} THB</strong> [equivalent to 2 months rent] and 1 month rental in advance for <strong>${Number(data.advanceRent || 0).toLocaleString()} THB</strong>. Total initial payment sum is <strong>${Number(data.totalInitialPayment || 0).toLocaleString()} THB</strong>.<br><span class="text-neutral-600">ผู้เช่าตกลงจ่ายค่าประกันจำนวน <strong>${Number(data.securityDeposit || 0).toLocaleString()} บาท</strong> [เทียบเท่าค่าเช่า 2 เดือน] และค่าเช่าล่วงหน้า 1 เดือน จำนวน <strong>${Number(data.advanceRent || 0).toLocaleString()} บาท</strong> รวมเป็นเงินจำนวนจ่ายครั้งแรกทั้งหมด <strong>${Number(data.totalInitialPayment || 0).toLocaleString()} บาท</strong></span></p>
     `}
     <p class="text-[11px] text-neutral-600 italic">
@@ -584,6 +607,7 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
       advanceRent,
       totalInitialPayment,
       isThreeMonthsNoDeposit,
+      rentDueDay,
       startDate,
       endDate,
       durationText,
@@ -639,6 +663,8 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
 
     const effectiveTenant = tenantType === "company" ? (companyName || tenantName) : tenantName;
     const effectiveSignatory = tenantType === "company" ? `${signatoryName || tenantName} (${signatoryTitle || "Representative"})` : tenantName;
+    const effectiveRentDueDay = Number(rentDueDay) || (signedAt ? new Date(signedAt).getDate() : 15);
+    const effectiveRentDueDayStr = getOrdinalSuffix(effectiveRentDueDay);
 
     // Email Credentials
     const smtpHost = env.SMTP_HOST || "smtp.gmail.com";
@@ -681,6 +707,7 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
               <tr><td style="padding: 5px 0; color: #64748b;">Selected Unit:</td><td style="padding: 5px 0; font-weight: bold; color: #2563eb;">Room ${roomId} (${roomFloor}F)${roomFeatures ? ` · ${roomFeatures}` : ""}</td></tr>
               <tr><td style="padding: 5px 0; color: #64748b;">Lease Term:</td><td style="padding: 5px 0; font-weight: bold;">${startDate} to ${endDate} (${durationText})</td></tr>
               <tr><td style="padding: 5px 0; color: #64748b;">Monthly Rent:</td><td style="padding: 5px 0; font-weight: bold; color: #0f172a;">฿${finalMonthlyRent.toLocaleString()} THB / month ${discountAppliedText ? `<span style="color: #059669; font-size: 11px;">(${discountAppliedText})</span>` : ""}</td></tr>
+              ${!isThreeMonthsNoDeposit ? `<tr><td style="padding: 5px 0; color: #64748b;">Monthly Rent Due:</td><td style="padding: 5px 0; font-weight: bold; color: #0f172a;">On or before the ${effectiveRentDueDayStr} of each month (ทุกวันที่ ${effectiveRentDueDay} ของเดือน)</td></tr>` : ""}
               <tr><td style="padding: 5px 0; color: #64748b;">Security Deposit:</td><td style="padding: 5px 0; font-weight: bold;">${isThreeMonthsNoDeposit ? "฿0 (No Deposit Required)" : `฿${securityDeposit.toLocaleString()} THB (2 Months)`}</td></tr>
               <tr><td style="padding: 5px 0; color: #64748b;">Total Initial Payment:</td><td style="padding: 5px 0; font-weight: 800; color: #059669; font-size: 16px;">฿${totalInitialPayment.toLocaleString()} THB</td></tr>
               <tr><td style="padding: 5px 0; color: #64748b;">Tenant Name:</td><td style="padding: 5px 0;">${effectiveTenant}</td></tr>
@@ -717,6 +744,7 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
       advanceRent,
       totalInitialPayment,
       isThreeMonthsNoDeposit,
+      rentDueDay: effectiveRentDueDay,
       startDate,
       endDate,
       durationText,
@@ -787,6 +815,7 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
           <tr><td style="padding: 6px; font-weight: bold;">申请房间 / Room:</td><td style="padding: 6px; font-weight: bold; color: #2563eb;">Room ${roomId} (${roomFloor}F)</td></tr>
           <tr><td style="padding: 6px; font-weight: bold;">租赁期限 / Term:</td><td style="padding: 6px;">${startDate} to ${endDate} (${durationText})</td></tr>
           <tr><td style="padding: 6px; font-weight: bold;">月租金 / Rent:</td><td style="padding: 6px;">฿${finalMonthlyRent.toLocaleString()} (Standard: ฿${standardRoomPrice.toLocaleString()})</td></tr>
+          ${!isThreeMonthsNoDeposit ? `<tr><td style="padding: 6px; font-weight: bold;">月租交租日 / Due Day:</td><td style="padding: 6px; font-weight: bold; color: #2563eb;">On or before the ${effectiveRentDueDayStr} of each month (每月 ${effectiveRentDueDay} 日前 / ทุกวันที่ ${effectiveRentDueDay})</td></tr>` : ""}
           <tr><td style="padding: 6px; font-weight: bold;">折扣优惠 / Promo:</td><td style="padding: 6px; color: #059669;">${discountAppliedText || "Standard Rate"}</td></tr>
           <tr><td style="padding: 6px; font-weight: bold;">押金 / Deposit:</td><td style="padding: 6px;">${isThreeMonthsNoDeposit ? "฿0 (No Deposit)" : `฿${securityDeposit.toLocaleString()}`}</td></tr>
           <tr><td style="padding: 6px; font-weight: bold;">首期总应收 / Total:</td><td style="padding: 6px; font-weight: bold; color: #059669; font-size: 15px;">฿${totalInitialPayment.toLocaleString()}</td></tr>
@@ -870,6 +899,7 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
         "Digital Hash Checksum": contractHash,
         "Lease Room Unit": `Room ${roomId} (${roomFloor}F)${roomFeatures ? ` · ${roomFeatures}` : ""}`,
         "Monthly Rent": `฿${finalMonthlyRent.toLocaleString()} THB / month`,
+        "Monthly Rent Due Day": isThreeMonthsNoDeposit ? "N/A (Full 3-Month Prepaid)" : `On or before the ${effectiveRentDueDayStr} of each month (ทุกวันที่ ${effectiveRentDueDay} ของเดือน)`,
         "Security Deposit": isThreeMonthsNoDeposit ? "฿0 THB (No Deposit Required)" : `฿${securityDeposit.toLocaleString()} THB (2 Months)`,
         "Total Initial Payment": `฿${totalInitialPayment.toLocaleString()} THB`,
         "Lease Term": `${startDate} to ${endDate} (${durationText})`,
@@ -882,7 +912,7 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
         "Discount Applied": discountAppliedText || "Standard Rate (No Promo Code)",
         "Submitted Timestamp": signedAt,
         "Verification Status": "提交成功，待资金支付成功后会发送合同邮件",
-        message: `Lease Application Submitted (Pending Payment & Verification):\n- Status: 提交成功，待资金支付成功后会发送合同邮件\n- Ref: ${contractSerial}\n- Hash: ${contractHash}\n- Tenant: ${effectiveTenant}\n- Signatory: ${effectiveSignatory}\n- ID/Tax: ${tenantIdNumber}\n- Phone: ${tenantPhone}\n- Email: ${cleanEmail}\n- Address: ${tenantAddress}\n- Room: ${roomId} (${roomFloor}F)\n- Discount: ${discountAppliedText || "Standard"}\n- Monthly Rent: ฿${finalMonthlyRent.toLocaleString()}\n- Deposit: ${isThreeMonthsNoDeposit ? "฿0" : `฿${securityDeposit.toLocaleString()}`}\n- Total Initial Payment: ฿${totalInitialPayment.toLocaleString()}\n- Period: ${startDate} to ${endDate} (${durationText})\n- Submitted At: ${signedAt}\n- Note: Direct SMTP error: ${smtpErrorDetails}`,
+        message: `Lease Application Submitted (Pending Payment & Verification):\n- Status: 提交成功，待资金支付成功后会发送合同邮件\n- Ref: ${contractSerial}\n- Hash: ${contractHash}\n- Tenant: ${effectiveTenant}\n- Signatory: ${effectiveSignatory}\n- ID/Tax: ${tenantIdNumber}\n- Phone: ${tenantPhone}\n- Email: ${cleanEmail}\n- Address: ${tenantAddress}\n- Room: ${roomId} (${roomFloor}F)\n- Discount: ${discountAppliedText || "Standard"}\n- Monthly Rent: ฿${finalMonthlyRent.toLocaleString()}\n- Rent Due Day: ${isThreeMonthsNoDeposit ? "N/A (Prepaid)" : `On or before the ${effectiveRentDueDayStr} of each month`}\n- Deposit: ${isThreeMonthsNoDeposit ? "฿0" : `฿${securityDeposit.toLocaleString()}`}\n- Total Initial Payment: ฿${totalInitialPayment.toLocaleString()}\n- Period: ${startDate} to ${endDate} (${durationText})\n- Submitted At: ${signedAt}\n- Note: Direct SMTP error: ${smtpErrorDetails}`,
       }),
     });
 

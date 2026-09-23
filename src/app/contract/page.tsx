@@ -165,6 +165,22 @@ function formatThaiDate(isoStr: string): string {
   }
 }
 
+// Format English ordinal suffix: 1st, 2nd, 3rd, 4th, 21st, 22nd, 23rd, 24th, 31st
+function getOrdinalSuffix(day: number): string {
+  const j = day % 10;
+  const k = day % 100;
+  if (j === 1 && k !== 11) {
+    return `${day}st`;
+  }
+  if (j === 2 && k !== 12) {
+    return `${day}nd`;
+  }
+  if (j === 3 && k !== 13) {
+    return `${day}rd`;
+  }
+  return `${day}th`;
+}
+
 const defaultRooms = [
   { id: "B1-2", floor: 2, defaultPrice: 9400, features: "Private A/C · Natural Light Window (Double Suite)" },
   { id: "B6", floor: 2, defaultPrice: 3700, features: "Central A/C · Interior (Quiet Focus)" },
@@ -271,6 +287,7 @@ async function generateVectorContractPdf(data: {
   securityDeposit: number;
   totalInitialPayment: number;
   isThreeMonthsNoDeposit: boolean;
+  rentDueDay?: number;
   logoDataUrl?: string;
   stampDataUrl?: string;
   signatureData?: string | null;
@@ -389,7 +406,10 @@ async function generateVectorContractPdf(data: {
   doc.setTextColor(51, 65, 85);
   doc.text(`1.1 Premises: Room ${data.roomId} (${data.roomFloor}F), Chiang Mai AI Center, 236/105 Mahidol Rd, Nong Hoi, Chiang Mai.`, margin, y);
   y += 4.5;
-  doc.text(`1.2 Term: ${data.startDate} to ${data.endDate} (${data.durationEngText}). Monthly rent payable in advance by the 5th.`, margin, y);
+  const rentDueClause = data.isThreeMonthsNoDeposit
+    ? "Full 3-month rent prepaid at signing."
+    : `Monthly rent payable in advance on or before the ${getOrdinalSuffix(data.rentDueDay || 15)}.`;
+  doc.text(`1.2 Term: ${data.startDate} to ${data.endDate} (${data.durationEngText}). ${rentDueClause}`, margin, y);
 
   y += 8;
 
@@ -568,6 +588,7 @@ function ContractContent() {
     const mStr = String(today.getMonth() + 1).padStart(2, "0");
     const dStr = String(today.getDate()).padStart(2, "0");
     setSigningDateIso(`${yStr}-${mStr}-${dStr}`);
+    setRentDueDay(today.getDate());
 
     const randomSuffix = Math.random().toString(36).substring(2, 7).toUpperCase();
     const serial = `CMAI-${yStr}${mStr}${dStr}-${randomSuffix}`;
@@ -671,6 +692,19 @@ function ContractContent() {
   const [startDate, setStartDate] = useState<string>(getTomorrowDateString());
   const [durationMonths, setDurationMonths] = useState<number>(12); // Default 1 year (12 months)
   const [rentDueDay, setRentDueDay] = useState<number>(15);
+
+  const handleSigningDateChange = (newIso: string) => {
+    setSigningDateIso(newIso);
+    if (newIso) {
+      const parts = newIso.split("-");
+      if (parts.length === 3) {
+        const day = parseInt(parts[2], 10);
+        if (!isNaN(day) && day >= 1 && day <= 31) {
+          setRentDueDay(day);
+        }
+      }
+    }
+  };
 
   // Legal Consent & Validation
   const [agreedToTerms, setAgreedToTerms] = useState<boolean>(false);
@@ -1160,6 +1194,7 @@ function ContractContent() {
             securityDeposit,
             totalInitialPayment,
             isThreeMonthsNoDeposit,
+            rentDueDay,
             logoDataUrl,
             stampDataUrl,
             signatureData,
@@ -1192,6 +1227,7 @@ function ContractContent() {
         advanceRent,
         totalInitialPayment,
         isThreeMonthsNoDeposit,
+        rentDueDay,
         startDate,
         endDate,
         durationText: durationEngText,
@@ -1249,6 +1285,7 @@ function ContractContent() {
             "Digital Hash Checksum": contractHash,
             "Lease Room Unit": `Room ${currentRoomObj.id} (${currentRoomObj.floor}F)`,
             "Monthly Rent": `฿${finalMonthlyRent.toLocaleString()} THB / month`,
+            "Monthly Rent Due Day": isThreeMonthsNoDeposit ? "N/A (Full 3-Month Prepaid)" : `On or before the ${getOrdinalSuffix(rentDueDay)} of each month (ทุกวันที่ ${rentDueDay} ของเดือน)`,
             "Security Deposit": isThreeMonthsNoDeposit ? "฿0 THB (No Deposit Required)" : `฿${securityDeposit.toLocaleString()} THB (2 Months)`,
             "Total Initial Payment": `฿${totalInitialPayment.toLocaleString()} THB`,
             "Lease Term": `${startDate} to ${endDate} (${durationEngText})`,
@@ -1260,7 +1297,7 @@ function ContractContent() {
             "Registered Address": tenantAddress,
             "Discount Applied": promoText,
             "Submitted Timestamp": record.signedAt,
-            message: `Lease Application Submitted (Pending Payment & Verification):\n- Status: 提交成功，待资金支付成功后会发送合同邮件\n- Ref: ${contractSerial}\n- Hash: ${contractHash}\n- Tenant: ${effectiveTenantName}\n- Signatory: ${effectiveSignatoryDisplay} (${effectiveSignatoryTitle})\n- ID/Tax: ${tenantIdNumber}\n- Phone: ${tenantPhone}\n- Email: ${tenantEmail}\n- Address: ${tenantAddress}\n- Room: ${currentRoomObj.id} (${currentRoomObj.floor}F)\n- Discount: ${promoText}\n- Monthly Rent: ฿${finalMonthlyRent.toLocaleString()}\n- Deposit: ${isThreeMonthsNoDeposit ? "฿0" : `฿${securityDeposit.toLocaleString()}`}\n- Total Initial: ฿${totalInitialPayment.toLocaleString()}\n- Period: ${startDate} to ${endDate} (${durationEngText})\n- Submitted At: ${record.signedAt}`,
+            message: `Lease Application Submitted (Pending Payment & Verification):\n- Status: 提交成功，待资金支付成功后会发送合同邮件\n- Ref: ${contractSerial}\n- Hash: ${contractHash}\n- Tenant: ${effectiveTenantName}\n- Signatory: ${effectiveSignatoryDisplay} (${effectiveSignatoryTitle})\n- ID/Tax: ${tenantIdNumber}\n- Phone: ${tenantPhone}\n- Email: ${tenantEmail}\n- Address: ${tenantAddress}\n- Room: ${currentRoomObj.id} (${currentRoomObj.floor}F)\n- Discount: ${promoText}\n- Monthly Rent: ฿${finalMonthlyRent.toLocaleString()}\n- Rent Due Day: ${isThreeMonthsNoDeposit ? "N/A (Prepaid)" : `On or before the ${getOrdinalSuffix(rentDueDay)} of each month`}\n- Deposit: ${isThreeMonthsNoDeposit ? "฿0" : `฿${securityDeposit.toLocaleString()}`}\n- Total Initial: ฿${totalInitialPayment.toLocaleString()}\n- Period: ${startDate} to ${endDate} (${durationEngText})\n- Submitted At: ${record.signedAt}`,
           }),
         });
 
@@ -2140,8 +2177,41 @@ function ContractContent() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
               <div>
+                <label htmlFor="signing-date" className="block text-neutral-600 dark:text-neutral-400 font-medium mb-1">
+                  Agreement / Signing Date / วันที่ทำสัญญา *
+                </label>
+                <input
+                  id="signing-date"
+                  type="date"
+                  required
+                  value={signingDateIso}
+                  onChange={(e) => handleSigningDateChange(e.target.value)}
+                  className="w-full px-3.5 py-2.5 bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl text-neutral-900 dark:text-white focus:outline-none focus:border-blue-500 font-mono min-h-[44px]"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="rent-due-day" className="block text-neutral-600 dark:text-neutral-400 font-medium mb-1">
+                  Monthly Rent Due Day / วันครบกำหนดชำระ *
+                </label>
+                <select
+                  id="rent-due-day"
+                  value={rentDueDay}
+                  onChange={(e) => setRentDueDay(parseInt(e.target.value, 10))}
+                  disabled={isThreeMonthsNoDeposit}
+                  className="w-full px-3.5 py-2.5 bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl text-neutral-900 dark:text-white focus:outline-none focus:border-blue-500 font-mono min-h-[44px] disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {Array.from({ length: 31 }, (_, i) => i + 1).map((d) => (
+                    <option key={d} value={d}>
+                      Before {getOrdinalSuffix(d)} of each month (ทุกวันที่ {d} ของเดือน)
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
                 <label htmlFor="start-date" className="block text-neutral-600 dark:text-neutral-400 font-medium mb-1">
-                  Lease Start Date *
+                  Lease Start Date / วันที่เริ่มสัญญา *
                 </label>
                 <input
                   id="start-date"
@@ -2155,7 +2225,7 @@ function ContractContent() {
 
               <div>
                 <label htmlFor="duration-months" className="block text-neutral-600 dark:text-neutral-400 font-medium mb-1">
-                  Lease Duration *
+                  Lease Duration / ระยะเวลาสัญญา *
                 </label>
                 <select
                   id="duration-months"
@@ -2178,7 +2248,7 @@ function ContractContent() {
                 {isThreeMonthsNoDeposit ? (
                   <span>Payment Schedule: <strong className="text-emerald-600 dark:text-emerald-400 font-semibold">Full 3-Month Rent Prepaid at Signing (No Recurring Monthly Due)</strong></span>
                 ) : (
-                  <span>Monthly Rent Due: On or before the <strong className="text-neutral-900 dark:text-white font-mono">{rentDueDay}th</strong> of each month</span>
+                  <span>Monthly Rent Due: On or before the <strong className="text-neutral-900 dark:text-white font-mono">{getOrdinalSuffix(rentDueDay)}</strong> of each month (ทุกวันที่ {rentDueDay} ของเดือน)</span>
                 )}
               </div>
             </div>
@@ -2438,11 +2508,11 @@ function ContractContent() {
             ) : durationMonths === 6 ? (
               <>
                 <p>
-                  <strong>2.1</strong> The monthly rent shall be payable by Tenant on or before the <strong>{rentDueDay}th date</strong> of each month.<br />
+                  <strong>2.1</strong> The monthly rent shall be payable by Tenant on or before the <strong>{getOrdinalSuffix(rentDueDay)} date</strong> of each month.<br />
                   <span className="text-neutral-600">เงินค่าเช่านั้นผู้เช่าจะต้องชำระทุกวันที่ {rentDueDay} ของเดือน</span>
                 </p>
                 <p>
-                  <strong>2.2</strong> For this 6-month lease, Tenant agrees to pay an initial upfront payment of 3 months totaling <strong>{totalInitialPayment.toLocaleString()} THB</strong> ({numberToEnglishWords(totalInitialPayment)}), comprising a 2-month security deposit of <strong>{securityDeposit.toLocaleString()} THB</strong> ({numberToEnglishWords(securityDeposit)}) and 1 month advance rent of <strong>{advanceRent.toLocaleString()} THB</strong> ({numberToEnglishWords(advanceRent)}). Thereafter, the agreed monthly rent shall be paid monthly on or before the <strong>{rentDueDay}th date</strong> of each subsequent month.<br />
+                  <strong>2.2</strong> For this 6-month lease, Tenant agrees to pay an initial upfront payment of 3 months totaling <strong>{totalInitialPayment.toLocaleString()} THB</strong> ({numberToEnglishWords(totalInitialPayment)}), comprising a 2-month security deposit of <strong>{securityDeposit.toLocaleString()} THB</strong> ({numberToEnglishWords(securityDeposit)}) and 1 month advance rent of <strong>{advanceRent.toLocaleString()} THB</strong> ({numberToEnglishWords(advanceRent)}). Thereafter, the agreed monthly rent shall be paid monthly on or before the <strong>{getOrdinalSuffix(rentDueDay)} date</strong> of each subsequent month.<br />
                   <span className="text-neutral-600">
                     สำหรับสัญญาเช่าระยะเวลา 6 เดือนนี้ ผู้เช่าตกลงชำระเงินงวดแรกจำนวน 3 เดือน รวมเป็นเงิน <strong>{totalInitialPayment.toLocaleString()} บาท</strong> ({numberToThaiWords(totalInitialPayment)}) ประกอบด้วยเงินประกัน 2 เดือน จำนวน <strong>{securityDeposit.toLocaleString()} บาท</strong> ({numberToThaiWords(securityDeposit)}) และค่าเช่าล่วงหน้า 1 เดือน จำนวน <strong>{advanceRent.toLocaleString()} บาท</strong> ({numberToThaiWords(advanceRent)}) และชำระค่าเช่ารายเดือนทุกวันที่ {rentDueDay} ของเดือนถัดไป
                   </span>
@@ -2451,7 +2521,7 @@ function ContractContent() {
             ) : (
               <>
                 <p>
-                  <strong>2.1</strong> The monthly rent shall be payable by Tenant on or before the <strong>{rentDueDay}th date</strong> of each month.<br />
+                  <strong>2.1</strong> The monthly rent shall be payable by Tenant on or before the <strong>{getOrdinalSuffix(rentDueDay)} date</strong> of each month.<br />
                   <span className="text-neutral-600">เงินค่าเช่านั้นผู้เช่าจะต้องชำระทุกวันที่ {rentDueDay} ของเดือน</span>
                 </p>
                 <p>
