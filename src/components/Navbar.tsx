@@ -1,8 +1,10 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useTranslation, Language } from "@/context/LanguageContext";
-import { Menu, X, Globe, ChevronDown } from "lucide-react";
+import { Menu, X, Globe, ChevronDown, Sparkles } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface NavbarProps {
@@ -12,6 +14,7 @@ interface NavbarProps {
 
 export default function Navbar({ onOpenSandbox, onPreheat }: NavbarProps) {
   const { t, language, setLanguage } = useTranslation();
+  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [showLangMenu, setShowLangMenu] = useState(false);
@@ -30,12 +33,10 @@ export default function Navbar({ onOpenSandbox, onPreheat }: NavbarProps) {
   }, []);
 
   const navItems = [
-    { label: t("navWorkspace"), href: "#workspace" },
-    { label: t("navServices"), href: "#services" },
-    { label: t("navPricing"), href: "#pricing" },
-    { label: t("navGallery"), href: "#gallery" },
-    { label: t("navFaq"), href: "#faq" },
-    { label: t("navContact"), href: "#contact" },
+    { label: t("navHome"), href: "/" },
+    { label: t("navExploreWorkspace"), href: "/workspace" },
+    { label: t("navCloudDesk"), href: "/cloud-desk" },
+    { label: t("navAiSandbox"), href: "/sandbox" },
   ];
 
   const languages: { code: Language; label: string }[] = [
@@ -47,12 +48,17 @@ export default function Navbar({ onOpenSandbox, onPreheat }: NavbarProps) {
 
   const currentLanguageLabel = languages.find((l) => l.code === language)?.label || "中文";
 
-  const handleScrollTo = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
-    e.preventDefault();
+  const isActive = (href: string) => {
+    if (href === "/") return pathname === "/";
+    return pathname.startsWith(href);
+  };
+
+  const handleScrollToContact = (e: React.MouseEvent<HTMLAnchorElement>) => {
     setIsOpen(false);
-    const target = document.querySelector(href);
+    const target = document.querySelector("#contact");
     if (target) {
-      const offset = 80; // height of navbar
+      e.preventDefault();
+      const offset = 80;
       const bodyRect = document.body.getBoundingClientRect().top;
       const elementRect = target.getBoundingClientRect().top;
       const elementPosition = elementRect - bodyRect;
@@ -83,30 +89,36 @@ export default function Navbar({ onOpenSandbox, onPreheat }: NavbarProps) {
     >
       <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
         {/* Logo */}
-        <a href="#home" onClick={(e) => handleScrollTo(e, "#home")} className="flex items-center">
+        <Link href="/" className="flex items-center gap-2 group">
           <img
             src="/images/logo.png"
             alt="CMAI Logo"
-            className="h-10 w-auto object-contain dark:invert"
+            className="h-9 w-auto object-contain dark:invert group-hover:opacity-80 transition-opacity"
           />
-        </a>
+        </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-8">
-          {navItems.map((item) => (
-            <a
-              key={item.href}
-              href={item.href}
-              onClick={(e) => handleScrollTo(e, item.href)}
-              className="text-[13px] font-medium tracking-tight text-neutral-600 hover:text-neutral-950 dark:text-neutral-400 dark:hover:text-white transition-colors"
-            >
-              {item.label}
-            </a>
-          ))}
+        <nav className="hidden md:flex items-center gap-1 bg-neutral-100/60 dark:bg-neutral-900/60 backdrop-blur-md px-3 py-1.5 rounded-full border border-neutral-200/50 dark:border-neutral-800/50">
+          {navItems.map((item) => {
+            const active = isActive(item.href);
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`relative px-4 py-1.5 rounded-full text-[13px] font-medium transition-all ${
+                  active
+                    ? "text-neutral-950 dark:text-white bg-white dark:bg-neutral-800 shadow-sm"
+                    : "text-neutral-600 hover:text-neutral-950 dark:text-neutral-400 dark:hover:text-white"
+                }`}
+              >
+                {item.label}
+              </Link>
+            );
+          })}
         </nav>
 
         {/* Desktop Actions */}
-        <div className="hidden md:flex items-center gap-4">
+        <div className="hidden md:flex items-center gap-3">
           {/* Language Switcher */}
           <div className="relative">
             <button
@@ -158,49 +170,51 @@ export default function Navbar({ onOpenSandbox, onPreheat }: NavbarProps) {
             onClick={handleSandboxClick}
             onMouseEnter={onPreheat}
             onTouchStart={onPreheat}
-            className="bg-white/[0.08] hover:bg-white/[0.16] border border-white/20 text-neutral-900 dark:text-neutral-200 backdrop-blur-md rounded-full px-3.5 py-1.5 text-xs sm:text-[13px] font-medium transition-all cursor-pointer shadow-sm"
+            className="flex items-center gap-1.5 bg-white/[0.08] hover:bg-white/[0.16] border border-white/20 text-neutral-900 dark:text-neutral-200 backdrop-blur-md rounded-full px-3.5 py-1.5 text-xs sm:text-[13px] font-medium transition-all cursor-pointer shadow-sm hover:scale-[1.02]"
           >
-            AI 商业决策沙盘
+            <Sparkles className="w-3.5 h-3.5 text-blue-400" />
+            <span>AI 商业决策沙盘</span>
           </button>
 
-          <a
+          <Link
             href="/contract"
             className="px-3.5 py-1.5 border border-blue-500/30 hover:border-blue-500/60 bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400 text-xs sm:text-[13px] font-semibold rounded-full transition-all shadow-sm"
           >
             {language === "zh" ? "在线签约" : language === "th" ? "สัญญาออนไลน์" : language === "ja" ? "契約書" : "Lease"}
-          </a>
+          </Link>
 
           <a
-            href="#contact"
-            onClick={(e) => handleScrollTo(e, "#contact")}
-            className="px-5 py-2 bg-neutral-950 hover:bg-neutral-800 dark:bg-white dark:hover:bg-neutral-100 text-white dark:text-neutral-950 text-[13px] font-medium rounded-full transition-colors shadow-sm"
+            href={pathname === "/workspace" ? "#contact" : "/workspace#contact"}
+            onClick={handleScrollToContact}
+            className="px-4 py-1.5 bg-neutral-950 hover:bg-neutral-800 dark:bg-white dark:hover:bg-neutral-100 text-white dark:text-neutral-950 text-[13px] font-medium rounded-full transition-colors shadow-sm"
           >
             {t("navBookVisit")}
           </a>
         </div>
 
         {/* Mobile Menu Button */}
-        <div className="flex items-center gap-3 md:hidden">
+        <div className="flex items-center gap-2 md:hidden">
           {/* Mobile AI Sandbox Trigger */}
           <button
             onClick={handleSandboxClick}
             onTouchStart={onPreheat}
-            className="bg-white/[0.08] hover:bg-white/[0.16] border border-white/20 text-neutral-900 dark:text-neutral-200 backdrop-blur-md rounded-full px-3 py-1.5 text-[11px] font-medium shadow-sm cursor-pointer"
+            className="bg-white/[0.08] hover:bg-white/[0.16] border border-white/20 text-neutral-900 dark:text-neutral-200 backdrop-blur-md rounded-full px-2.5 py-1.5 text-[11px] font-medium shadow-sm cursor-pointer flex items-center gap-1"
           >
-            AI 商业决策沙盘
+            <Sparkles className="w-3 h-3 text-blue-400" />
+            <span>沙盘</span>
           </button>
 
           {/* Mobile Language Trigger */}
           <button
             onClick={() => setShowLangMenu(!showLangMenu)}
-            className="p-2 rounded-full border border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-400"
+            className="p-1.5 rounded-full border border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-400"
           >
             <Globe className="w-4 h-4" />
           </button>
           
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="p-2 text-neutral-900 dark:text-white"
+            className="p-1.5 text-neutral-900 dark:text-white"
             aria-label="Toggle menu"
           >
             {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -253,39 +267,52 @@ export default function Navbar({ onOpenSandbox, onPreheat }: NavbarProps) {
             transition={{ duration: 0.3, ease: "easeInOut" }}
             className="md:hidden bg-white dark:bg-black border-b border-neutral-200 dark:border-neutral-800"
           >
-            <div className="px-6 py-6 flex flex-col gap-4">
+            <div className="px-6 py-6 flex flex-col gap-3">
               <button
                 onClick={() => {
                   setIsOpen(false);
                   handleSandboxClick();
                 }}
                 onTouchStart={onPreheat}
-                className="w-full py-3 bg-white/[0.08] hover:bg-white/[0.16] border border-white/20 text-neutral-900 dark:text-neutral-200 backdrop-blur-md text-center font-medium text-[14px] rounded-2xl shadow-sm cursor-pointer"
+                className="w-full py-2.5 bg-white/[0.08] hover:bg-white/[0.16] border border-white/20 text-neutral-900 dark:text-neutral-200 backdrop-blur-md text-center font-medium text-[14px] rounded-xl shadow-sm cursor-pointer flex items-center justify-center gap-1.5"
               >
-                AI 商业决策沙盘
+                <Sparkles className="w-4 h-4 text-blue-400" />
+                <span>AI 商业决策沙盘 (ai.lazzor.com)</span>
               </button>
               
-              <a
+              <Link
                 href="/contract"
-                className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-center font-semibold text-[14px] rounded-2xl shadow-sm"
+                onClick={() => setIsOpen(false)}
+                className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-center font-semibold text-[14px] rounded-xl shadow-sm"
               >
                 {language === "zh" ? "签署在线租赁合同 (8折特惠)" : "Online Lease Agreement"}
-              </a>
+              </Link>
               
-              {navItems.map((item) => (
-                <a
-                  key={item.href}
-                  href={item.href}
-                  onClick={(e) => handleScrollTo(e, item.href)}
-                  className="text-[16px] font-medium text-neutral-800 dark:text-neutral-200 hover:text-neutral-950 dark:hover:text-white py-1 transition-colors flex items-center gap-1.5"
-                >
-                  <span>{item.label}</span>
-                </a>
-              ))}
+              <div className="py-2 flex flex-col gap-1 border-t border-b border-neutral-100 dark:border-neutral-900">
+                {navItems.map((item) => {
+                  const active = isActive(item.href);
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={() => setIsOpen(false)}
+                      className={`text-[15px] font-medium py-2 px-3 rounded-lg transition-colors flex items-center justify-between ${
+                        active
+                          ? "bg-neutral-100 dark:bg-neutral-900 text-neutral-950 dark:text-white font-semibold"
+                          : "text-neutral-700 dark:text-neutral-300 hover:text-neutral-950 dark:hover:text-white"
+                      }`}
+                    >
+                      <span>{item.label}</span>
+                      {active && <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />}
+                    </Link>
+                  );
+                })}
+              </div>
+
               <a
-                href="#contact"
-                onClick={(e) => handleScrollTo(e, "#contact")}
-                className="mt-2 w-full py-3 bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 text-center text-[14px] font-medium rounded-full shadow-sm"
+                href={pathname === "/workspace" ? "#contact" : "/workspace#contact"}
+                onClick={handleScrollToContact}
+                className="w-full py-2.5 bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 text-center text-[14px] font-medium rounded-full shadow-sm"
               >
                 {t("navBookVisit")}
               </a>
