@@ -29,6 +29,7 @@ import {
 export default function CloudDeskPage() {
   const { t, language } = useTranslation();
   const [isNavigating, setIsNavigating] = useState(false);
+  const [currentBg, setCurrentBg] = useState(0);
   const [billingCycle, setBillingCycle] = useState<"monthly" | "annual">("monthly");
   const [selectedWorkload, setSelectedWorkload] = useState<number>(0);
   const [formSubmitted, setFormSubmitted] = useState(false);
@@ -38,6 +39,20 @@ export default function CloudDeskPage() {
     plan: "AI Developer Pro",
     usage: "",
   });
+
+  const heroBackgrounds = [
+    "/images/image_1.jpg",
+    "/images/image_2.jpg",
+    "/images/image_5.jpg",
+    "/images/image_10.jpg",
+  ];
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentBg((prev) => (prev + 1) % heroBackgrounds.length);
+    }, 6000);
+    return () => clearInterval(timer);
+  }, [heroBackgrounds.length]);
 
   // Preheating for AI sandbox
   useEffect(() => {
@@ -221,33 +236,46 @@ export default function CloudDeskPage() {
       >
         <Navbar onOpenSandbox={handleTriggerNavigation} onPreheat={handlePreheat} />
 
-        <main className="flex-grow pt-20">
-          {/* Hero Section */}
-          <section className="relative w-full bg-[#080808] text-white pt-16 pb-24 border-b border-neutral-800/80 overflow-hidden">
-            {/* Cybernetic ambient glow & grid */}
-            <div className="absolute top-0 right-1/4 w-[600px] h-[350px] bg-blue-500/10 rounded-full blur-[140px] pointer-events-none" />
-            <div className="absolute top-20 left-10 w-[500px] h-[300px] bg-indigo-500/10 rounded-full blur-[130px] pointer-events-none" />
-            <div className="absolute inset-0 bg-[radial-gradient(#ffffff08_1px,transparent_1px)] [background-size:28px_28px] pointer-events-none" />
+        <main className="flex-grow">
+          {/* Hero Section with Building Photo Carousel */}
+          <section className="relative min-h-[90vh] w-full flex items-center overflow-hidden bg-[#0a0a0a]">
+            {/* Background Image Carousel */}
+            <div className="absolute inset-0 z-0">
+              <AnimatePresence mode="popLayout">
+                <motion.div
+                  key={currentBg}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 0.48 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 2.0, ease: "easeInOut" }}
+                  className="absolute inset-0 bg-cover bg-center"
+                  style={{ backgroundImage: `url(${heroBackgrounds[currentBg]})` }}
+                />
+              </AnimatePresence>
+              {/* Architectural gradient overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-black/30 to-black/50" />
+            </div>
 
-            <div className="relative max-w-7xl mx-auto px-6">
+            <div className="relative z-10 max-w-7xl mx-auto px-6 sm:px-8 w-full text-white pt-28 pb-16">
               <div className="max-w-3xl">
                 {/* Badge */}
                 <motion.div
                   initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5 }}
-                  className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-xs font-mono tracking-widest uppercase text-blue-400 mb-6"
+                  transition={{ duration: 0.6 }}
+                  className="mb-4"
                 >
-                  <Sparkles className="w-3.5 h-3.5" />
-                  <span>{t("cloudHeroBadge")}</span>
+                  <span className="text-[11px] font-sans tracking-[0.25em] text-[#86868b] uppercase font-semibold">
+                    {t("cloudHeroBadge")}
+                  </span>
                 </motion.div>
 
                 {/* Headline */}
                 <motion.h1
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.7, delay: 0.1 }}
-                  className="text-3xl sm:text-5xl lg:text-6xl font-light tracking-tight text-white mb-6 leading-[1.12]"
+                  transition={{ duration: 0.8, delay: 0.1 }}
+                  className="text-4xl sm:text-6xl md:text-7xl font-light tracking-tight text-[#f5f5f7] mb-6 leading-[1.08]"
                 >
                   {t("cloudHeroTitle")}
                 </motion.h1>
@@ -256,8 +284,8 @@ export default function CloudDeskPage() {
                 <motion.p
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.7, delay: 0.2 }}
-                  className="text-base sm:text-lg text-neutral-400 font-light leading-relaxed mb-10 max-w-2xl"
+                  transition={{ duration: 0.8, delay: 0.2 }}
+                  className="text-base text-[#86868b] font-light leading-relaxed mb-10 max-w-2xl"
                 >
                   {t("cloudHeroSubtitle")}
                 </motion.p>
@@ -266,12 +294,12 @@ export default function CloudDeskPage() {
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.7, delay: 0.25 }}
-                  className="flex flex-wrap items-center gap-4"
+                  transition={{ duration: 0.8, delay: 0.25 }}
+                  className="flex flex-wrap items-center gap-3.5"
                 >
                   <a
                     href="#trial-form"
-                    className="inline-flex items-center gap-2 px-6 py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-medium text-[13px] rounded-full transition-all shadow-lg shadow-blue-600/20 cursor-pointer"
+                    className="px-6 py-3 bg-[#f5f5f7] hover:bg-white text-[#1d1d1f] text-[13px] font-medium rounded-full transition-all shadow-sm cursor-pointer flex items-center gap-2"
                   >
                     <span>{t("cloudCtaBtn")}</span>
                     <ArrowRight className="w-4 h-4" />
@@ -279,73 +307,58 @@ export default function CloudDeskPage() {
 
                   <a
                     href="#plans"
-                    className="inline-flex items-center gap-2 px-6 py-3.5 bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 text-neutral-200 font-medium text-[13px] rounded-full transition-colors cursor-pointer"
+                    className="px-6 py-3 bg-transparent hover:bg-white/5 border border-white/20 hover:border-white/40 text-neutral-200 text-[13px] font-medium rounded-full transition-colors cursor-pointer"
                   >
                     <span>{language === "zh" ? "查看规格与价格" : "View Plans & Pricing"}</span>
                   </a>
                 </motion.div>
               </div>
 
-              {/* Live Telemetry Status Dashboard */}
+              {/* Clean Minimalist Telemetry Status Bar */}
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.35 }}
-                className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-4 p-5 rounded-2xl bg-neutral-900/60 border border-neutral-800/80 backdrop-blur-xl shadow-2xl"
+                className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-4 p-5 rounded-2xl bg-white/[0.04] border border-white/10 backdrop-blur-md"
               >
-                <div className="p-4 rounded-xl bg-white/[0.02] border border-white/5">
-                  <div className="flex items-center justify-between text-neutral-400 mb-2">
-                    <span className="text-xs font-mono">{t("cloudMetricLatency")}</span>
-                    <Activity className="w-4 h-4 text-emerald-400" />
-                  </div>
+                <div className="p-3">
+                  <div className="text-[11px] font-mono text-neutral-400 mb-1">{t("cloudMetricLatency")}</div>
                   <div className="text-2xl font-light text-white tracking-tight">{t("cloudMetricLatencyVal")}</div>
-                  <div className="text-[11px] text-emerald-400/90 font-mono mt-1 flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                    <span>IPLC Direct Tunnel</span>
-                  </div>
+                  <div className="text-[10px] text-neutral-400 font-mono mt-0.5">Sino-Thai Direct Tunnel</div>
                 </div>
 
-                <div className="p-4 rounded-xl bg-white/[0.02] border border-white/5">
-                  <div className="flex items-center justify-between text-neutral-400 mb-2">
-                    <span className="text-xs font-mono">{t("cloudMetricUptime")}</span>
-                    <ShieldCheck className="w-4 h-4 text-blue-400" />
-                  </div>
+                <div className="p-3">
+                  <div className="text-[11px] font-mono text-neutral-400 mb-1">{t("cloudMetricUptime")}</div>
                   <div className="text-2xl font-light text-white tracking-tight">{t("cloudMetricUptimeVal")}</div>
-                  <div className="text-[11px] text-blue-400/90 font-mono mt-1">High Availability SLA</div>
+                  <div className="text-[10px] text-neutral-400 font-mono mt-0.5">High Availability SLA</div>
                 </div>
 
-                <div className="p-4 rounded-xl bg-white/[0.02] border border-white/5">
-                  <div className="flex items-center justify-between text-neutral-400 mb-2">
-                    <span className="text-xs font-mono">{t("cloudMetricIP")}</span>
-                    <Globe2 className="w-4 h-4 text-purple-400" />
-                  </div>
+                <div className="p-3">
+                  <div className="text-[11px] font-mono text-neutral-400 mb-1">{t("cloudMetricIP")}</div>
                   <div className="text-2xl font-light text-white tracking-tight">{t("cloudMetricIPVal")}</div>
-                  <div className="text-[11px] text-purple-400/90 font-mono mt-1">Zero Fraud Score</div>
+                  <div className="text-[10px] text-neutral-400 font-mono mt-0.5">Clean Whitelist Rep</div>
                 </div>
 
-                <div className="p-4 rounded-xl bg-white/[0.02] border border-white/5">
-                  <div className="flex items-center justify-between text-neutral-400 mb-2">
-                    <span className="text-xs font-mono">{t("cloudMetricDeployment")}</span>
-                    <Zap className="w-4 h-4 text-amber-400" />
-                  </div>
+                <div className="p-3">
+                  <div className="text-[11px] font-mono text-neutral-400 mb-1">{t("cloudMetricDeployment")}</div>
                   <div className="text-2xl font-light text-white tracking-tight">{t("cloudMetricDeploymentVal")}</div>
-                  <div className="text-[11px] text-amber-400/90 font-mono mt-1">Instant Spin-up</div>
+                  <div className="text-[10px] text-neutral-400 font-mono mt-0.5">Instant Provisioning</div>
                 </div>
               </motion.div>
             </div>
           </section>
 
-          {/* Interactive Workload Engine Switcher */}
-          <section className="py-24 bg-[#0d0d0d] text-white border-b border-neutral-800">
-            <div className="max-w-7xl mx-auto px-6">
-              <div className="text-center max-w-3xl mx-auto mb-14">
-                <span className="text-xs font-mono tracking-widest uppercase text-blue-400 font-semibold">
+          {/* Workload Environment Switcher */}
+          <section className="py-24 bg-[#fafafa] dark:bg-[#070707] text-neutral-900 dark:text-white border-b border-neutral-200/80 dark:border-neutral-800 transition-colors duration-300">
+            <div className="max-w-7xl mx-auto px-8">
+              <div className="max-w-3xl mb-14">
+                <span className="text-[11px] font-sans tracking-[0.2em] text-[#86868b] uppercase font-semibold block mb-3">
                   PRE-CONFIGURED WORKLOADS
                 </span>
-                <h2 className="text-3xl sm:text-4xl font-light tracking-tight text-white mt-2 mb-4">
+                <h2 className="text-3xl sm:text-4xl font-light tracking-tight text-[#1d1d1f] dark:text-white mb-3 leading-[1.15]">
                   {language === "zh" ? "针对前沿业务形态量身优化的预置环境" : "Tailored for High-Intensity AI & Global Operations"}
                 </h2>
-                <p className="text-neutral-400 text-sm sm:text-base font-light">
+                <p className="text-base text-[#515154] dark:text-[#86868b] font-light leading-relaxed">
                   {language === "zh"
                     ? "告别繁琐的依赖冲突、网络阻塞与显卡驱动报错。选择您的业务场景，即刻体验专业就绪的算力工作站。"
                     : "No more broken CUDA drivers or network throttles. Select your workload to preview the pre-configured software stack."}
@@ -360,14 +373,14 @@ export default function CloudDeskPage() {
                     onClick={() => setSelectedWorkload(idx)}
                     className={`p-4 rounded-xl text-left transition-all border cursor-pointer ${
                       selectedWorkload === idx
-                        ? "bg-neutral-800/90 border-blue-500 shadow-md shadow-blue-500/10 text-white"
-                        : "bg-neutral-900/40 border-neutral-800 hover:border-neutral-700 text-neutral-400"
+                        ? "bg-white dark:bg-neutral-800 border-neutral-300 dark:border-neutral-600 shadow-sm text-neutral-950 dark:text-white"
+                        : "bg-white/60 dark:bg-neutral-900/40 border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-400 hover:border-neutral-300"
                     }`}
                   >
-                    <span className="text-[11px] font-mono tracking-wider uppercase text-blue-400 block mb-1">
+                    <span className="text-[11px] font-mono tracking-wider uppercase text-[#86868b] block mb-1">
                       {wl.badge}
                     </span>
-                    <span className="text-sm font-medium line-clamp-1 text-white">{wl.title}</span>
+                    <span className="text-sm font-medium line-clamp-1">{wl.title}</span>
                   </button>
                 ))}
               </div>
@@ -376,47 +389,47 @@ export default function CloudDeskPage() {
               <AnimatePresence mode="wait">
                 <motion.div
                   key={selectedWorkload}
-                  initial={{ opacity: 0, y: 15 }}
+                  initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -15 }}
-                  transition={{ duration: 0.3 }}
-                  className="p-8 sm:p-10 rounded-2xl bg-neutral-900/50 border border-neutral-800 grid grid-cols-1 lg:grid-cols-3 gap-8 items-center"
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.25 }}
+                  className="p-8 sm:p-10 rounded-2xl bg-white dark:bg-neutral-900/40 border border-neutral-200 dark:border-neutral-800 grid grid-cols-1 lg:grid-cols-3 gap-8 items-center"
                 >
                   <div className="lg:col-span-2 space-y-4">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 text-blue-400 text-xs font-mono">
-                      <span>Scenario {selectedWorkload + 1} of {workloads.length}</span>
-                    </div>
-                    <h3 className="text-2xl sm:text-3xl font-light text-white">
+                    <span className="text-xs font-mono text-neutral-400">
+                      Scenario {selectedWorkload + 1} of {workloads.length}
+                    </span>
+                    <h3 className="text-2xl font-light text-[#1d1d1f] dark:text-white">
                       {workloads[selectedWorkload].title}
                     </h3>
-                    <p className="text-neutral-400 text-sm sm:text-base font-light leading-relaxed">
+                    <p className="text-sm text-[#515154] dark:text-[#86868b] font-light leading-relaxed">
                       {workloads[selectedWorkload].description}
                     </p>
                     <div className="pt-2">
-                      <div className="text-xs font-mono text-neutral-500 mb-1">Pre-installed Stack:</div>
-                      <div className="text-sm font-mono text-blue-300 bg-neutral-950/80 p-3 rounded-xl border border-neutral-800/80">
+                      <div className="text-xs font-mono text-neutral-500 mb-1.5">Pre-installed Stack:</div>
+                      <div className="text-xs font-mono text-neutral-800 dark:text-neutral-200 bg-neutral-100 dark:bg-neutral-950 p-3 rounded-xl border border-neutral-200 dark:border-neutral-800">
                         {workloads[selectedWorkload].stack}
                       </div>
                     </div>
                   </div>
 
-                  <div className="p-6 rounded-xl bg-neutral-950/90 border border-neutral-800 space-y-4">
+                  <div className="p-6 rounded-xl bg-neutral-50 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 space-y-4">
                     <div>
-                      <div className="text-xs font-mono text-neutral-500 uppercase">Hardware Acceleration</div>
-                      <div className="text-base font-medium text-white mt-0.5">{workloads[selectedWorkload].gpu}</div>
+                      <div className="text-[11px] font-mono text-neutral-500 uppercase">Hardware Acceleration</div>
+                      <div className="text-sm font-medium text-neutral-900 dark:text-white mt-0.5">{workloads[selectedWorkload].gpu}</div>
                     </div>
-                    <div className="pt-2 border-t border-neutral-800">
-                      <div className="text-xs font-mono text-neutral-500 uppercase">Benchmark Performance</div>
-                      <div className="text-base font-medium text-emerald-400 mt-0.5">{workloads[selectedWorkload].speed}</div>
+                    <div className="pt-2 border-t border-neutral-200 dark:border-neutral-800">
+                      <div className="text-[11px] font-mono text-neutral-500 uppercase">Benchmark Performance</div>
+                      <div className="text-sm font-medium text-neutral-900 dark:text-white mt-0.5">{workloads[selectedWorkload].speed}</div>
                     </div>
-                    <div className="pt-2 border-t border-neutral-800">
-                      <div className="text-xs font-mono text-neutral-500 uppercase">Network Tunnel</div>
-                      <div className="text-xs font-mono text-neutral-300 mt-0.5">Sino-Thai Direct SD-WAN (&lt;18ms)</div>
+                    <div className="pt-2 border-t border-neutral-200 dark:border-neutral-800">
+                      <div className="text-[11px] font-mono text-neutral-500 uppercase">Network Tunnel</div>
+                      <div className="text-xs font-mono text-neutral-600 dark:text-neutral-400 mt-0.5">Sino-Thai Direct SD-WAN (&lt;18ms)</div>
                     </div>
                     <a
                       href="#trial-form"
                       onClick={() => setTrialForm((prev) => ({ ...prev, usage: workloads[selectedWorkload].title }))}
-                      className="w-full mt-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-center text-xs font-medium rounded-lg transition-colors flex items-center justify-center gap-1.5"
+                      className="w-full mt-4 py-2.5 bg-neutral-950 hover:bg-neutral-800 dark:bg-white dark:hover:bg-neutral-100 text-white dark:text-neutral-950 text-center text-xs font-medium rounded-full transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
                     >
                       <span>{language === "zh" ? "以该场景申请测试" : "Test This Configuration"}</span>
                       <ChevronRight className="w-3.5 h-3.5" />
@@ -428,83 +441,83 @@ export default function CloudDeskPage() {
           </section>
 
           {/* Six Core Enterprise Pillars */}
-          <section className="py-24 bg-white dark:bg-black text-neutral-900 dark:text-white transition-colors">
-            <div className="max-w-7xl mx-auto px-6">
+          <section className="py-24 bg-white dark:bg-black text-neutral-900 dark:text-white transition-colors duration-300">
+            <div className="max-w-7xl mx-auto px-8">
               <div className="max-w-3xl mb-16">
-                <span className="text-xs font-mono tracking-widest uppercase text-blue-600 dark:text-blue-400 font-semibold">
+                <span className="text-[11px] font-sans tracking-[0.2em] text-[#86868b] uppercase font-semibold block mb-3">
                   ENTERPRISE ARCHITECTURE
                 </span>
-                <h2 className="text-3xl sm:text-5xl font-light tracking-tight mt-2 mb-4">
+                <h2 className="text-3xl sm:text-5xl font-light tracking-tight text-[#1d1d1f] dark:text-white leading-[1.15] mb-4">
                   {t("cloudPillarsTitle")}
                 </h2>
-                <p className="text-neutral-600 dark:text-neutral-400 text-sm sm:text-base font-light">
+                <p className="text-base text-[#515154] dark:text-[#86868b] font-light leading-relaxed">
                   {t("cloudPillarsSub")}
                 </p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {/* 01 */}
-                <div className="p-8 rounded-2xl bg-neutral-50 dark:bg-neutral-900/40 border border-neutral-200 dark:border-neutral-800/80 hover:border-neutral-300 dark:hover:border-neutral-700 transition-all">
-                  <div className="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center mb-5">
+                <div className="p-8 rounded-2xl bg-neutral-50 dark:bg-neutral-900/40 border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-all">
+                  <div className="w-10 h-10 rounded-xl bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 flex items-center justify-center mb-5">
                     <Terminal className="w-5 h-5" />
                   </div>
                   <h3 className="text-lg font-medium mb-2">{t("cloudFeature1Title")}</h3>
-                  <p className="text-sm text-neutral-600 dark:text-neutral-400 font-light leading-relaxed">
+                  <p className="text-sm text-[#515154] dark:text-[#86868b] font-light leading-relaxed">
                     {t("cloudFeature1Desc")}
                   </p>
                 </div>
 
                 {/* 02 */}
-                <div className="p-8 rounded-2xl bg-neutral-50 dark:bg-neutral-900/40 border border-neutral-200 dark:border-neutral-800/80 hover:border-neutral-300 dark:hover:border-neutral-700 transition-all">
-                  <div className="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-5">
+                <div className="p-8 rounded-2xl bg-neutral-50 dark:bg-neutral-900/40 border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-all">
+                  <div className="w-10 h-10 rounded-xl bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 flex items-center justify-center mb-5">
                     <Zap className="w-5 h-5" />
                   </div>
                   <h3 className="text-lg font-medium mb-2">{t("cloudFeature2Title")}</h3>
-                  <p className="text-sm text-neutral-600 dark:text-neutral-400 font-light leading-relaxed">
+                  <p className="text-sm text-[#515154] dark:text-[#86868b] font-light leading-relaxed">
                     {t("cloudFeature2Desc")}
                   </p>
                 </div>
 
                 {/* 03 */}
-                <div className="p-8 rounded-2xl bg-neutral-50 dark:bg-neutral-900/40 border border-neutral-200 dark:border-neutral-800/80 hover:border-neutral-300 dark:hover:border-neutral-700 transition-all">
-                  <div className="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center mb-5">
+                <div className="p-8 rounded-2xl bg-neutral-50 dark:bg-neutral-900/40 border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-all">
+                  <div className="w-10 h-10 rounded-xl bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 flex items-center justify-center mb-5">
                     <Globe2 className="w-5 h-5" />
                   </div>
                   <h3 className="text-lg font-medium mb-2">{t("cloudFeature3Title")}</h3>
-                  <p className="text-sm text-neutral-600 dark:text-neutral-400 font-light leading-relaxed">
+                  <p className="text-sm text-[#515154] dark:text-[#86868b] font-light leading-relaxed">
                     {t("cloudFeature3Desc")}
                   </p>
                 </div>
 
                 {/* 04 */}
-                <div className="p-8 rounded-2xl bg-neutral-50 dark:bg-neutral-900/40 border border-neutral-200 dark:border-neutral-800/80 hover:border-neutral-300 dark:hover:border-neutral-700 transition-all">
-                  <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-5">
+                <div className="p-8 rounded-2xl bg-neutral-50 dark:bg-neutral-900/40 border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-all">
+                  <div className="w-10 h-10 rounded-xl bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 flex items-center justify-center mb-5">
                     <Cpu className="w-5 h-5" />
                   </div>
                   <h3 className="text-lg font-medium mb-2">{t("cloudFeature4Title")}</h3>
-                  <p className="text-sm text-neutral-600 dark:text-neutral-400 font-light leading-relaxed">
+                  <p className="text-sm text-[#515154] dark:text-[#86868b] font-light leading-relaxed">
                     {t("cloudFeature4Desc")}
                   </p>
                 </div>
 
                 {/* 05 */}
-                <div className="p-8 rounded-2xl bg-neutral-50 dark:bg-neutral-900/40 border border-neutral-200 dark:border-neutral-800/80 hover:border-neutral-300 dark:hover:border-neutral-700 transition-all">
-                  <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center mb-5">
+                <div className="p-8 rounded-2xl bg-neutral-50 dark:bg-neutral-900/40 border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-all">
+                  <div className="w-10 h-10 rounded-xl bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 flex items-center justify-center mb-5">
                     <Lock className="w-5 h-5" />
                   </div>
                   <h3 className="text-lg font-medium mb-2">{t("cloudFeature5Title")}</h3>
-                  <p className="text-sm text-neutral-600 dark:text-neutral-400 font-light leading-relaxed">
+                  <p className="text-sm text-[#515154] dark:text-[#86868b] font-light leading-relaxed">
                     {t("cloudFeature5Desc")}
                   </p>
                 </div>
 
                 {/* 06 */}
-                <div className="p-8 rounded-2xl bg-neutral-50 dark:bg-neutral-900/40 border border-neutral-200 dark:border-neutral-800/80 hover:border-neutral-300 dark:hover:border-neutral-700 transition-all">
-                  <div className="w-10 h-10 rounded-xl bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 flex items-center justify-center mb-5">
+                <div className="p-8 rounded-2xl bg-neutral-50 dark:bg-neutral-900/40 border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-all">
+                  <div className="w-10 h-10 rounded-xl bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 flex items-center justify-center mb-5">
                     <Building className="w-5 h-5" />
                   </div>
                   <h3 className="text-lg font-medium mb-2">{t("cloudFeature6Title")}</h3>
-                  <p className="text-sm text-neutral-600 dark:text-neutral-400 font-light leading-relaxed">
+                  <p className="text-sm text-[#515154] dark:text-[#86868b] font-light leading-relaxed">
                     {t("cloudFeature6Desc")}
                   </p>
                 </div>
@@ -513,26 +526,26 @@ export default function CloudDeskPage() {
           </section>
 
           {/* Pricing & Plans Section */}
-          <section id="plans" className="py-24 bg-neutral-50 dark:bg-[#0a0a0a] text-neutral-900 dark:text-white border-t border-b border-neutral-200 dark:border-neutral-800/80">
-            <div className="max-w-7xl mx-auto px-6">
-              <div className="text-center max-w-3xl mx-auto mb-12">
-                <span className="text-xs font-mono tracking-widest uppercase text-blue-600 dark:text-blue-400 font-semibold">
+          <section id="plans" className="py-24 bg-[#fafafa] dark:bg-[#070707] text-neutral-900 dark:text-white border-t border-b border-neutral-200/80 dark:border-neutral-800 transition-colors duration-300">
+            <div className="max-w-7xl mx-auto px-8">
+              <div className="max-w-3xl mb-12">
+                <span className="text-[11px] font-sans tracking-[0.2em] text-[#86868b] uppercase font-semibold block mb-3">
                   PLANS & SPECS
                 </span>
-                <h2 className="text-3xl sm:text-5xl font-light tracking-tight mt-2 mb-4">
+                <h2 className="text-3xl sm:text-4xl font-light tracking-tight text-[#1d1d1f] dark:text-white leading-[1.15] mb-3">
                   {t("cloudPlansTitle")}
                 </h2>
-                <p className="text-neutral-600 dark:text-neutral-400 text-sm sm:text-base font-light">
+                <p className="text-base text-[#515154] dark:text-[#86868b] font-light leading-relaxed">
                   {t("cloudPlansSub")}
                 </p>
 
                 {/* Billing Cycle Switcher */}
-                <div className="inline-flex items-center gap-1 p-1 rounded-full bg-neutral-200 dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-800 mt-6">
+                <div className="inline-flex items-center gap-1 p-1 rounded-full bg-neutral-200/80 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 mt-6">
                   <button
                     onClick={() => setBillingCycle("monthly")}
                     className={`px-4 py-1.5 rounded-full text-xs font-medium transition-colors ${
                       billingCycle === "monthly"
-                        ? "bg-white dark:bg-neutral-800 text-neutral-950 dark:text-white shadow-sm"
+                        ? "bg-white dark:bg-neutral-900 text-neutral-950 dark:text-white shadow-sm"
                         : "text-neutral-600 dark:text-neutral-400"
                     }`}
                   >
@@ -542,12 +555,12 @@ export default function CloudDeskPage() {
                     onClick={() => setBillingCycle("annual")}
                     className={`px-4 py-1.5 rounded-full text-xs font-medium transition-colors flex items-center gap-1.5 ${
                       billingCycle === "annual"
-                        ? "bg-white dark:bg-neutral-800 text-neutral-950 dark:text-white shadow-sm"
+                        ? "bg-white dark:bg-neutral-900 text-neutral-950 dark:text-white shadow-sm"
                         : "text-neutral-600 dark:text-neutral-400"
                     }`}
                   >
                     <span>{language === "zh" ? "年度订阅" : "Annual"}</span>
-                    <span className="text-[10px] text-blue-600 dark:text-blue-400 font-mono font-semibold">
+                    <span className="text-[10px] font-mono text-neutral-500 font-semibold">
                       -20%
                     </span>
                   </button>
@@ -561,28 +574,28 @@ export default function CloudDeskPage() {
                     key={idx}
                     className={`relative p-6 sm:p-7 rounded-2xl flex flex-col justify-between transition-all ${
                       p.popular
-                        ? "bg-white dark:bg-neutral-900 border-2 border-blue-500 shadow-xl shadow-blue-500/10"
+                        ? "bg-white dark:bg-neutral-900 border-2 border-neutral-950 dark:border-white shadow-lg"
                         : "bg-white dark:bg-neutral-900/60 border border-neutral-200 dark:border-neutral-800"
                     }`}
                   >
                     {p.popular && (
-                      <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-blue-600 text-white text-[10px] font-mono tracking-widest uppercase font-semibold">
+                      <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 text-[10px] font-mono tracking-widest uppercase font-semibold">
                         RECOMMENDED
                       </div>
                     )}
 
                     <div>
-                      <div className="text-xs font-mono text-neutral-500 mb-1">{p.tag}</div>
-                      <h3 className="text-xl font-medium mb-3">{p.name}</h3>
+                      <div className="text-[11px] font-mono text-[#86868b] mb-1">{p.tag}</div>
+                      <h3 className="text-xl font-medium mb-3 text-[#1d1d1f] dark:text-white">{p.name}</h3>
 
                       <div className="mb-6 pb-6 border-b border-neutral-100 dark:border-neutral-800">
                         {p.priceMonthly === "Custom" ? (
-                          <div className="text-2xl font-light text-neutral-900 dark:text-white">
+                          <div className="text-2xl font-light text-[#1d1d1f] dark:text-white">
                             {language === "zh" ? "定制方案" : "Bespoke Quote"}
                           </div>
                         ) : (
                           <div className="flex items-baseline gap-1">
-                            <span className="text-3xl font-light tracking-tight text-neutral-950 dark:text-white">
+                            <span className="text-3xl font-light tracking-tight text-[#1d1d1f] dark:text-white">
                               ฿{billingCycle === "annual" ? p.priceAnnual : p.priceMonthly}
                             </span>
                             <span className="text-xs text-neutral-500 font-light">/ mo</span>
@@ -592,8 +605,8 @@ export default function CloudDeskPage() {
 
                       <div className="space-y-3 mb-8">
                         {p.features.map((feat, fidx) => (
-                          <div key={fidx} className="flex items-start gap-2.5 text-xs text-neutral-600 dark:text-neutral-300">
-                            <CheckCircle2 className="w-3.5 h-3.5 text-blue-500 shrink-0 mt-0.5" />
+                          <div key={fidx} className="flex items-start gap-2.5 text-xs text-neutral-600 dark:text-neutral-400">
+                            <CheckCircle2 className="w-3.5 h-3.5 text-neutral-400 dark:text-neutral-500 shrink-0 mt-0.5" />
                             <span>{feat}</span>
                           </div>
                         ))}
@@ -603,9 +616,9 @@ export default function CloudDeskPage() {
                     <a
                       href="#trial-form"
                       onClick={() => setTrialForm((prev) => ({ ...prev, plan: p.name }))}
-                      className={`w-full py-2.5 rounded-xl text-center text-xs font-medium transition-colors cursor-pointer ${
+                      className={`w-full py-2.5 rounded-full text-center text-xs font-medium transition-colors cursor-pointer ${
                         p.popular
-                          ? "bg-blue-600 hover:bg-blue-500 text-white"
+                          ? "bg-neutral-950 hover:bg-neutral-800 dark:bg-white dark:hover:bg-neutral-100 text-white dark:text-neutral-950 shadow-sm"
                           : "bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 text-neutral-900 dark:text-white"
                       }`}
                     >
@@ -619,18 +632,18 @@ export default function CloudDeskPage() {
             </div>
           </section>
 
-          {/* Trial Application & Contact Section */}
-          <section id="trial-form" className="py-24 bg-[#080808] text-white">
-            <div className="max-w-4xl mx-auto px-6">
-              <div className="p-8 sm:p-12 rounded-3xl bg-neutral-900/70 border border-neutral-800 backdrop-blur-xl">
-                <div className="text-center max-w-xl mx-auto mb-10">
-                  <span className="text-xs font-mono tracking-widest uppercase text-blue-400 font-semibold">
+          {/* Trial Application Section */}
+          <section id="trial-form" className="py-24 bg-white dark:bg-black text-neutral-900 dark:text-white transition-colors duration-300">
+            <div className="max-w-4xl mx-auto px-8">
+              <div className="p-8 sm:p-12 rounded-3xl bg-neutral-50 dark:bg-neutral-900/50 border border-neutral-200 dark:border-neutral-800">
+                <div className="max-w-xl mb-10">
+                  <span className="text-[11px] font-sans tracking-[0.2em] text-[#86868b] uppercase font-semibold block mb-2">
                     FREE 24H TRIAL
                   </span>
-                  <h2 className="text-2xl sm:text-4xl font-light tracking-tight text-white mt-2 mb-3">
+                  <h2 className="text-2xl sm:text-3xl font-light tracking-tight text-[#1d1d1f] dark:text-white mb-2 leading-[1.15]">
                     {t("cloudCtaTitle")}
                   </h2>
-                  <p className="text-neutral-400 text-xs sm:text-sm font-light">
+                  <p className="text-sm text-[#515154] dark:text-[#86868b] font-light leading-relaxed">
                     {t("cloudCtaDesc")}
                   </p>
                 </div>
@@ -639,13 +652,13 @@ export default function CloudDeskPage() {
                   <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="p-6 rounded-2xl bg-blue-500/10 border border-blue-500/30 text-center text-blue-300 text-sm"
+                    className="p-6 rounded-2xl bg-neutral-100 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 text-center"
                   >
-                    <CheckCircle2 className="w-8 h-8 mx-auto mb-3 text-blue-400" />
-                    <p className="font-medium text-base text-white mb-1">
+                    <CheckCircle2 className="w-8 h-8 mx-auto mb-3 text-neutral-700 dark:text-neutral-200" />
+                    <p className="font-medium text-base text-neutral-950 dark:text-white mb-1">
                       {language === "zh" ? "申请已收到！" : "Application Received!"}
                     </p>
-                    <p className="font-light text-xs text-neutral-300">
+                    <p className="font-light text-xs text-neutral-600 dark:text-neutral-400">
                       {language === "zh"
                         ? "技术专家将在 2 小时内与您联系，交付您的 24 小时独立云工位账号及登录凭证。"
                         : "Our engineer will reach out within 2 hours with your trial credentials and connection guide."}
@@ -655,7 +668,7 @@ export default function CloudDeskPage() {
                   <form onSubmit={handleTrialSubmit} className="space-y-4">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-xs font-mono text-neutral-400 mb-1.5">
+                        <label className="block text-xs font-mono text-neutral-500 mb-1.5">
                           {language === "zh" ? "您的姓名 / 团队称呼" : "Name / Team"}
                         </label>
                         <input
@@ -664,12 +677,12 @@ export default function CloudDeskPage() {
                           value={trialForm.name}
                           onChange={(e) => setTrialForm({ ...trialForm, name: e.target.value })}
                           placeholder={language === "zh" ? "张先生 / Alpha Tech" : "John Doe / AI Lab"}
-                          className="w-full px-4 py-2.5 rounded-xl bg-neutral-950 border border-neutral-800 text-sm text-white focus:outline-none focus:border-blue-500 transition-colors"
+                          className="w-full px-4 py-2.5 rounded-xl bg-white dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-neutral-400 transition-colors"
                         />
                       </div>
 
                       <div>
-                        <label className="block text-xs font-mono text-neutral-400 mb-1.5">
+                        <label className="block text-xs font-mono text-neutral-500 mb-1.5">
                           {language === "zh" ? "微信 / WhatsApp / 邮箱" : "WeChat / WhatsApp / Email"}
                         </label>
                         <input
@@ -678,20 +691,20 @@ export default function CloudDeskPage() {
                           value={trialForm.contact}
                           onChange={(e) => setTrialForm({ ...trialForm, contact: e.target.value })}
                           placeholder={language === "zh" ? "微信号 / 邮箱地址" : "+66 81... or email"}
-                          className="w-full px-4 py-2.5 rounded-xl bg-neutral-950 border border-neutral-800 text-sm text-white focus:outline-none focus:border-blue-500 transition-colors"
+                          className="w-full px-4 py-2.5 rounded-xl bg-white dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-neutral-400 transition-colors"
                         />
                       </div>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-xs font-mono text-neutral-400 mb-1.5">
+                        <label className="block text-xs font-mono text-neutral-500 mb-1.5">
                           {language === "zh" ? "意向云工位规格" : "Desired Plan"}
                         </label>
                         <select
                           value={trialForm.plan}
                           onChange={(e) => setTrialForm({ ...trialForm, plan: e.target.value })}
-                          className="w-full px-4 py-2.5 rounded-xl bg-neutral-950 border border-neutral-800 text-sm text-white focus:outline-none focus:border-blue-500 transition-colors"
+                          className="w-full px-4 py-2.5 rounded-xl bg-white dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-neutral-400 transition-colors"
                         >
                           <option value="Nomad Base">{t("cloudPlan1Name")}</option>
                           <option value="AI Developer Pro">{t("cloudPlan2Name")}</option>
@@ -701,7 +714,7 @@ export default function CloudDeskPage() {
                       </div>
 
                       <div>
-                        <label className="block text-xs font-mono text-neutral-400 mb-1.5">
+                        <label className="block text-xs font-mono text-neutral-500 mb-1.5">
                           {language === "zh" ? "主要业务用途 / 软件需求" : "Expected Workload"}
                         </label>
                         <input
@@ -709,7 +722,7 @@ export default function CloudDeskPage() {
                           value={trialForm.usage}
                           onChange={(e) => setTrialForm({ ...trialForm, usage: e.target.value })}
                           placeholder={language === "zh" ? "例如：ComfyUI 绘图、LLM 推理、TikTok 运营" : "e.g., ComfyUI, vLLM, Remote Dev"}
-                          className="w-full px-4 py-2.5 rounded-xl bg-neutral-950 border border-neutral-800 text-sm text-white focus:outline-none focus:border-blue-500 transition-colors"
+                          className="w-full px-4 py-2.5 rounded-xl bg-white dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800 text-sm text-neutral-900 dark:text-white focus:outline-none focus:border-neutral-400 transition-colors"
                         />
                       </div>
                     </div>
@@ -717,7 +730,7 @@ export default function CloudDeskPage() {
                     <div className="pt-4">
                       <button
                         type="submit"
-                        className="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-medium text-sm rounded-xl transition-all shadow-md shadow-blue-600/20 cursor-pointer flex items-center justify-center gap-2"
+                        className="w-full py-3 bg-neutral-950 hover:bg-neutral-800 dark:bg-white dark:hover:bg-neutral-100 text-white dark:text-neutral-950 font-medium text-sm rounded-full transition-all shadow-sm cursor-pointer flex items-center justify-center gap-2"
                       >
                         <Send className="w-4 h-4" />
                         <span>{language === "zh" ? "立即开通 24 小时免费测试环境" : "Submit & Claim 24h Trial"}</span>
