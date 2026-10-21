@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslation, Language } from "@/context/LanguageContext";
-import { Menu, X, Globe, ChevronDown, Sparkles } from "lucide-react";
+import { Menu, X, Globe, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface NavbarProps {
@@ -33,10 +33,10 @@ export default function Navbar({ onOpenSandbox, onPreheat }: NavbarProps) {
   }, []);
 
   const navItems = [
-    { label: t("navHome"), href: "/" },
-    { label: t("navExploreWorkspace"), href: "/workspace" },
-    { label: t("navCloudDesk"), href: "/cloud-desk" },
-    { label: t("navAiSandbox"), href: "/sandbox" },
+    { label: t("navHome"), href: "/", external: false },
+    { label: t("navExploreWorkspace"), href: "/workspace", external: false },
+    { label: t("navCloudDesk"), href: "https://cloud.lazzor.com", external: true },
+    { label: t("navSolarSystem"), href: "https://colasola.com", external: true },
   ];
 
   const languages: { code: Language; label: string }[] = [
@@ -71,14 +71,6 @@ export default function Navbar({ onOpenSandbox, onPreheat }: NavbarProps) {
     }
   };
 
-  const handleSandboxClick = () => {
-    if (onOpenSandbox) {
-      onOpenSandbox();
-    } else {
-      window.location.href = "https://ai.lazzor.com";
-    }
-  };
-
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
@@ -100,16 +92,32 @@ export default function Navbar({ onOpenSandbox, onPreheat }: NavbarProps) {
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-1 bg-neutral-100/60 dark:bg-neutral-900/60 backdrop-blur-md px-3 py-1.5 rounded-full border border-neutral-200/50 dark:border-neutral-800/50">
           {navItems.map((item) => {
-            const active = isActive(item.href);
+            const active = !item.external && isActive(item.href);
+            const classes = `relative px-4 py-1.5 rounded-full text-[13px] font-medium transition-all ${
+              active
+                ? "text-neutral-950 dark:text-white bg-white dark:bg-neutral-800 shadow-sm"
+                : "text-neutral-600 hover:text-neutral-950 dark:text-neutral-400 dark:hover:text-white"
+            }`;
+
+            if (item.external) {
+              return (
+                <a
+                  key={item.href}
+                  href={item.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={classes}
+                >
+                  {item.label}
+                </a>
+              );
+            }
+
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`relative px-4 py-1.5 rounded-full text-[13px] font-medium transition-all ${
-                  active
-                    ? "text-neutral-950 dark:text-white bg-white dark:bg-neutral-800 shadow-sm"
-                    : "text-neutral-600 hover:text-neutral-950 dark:text-neutral-400 dark:hover:text-white"
-                }`}
+                className={classes}
               >
                 {item.label}
               </Link>
@@ -165,17 +173,6 @@ export default function Navbar({ onOpenSandbox, onPreheat }: NavbarProps) {
             </AnimatePresence>
           </div>
 
-          {/* Frosted Glass AI Decision Sandbox Button */}
-          <button
-            onClick={handleSandboxClick}
-            onMouseEnter={onPreheat}
-            onTouchStart={onPreheat}
-            className="flex items-center gap-1.5 bg-white/[0.08] hover:bg-white/[0.16] border border-white/20 text-neutral-900 dark:text-neutral-200 backdrop-blur-md rounded-full px-3.5 py-1.5 text-xs sm:text-[13px] font-medium transition-all cursor-pointer shadow-sm hover:scale-[1.02]"
-          >
-            <Sparkles className="w-3.5 h-3.5 text-blue-400" />
-            <span>AI 商业决策沙盘</span>
-          </button>
-
           <Link
             href="/contract"
             className="px-3.5 py-1.5 border border-blue-500/30 hover:border-blue-500/60 bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400 text-xs sm:text-[13px] font-semibold rounded-full transition-all shadow-sm"
@@ -194,16 +191,6 @@ export default function Navbar({ onOpenSandbox, onPreheat }: NavbarProps) {
 
         {/* Mobile Menu Button */}
         <div className="flex items-center gap-2 md:hidden">
-          {/* Mobile AI Sandbox Trigger */}
-          <button
-            onClick={handleSandboxClick}
-            onTouchStart={onPreheat}
-            className="bg-white/[0.08] hover:bg-white/[0.16] border border-white/20 text-neutral-900 dark:text-neutral-200 backdrop-blur-md rounded-full px-2.5 py-1.5 text-[11px] font-medium shadow-sm cursor-pointer flex items-center gap-1"
-          >
-            <Sparkles className="w-3 h-3 text-blue-400" />
-            <span>沙盘</span>
-          </button>
-
           {/* Mobile Language Trigger */}
           <button
             onClick={() => setShowLangMenu(!showLangMenu)}
@@ -268,18 +255,6 @@ export default function Navbar({ onOpenSandbox, onPreheat }: NavbarProps) {
             className="md:hidden bg-white dark:bg-black border-b border-neutral-200 dark:border-neutral-800"
           >
             <div className="px-6 py-6 flex flex-col gap-3">
-              <button
-                onClick={() => {
-                  setIsOpen(false);
-                  handleSandboxClick();
-                }}
-                onTouchStart={onPreheat}
-                className="w-full py-2.5 bg-white/[0.08] hover:bg-white/[0.16] border border-white/20 text-neutral-900 dark:text-neutral-200 backdrop-blur-md text-center font-medium text-[14px] rounded-xl shadow-sm cursor-pointer flex items-center justify-center gap-1.5"
-              >
-                <Sparkles className="w-4 h-4 text-blue-400" />
-                <span>AI 商业决策沙盘 (ai.lazzor.com)</span>
-              </button>
-              
               <Link
                 href="/contract"
                 onClick={() => setIsOpen(false)}
@@ -290,17 +265,35 @@ export default function Navbar({ onOpenSandbox, onPreheat }: NavbarProps) {
               
               <div className="py-2 flex flex-col gap-1 border-t border-b border-neutral-100 dark:border-neutral-900">
                 {navItems.map((item) => {
-                  const active = isActive(item.href);
+                  const active = !item.external && isActive(item.href);
+                  const classes = `text-[15px] font-medium py-2 px-3 rounded-lg transition-colors flex items-center justify-between ${
+                    active
+                      ? "bg-neutral-100 dark:bg-neutral-900 text-neutral-950 dark:text-white font-semibold"
+                      : "text-neutral-700 dark:text-neutral-300 hover:text-neutral-950 dark:hover:text-white"
+                  }`;
+
+                  if (item.external) {
+                    return (
+                      <a
+                        key={item.href}
+                        href={item.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={() => setIsOpen(false)}
+                        className={classes}
+                      >
+                        <span>{item.label}</span>
+                        <span className="text-[11px] font-mono opacity-50 uppercase">↗</span>
+                      </a>
+                    );
+                  }
+
                   return (
                     <Link
                       key={item.href}
                       href={item.href}
                       onClick={() => setIsOpen(false)}
-                      className={`text-[15px] font-medium py-2 px-3 rounded-lg transition-colors flex items-center justify-between ${
-                        active
-                          ? "bg-neutral-100 dark:bg-neutral-900 text-neutral-950 dark:text-white font-semibold"
-                          : "text-neutral-700 dark:text-neutral-300 hover:text-neutral-950 dark:hover:text-white"
-                      }`}
+                      className={classes}
                     >
                       <span>{item.label}</span>
                       {active && <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />}

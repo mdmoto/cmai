@@ -209,12 +209,23 @@ export default function Home() {
                     {t("navExploreWorkspace")}
                   </Link>
 
-                  <Link
-                    href="/cloud-desk"
+                  <a
+                    href="https://cloud.lazzor.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="px-6 py-3 bg-transparent hover:bg-white/5 border border-white/20 hover:border-white/40 text-neutral-200 text-[13px] font-medium rounded-full transition-colors cursor-pointer"
                   >
                     {t("navCloudDesk")}
-                  </Link>
+                  </a>
+
+                  <a
+                    href="https://colasola.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-6 py-3 bg-transparent hover:bg-white/5 border border-white/20 hover:border-white/40 text-neutral-200 text-[13px] font-medium rounded-full transition-colors cursor-pointer"
+                  >
+                    {t("navSolarSystem")}
+                  </a>
                 </motion.div>
               </div>
             </div>
@@ -278,13 +289,15 @@ export default function Home() {
                   </div>
 
                   <div className="mt-8 pt-6 border-t border-neutral-100 dark:border-neutral-800">
-                    <Link
-                      href="/sandbox"
-                      className="inline-flex items-center gap-1.5 text-xs font-medium text-neutral-900 dark:text-neutral-200 hover:text-black dark:hover:text-white transition-colors"
+                    <button
+                      onClick={handleTriggerNavigation}
+                      onMouseEnter={handlePreheat}
+                      onTouchStart={handlePreheat}
+                      className="inline-flex items-center gap-1.5 text-xs font-medium text-neutral-900 dark:text-neutral-200 hover:text-black dark:hover:text-white transition-colors cursor-pointer"
                     >
-                      <span>{language === "zh" ? "探索 AI 决策沙盘" : "Explore Decision Sandbox"}</span>
+                      <span>{language === "zh" ? "进入 AI 决策沙盘 (ai.lazzor.com)" : "Launch AI Sandbox (ai.lazzor.com)"}</span>
                       <ArrowRight className="w-3.5 h-3.5" />
-                    </Link>
+                    </button>
                   </div>
                 </div>
 
@@ -321,17 +334,19 @@ export default function Home() {
                   </div>
 
                   <div className="mt-8 pt-6 border-t border-neutral-100 dark:border-neutral-800">
-                    <Link
-                      href="/cloud-desk"
+                    <a
+                      href="https://cloud.lazzor.com"
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="inline-flex items-center gap-1.5 text-xs font-medium text-neutral-900 dark:text-neutral-200 hover:text-black dark:hover:text-white transition-colors"
                     >
-                      <span>{language === "zh" ? "了解企业级云工位" : "Explore Cloud Workstations"}</span>
+                      <span>{language === "zh" ? "了解企业级 AI 云工位 (cloud.lazzor.com)" : "Explore AI Cloud Desk (cloud.lazzor.com)"}</span>
                       <ArrowRight className="w-3.5 h-3.5" />
-                    </Link>
+                    </a>
                   </div>
                 </div>
 
-                {/* Pillar 3: Clean Solar Energy */}
+                {/* Pillar 3: Clean Solar Energy (ColaSola) */}
                 <div className="p-8 sm:p-9 rounded-2xl bg-white dark:bg-neutral-900/40 border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-all flex flex-col justify-between group">
                   <div>
                     <div className="w-12 h-12 rounded-xl bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 flex items-center justify-center mb-6">
@@ -350,30 +365,36 @@ export default function Home() {
                     <div className="space-y-2.5 text-xs text-neutral-600 dark:text-neutral-400 font-light">
                       <div className="flex items-center gap-2">
                         <CheckCircle2 className="w-3.5 h-3.5 text-neutral-400 dark:text-neutral-500 shrink-0" />
-                        <span>{language === "zh" ? "工商业分布式屋顶光伏电站开发" : "Commercial rooftop solar power plants"}</span>
+                        <span>{language === "zh" ? "3kW-10kW 别墅住宅与 10kW-100kW+ 工商业光储" : "3kW-10kW villa & 10kW-100kW+ commercial solar"}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <CheckCircle2 className="w-3.5 h-3.5 text-neutral-400 dark:text-neutral-500 shrink-0" />
-                        <span>{language === "zh" ? "微电网储能与绿电驱动算力中心" : "Microgrid storage powering computing hubs"}</span>
+                        <span>{language === "zh" ? "泰国 PEA 省电力局并网申请全流程代办" : "Full PEA grid-connection handling & permits"}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <CheckCircle2 className="w-3.5 h-3.5 text-neutral-400 dark:text-neutral-500 shrink-0" />
-                        <span>{language === "zh" ? "低碳 ESG 认证与跨国绿色电力撮合" : "ESG green energy certificate matchmaking"}</span>
+                        <span>{language === "zh" ? "绿色零碳清洁电力驱动高密度 AI 算力中心" : "Powering high-density green AI datacenter"}</span>
                       </div>
                     </div>
                   </div>
 
                   <div className="mt-8 pt-6 border-t border-neutral-100 dark:border-neutral-800">
-                    <span className="inline-flex items-center gap-1.5 text-xs font-mono text-neutral-500">
-                      <span>Colasola Clean Solar Energy</span>
-                    </span>
+                    <a
+                      href="https://colasola.com"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 text-xs font-medium text-neutral-900 dark:text-neutral-200 hover:text-black dark:hover:text-white transition-colors"
+                    >
+                      <span>{language === "zh" ? "访问 ColaSola 官方网站 (colasola.com)" : "Visit ColaSola Official Site (colasola.com)"}</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </a>
                   </div>
                 </div>
               </div>
             </div>
           </section>
 
-          {/* Ecosystem Portals Grid: Connects to the 3 Subpages */}
+          {/* Ecosystem Portals Grid: Connects to Core Platforms */}
           <section className="py-28 bg-white dark:bg-black text-neutral-900 dark:text-white transition-colors duration-300">
             <div className="max-w-7xl mx-auto px-8">
               <div className="max-w-3xl mb-16">
@@ -415,9 +436,11 @@ export default function Home() {
                   </div>
                 </Link>
 
-                {/* Portal Card 2: Cloud Desk */}
-                <Link
-                  href="/cloud-desk"
+                {/* Portal Card 2: AI Cloud Desk */}
+                <a
+                  href="https://cloud.lazzor.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="group relative p-8 sm:p-9 rounded-2xl bg-neutral-50 dark:bg-neutral-900/40 border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-all flex flex-col justify-between shadow-sm hover:shadow-md"
                 >
                   <div>
@@ -439,16 +462,18 @@ export default function Home() {
                     <span>{t("homePortalsCard2Action")}</span>
                     <ArrowRight className="w-4 h-4" />
                   </div>
-                </Link>
+                </a>
 
-                {/* Portal Card 3: AI Sandbox */}
-                <Link
-                  href="/sandbox"
+                {/* Portal Card 3: ColaSola Solar System */}
+                <a
+                  href="https://colasola.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="group relative p-8 sm:p-9 rounded-2xl bg-neutral-50 dark:bg-neutral-900/40 border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-all flex flex-col justify-between shadow-sm hover:shadow-md"
                 >
                   <div>
                     <div className="w-12 h-12 rounded-xl bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 flex items-center justify-center mb-6">
-                      <Compass className="w-5 h-5" />
+                      <Sun className="w-5 h-5" />
                     </div>
                     <span className="text-[11px] font-mono text-[#86868b] tracking-wider uppercase block mb-1">
                       Platform 03
@@ -465,7 +490,7 @@ export default function Home() {
                     <span>{t("homePortalsCard3Action")}</span>
                     <ArrowRight className="w-4 h-4" />
                   </div>
-                </Link>
+                </a>
               </div>
             </div>
           </section>

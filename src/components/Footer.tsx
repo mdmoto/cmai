@@ -50,14 +50,19 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/cloud-desk" className="hover:text-white transition-colors">
+                <a href="https://cloud.lazzor.com" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">
                   {t("navCloudDesk")}
-                </Link>
+                </a>
               </li>
               <li>
-                <Link href="/sandbox" className="hover:text-white transition-colors">
+                <a href="https://colasola.com" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">
+                  {t("navSolarSystem")}
+                </a>
+              </li>
+              <li>
+                <a href="https://ai.lazzor.com" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">
                   {t("navAiSandbox")}
-                </Link>
+                </a>
               </li>
               <li>
                 <Link href="/contract" className="text-blue-400 hover:text-blue-300 transition-colors font-medium">
