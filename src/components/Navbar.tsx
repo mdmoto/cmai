@@ -36,6 +36,7 @@ export default function Navbar({ onOpenSandbox, onPreheat }: NavbarProps) {
     { label: t("navHome"), href: "/", external: false },
     { label: t("navExploreWorkspace"), href: "/workspace", external: false },
     { label: t("navCloudDesk"), href: "https://cloud.lazzor.com", external: true },
+    { label: t("navAiSandbox"), href: "https://ai.lazzor.com", external: true, isSandbox: true },
     { label: t("navSolarSystem"), href: "https://colasola.com", external: true },
   ];
 
@@ -98,6 +99,20 @@ export default function Navbar({ onOpenSandbox, onPreheat }: NavbarProps) {
                 ? "text-neutral-950 dark:text-white bg-white dark:bg-neutral-800 shadow-sm"
                 : "text-neutral-600 hover:text-neutral-950 dark:text-neutral-400 dark:hover:text-white"
             }`;
+
+            if (item.isSandbox && onOpenSandbox) {
+              return (
+                <button
+                  key={item.href}
+                  onClick={onOpenSandbox}
+                  onMouseEnter={onPreheat}
+                  onTouchStart={onPreheat}
+                  className={`${classes} cursor-pointer`}
+                >
+                  {item.label}
+                </button>
+              );
+            }
 
             if (item.external) {
               return (
@@ -272,7 +287,25 @@ export default function Navbar({ onOpenSandbox, onPreheat }: NavbarProps) {
                       : "text-neutral-700 dark:text-neutral-300 hover:text-neutral-950 dark:hover:text-white"
                   }`;
 
-                  if (item.external) {
+                  if (item.isSandbox && onOpenSandbox) {
+                    return (
+                      <button
+                        key={item.href}
+                        onClick={() => {
+                          setIsOpen(false);
+                          onOpenSandbox();
+                        }}
+                        onMouseEnter={onPreheat}
+                        onTouchStart={onPreheat}
+                        className={`${classes} cursor-pointer w-full text-left`}
+                      >
+                        <span>{item.label}</span>
+                        <span className="text-[11px] font-mono opacity-50 uppercase">↗</span>
+                      </button>
+                    );
+                  }
+
+            if (item.external) {
                     return (
                       <a
                         key={item.href}
