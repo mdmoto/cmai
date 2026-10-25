@@ -349,7 +349,7 @@ export default function Services() {
         subtitle: "Thai Incorporation Assistance",
         content: [
           "Navigating foreign business laws can be complex. We provide direct structural support for incorporating your Thai Company Limited or establishing a BOI promoted tech enterprise.",
-          "Our consulting partners guide you through drafting the Memorandum of Association, structuring shares between foreign and local shareholders, corporate seal design, and applying for tax numbers.",
+          "Our consulting partners guide you through drafting the Memorandum of Association (MOA), designing compliant corporate governance and equity structures, corporate seal registration, and applying for tax identification numbers.",
           "We also facilitate fast-tracked business bank account introductions with top local Thai commercial banks, helping your team establish physical capital accounts and online banking applications smoothly."
         ]
       },
@@ -358,7 +358,7 @@ export default function Services() {
         subtitle: "一站式泰国公司设立落地协助",
         content: [
           "跨国法律与商业注册流程可能较为繁琐。我们提供直接的落地支持，协助您在泰国设立有限公司或成立 BOI 科技促进型企业。",
-          "我们的资深法务顾问伙伴将引导您起草公司章程（MOA）、优化配置符合法定规范的股东结构、设计制作公司企业印章以及申请企业税务登记号。",
+          "我们的资深法务顾问伙伴将引导您起草公司章程（MOA）、设计符合法定规范的公司治理与股权架构、制作官方备案企业印章以及申请企业法定税务登记号。",
           "我们还将协助您对接泰国主流商业银行，提供快速开户通道，确保您的注册资本金打入、企业日常账户开设及企业网上银行功能顺利开通。"
         ]
       },
@@ -367,7 +367,7 @@ export default function Services() {
         subtitle: "ความช่วยเหลือในการจัดตั้งบริษัทในไทย",
         content: [
           "การทำความเข้าใจกฎหมายธุรกิจต่างประเทศอาจมีความซับซ้อน เราให้การสนับสนุนด้านโครงสร้างโดยตรงสำหรับการจดทะเบียนบริษัทจำกัดในไทย หรือการจัดตั้งองค์กรเทคโนโลยีที่ได้รับการส่งเสริมจาก BOI",
-          "พันธมิตรที่ปรึกษาของเราจะแนะนำคุณในการจัดทำหนังสือบริคณห์สนธิ การจัดโครงสร้างหุ้นระหว่างผู้ถือหุ้นต่างชาติและผู้ถือหุ้นไทย การออกแบบตราประทับบริษัท และการขอเลขประจำตัวผู้เสียภาษี",
+          "พันธมิตรที่ปรึกษาของเราจะแนะนำคุณในการจัดทำหนังสือบริคณห์สนธิ (MOA) การออกแบบโครงสร้างการกำกับดูแลกิจการที่ถูกต้องตามกฎหมาย การจดทะเบียนตราประทับบริษัท และการขอเลขประจำตัวผู้เสียภาษี",
           "นอกจากนี้ เรายังอำนวยความสะดวกในการแนะนำการเปิดบัญชีธนาคารธุรกิจอย่างรวดเร็วกับธนาคารพาณิชย์ชั้นนำของไทย ช่วยให้ทีมของคุณจัดทำบัญชีเงินทุนและสมัครใช้งานธนาคารออนไลน์ได้อย่างราบรื่น"
         ]
       },
@@ -376,7 +376,7 @@ export default function Services() {
         subtitle: "タイ現地法人の設立とBOI申請支援",
         content: [
           "タイの法律や外資規制は複雑です。私たちは、タイ現地法人（Co., Ltd.）の設立や、外資100%での設立が可能になるBOI（タイ投資委員会）認定企業の申請サポートを行っています。",
-          "提携の専門チームが、定款（基本合意書）の作成、株主構成の最適化、税務署への登録、および法人銀行口座の開設までガイドします。",
+          "提携の専門チームが、定款（基本合意書）の作成、コンプライアンスに準拠した企業統治・資本構造の設計、税務署への登録、および法人銀行口座の開設までガイドします。",
           "タイの大手商業銀行の法人口座開設手続きをエスコートし、資本金の送金手続きやオンラインバンキング設定が確実に完了するよう支援します。"
         ]
       }

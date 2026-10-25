@@ -93,7 +93,6 @@ export default function PricingCalculator() {
     virtual_address: false,
     mail_handling: false,
     company_registration: false,
-    shareholder_matching: false,
     bank_account: false,
     accounting_agent: false,
     annual_audit: false,
@@ -216,15 +215,6 @@ export default function PricingCalculator() {
       icon: <FileSpreadsheet className="w-4 h-4" />,
     },
     {
-      id: "shareholder_matching",
-      nameKey: "servicesShareholder",
-      basePrice: 50000,
-      unitKey: "pricingOnce",
-      isMonthly: false,
-      notesKey: "依照泰国法律，为合资企业依法合规撮合泰国本土合作股东。",
-      icon: <Scale className="w-4 h-4" />,
-    },
-    {
       id: "bank_account",
       nameKey: "servicesBankAccount",
       basePrice: 20000,
@@ -304,12 +294,6 @@ export default function PricingCalculator() {
       th: "บริการ VPN แบบ IP ร่วม",
       ja: "共有IPのVPNサービス",
     },
-    servicesShareholder: {
-      en: "Thai Shareholder Matching",
-      zh: "泰国股东配套撮合",
-      th: "บริการจัดหาผู้ถือหุ้นไทย",
-      ja: "タイ人株主マッチングサービス",
-    },
     servicesBankAccount: {
       en: "Bank Account Certification",
       zh: "商业银行开户认证",
@@ -360,14 +344,12 @@ export default function PricingCalculator() {
       if (id === "corporate_affiliation" && next.corporate_affiliation) {
         // Affiliation is mutually exclusive with registering one's own company items
         next.company_registration = false;
-        next.shareholder_matching = false;
         next.bank_account = false;
         next.accounting_agent = false;
         next.annual_audit = false;
         next.virtual_address = false;
       } else if (next.corporate_affiliation && (
         id === "company_registration" ||
-        id === "shareholder_matching" ||
         id === "bank_account" ||
         id === "accounting_agent" ||
         id === "annual_audit" ||
@@ -529,7 +511,6 @@ export default function PricingCalculator() {
 
   let oneTimeSubtotal = 0;
   oneTimeSubtotal += registrationCost;
-  if (selected.shareholder_matching) oneTimeSubtotal += 50000;
   oneTimeSubtotal += bankAccountCost;
   if (selected.annual_audit) oneTimeSubtotal += 15000;
   oneTimeSubtotal += visaTotalCost;
@@ -595,7 +576,6 @@ export default function PricingCalculator() {
       }
       if (selected.mail_handling) quoteText += `- 邮件包裹代收: ฿${isMailFree ? "0 (赠送)" : "500"}/月\n`;
       if (selected.company_registration) quoteText += `- 泰国公司设立注册: ฿${registrationCost} (已折)\n`;
-      if (selected.shareholder_matching) quoteText += `- 泰国股东配套撮合: ฿50,000 (一次性)\n`;
       if (selected.bank_account) quoteText += `- 商业银行开户认证: ฿${bankAccountCost} (已折)\n`;
       if (selected.accounting_agent) quoteText += `- 财务代理报税服务: ฿3,000/月\n`;
       if (selected.annual_audit) quoteText += `- 公司年审审计服务: ฿15,000 (一次性)\n`;
@@ -626,7 +606,6 @@ export default function PricingCalculator() {
       }
       if (selected.mail_handling) quoteText += `- Mail Handling: ฿${isMailFree ? "0 (Free)" : "500"}/mo\n`;
       if (selected.company_registration) quoteText += `- Thai Company Registration: ฿${registrationCost} (One-time)\n`;
-      if (selected.shareholder_matching) quoteText += `- Shareholder Matching: ฿50,000 (One-time)\n`;
       if (selected.bank_account) quoteText += `- Bank Account Setup: ฿${bankAccountCost} (One-time)\n`;
       if (selected.accounting_agent) quoteText += `- Bookkeeping & Accounting: ฿3,000/mo\n`;
       if (selected.annual_audit) quoteText += `- Annual Audit / Review: ฿15,000 (One-time)\n`;
@@ -965,8 +944,6 @@ export default function PricingCalculator() {
                                 ? "Receiving and managing corporate letters/parcels with notification. Free for physical and virtual office tenants."
                                 : item.id === "company_registration"
                                 ? "One-stop Thai company incorporation service. Requires office rental (12-month min lease), service fee discounted by 30%."
-                                : item.id === "shareholder_matching"
-                                ? "Legal matching of local Thai partnership shareholders for joint ventures."
                                 : item.id === "bank_account"
                                 ? "Thai commercial corporate bank account setup. Requires physical office rental (12-month min lease), setup fee discounted by 30%."
                                 : item.id === "accounting_agent"
