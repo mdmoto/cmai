@@ -1,86 +1,39 @@
-"use client";
+import type { Metadata } from "next";
+import WorkspaceClient from "./WorkspaceClient";
 
-import React, { useState, useEffect } from "react";
-import { motion } from "framer-motion";
-import Navbar from "@/components/Navbar";
-import Hero from "@/components/Hero";
-import About from "@/components/About";
-import Workspace from "@/components/Workspace";
-import Services from "@/components/Services";
-import PricingCalculator from "@/components/PricingCalculator";
-import Gallery from "@/components/Gallery";
-import FAQ from "@/components/FAQ";
-import Contact from "@/components/Contact";
-import Footer from "@/components/Footer";
+export const metadata: Metadata = {
+  title: "Private Office Rental & Floor Plans",
+  description:
+    "Explore private office suites, dedicated desks, and 5-floor building specifications at Chiang Mai AI Center. Located within 3 km of Chiang Mai city center on Mahidol Road with 1 Gbps redundant fiber.",
+  alternates: {
+    canonical: "/workspace",
+  },
+  openGraph: {
+    title: "Private Office Rental & Floor Plans | Chiang Mai AI Center",
+    description:
+      "5-floor modern tech building in Chiang Mai. Private office suites, high-speed fiber, meeting rooms, and registered office addresses.",
+    url: "/workspace",
+    siteName: "Chiang Mai AI Center",
+    images: [
+      {
+        url: "/images/og-cover.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Chiang Mai AI Center Workspace & Floor Plans",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Private Office Rental & Floor Plans | Chiang Mai AI Center",
+    description:
+      "Explore 5-floor office suites, floor plans, and amenities at Chiang Mai AI Center.",
+    images: ["/images/og-cover.jpg"],
+  },
+};
 
-export default function WorkspacePage() {
-  const [isNavigating, setIsNavigating] = useState(false);
-
-  // Network preheat for AI sandbox
-  useEffect(() => {
-    try {
-      fetch("https://ai.lazzor.com", { mode: "no-cors", priority: "low" as RequestPriority }).catch(() => {});
-    } catch {}
-
-    try {
-      if (typeof HTMLScriptElement !== "undefined" && HTMLScriptElement.supports?.("speculationrules")) {
-        const specScript = document.createElement("script");
-        specScript.type = "speculationrules";
-        specScript.textContent = JSON.stringify({
-          prerender: [{ source: "list", urls: ["https://ai.lazzor.com"] }],
-        });
-        document.head.appendChild(specScript);
-      }
-    } catch {}
-  }, []);
-
-  const handlePreheat = () => {
-    try {
-      fetch("https://ai.lazzor.com", { mode: "no-cors", priority: "high" as RequestPriority }).catch(() => {});
-    } catch {}
-  };
-
-  const handleTriggerNavigation = () => {
-    if (isNavigating) return;
-    setIsNavigating(true);
-    setTimeout(() => {
-      window.location.href = "https://ai.lazzor.com";
-    }, 480);
-  };
-
-  return (
-    <div
-      className="relative w-full min-h-screen bg-black overflow-x-hidden"
-      style={isNavigating ? { perspective: "2000px" } : undefined}
-    >
-      <motion.div
-        animate={
-          isNavigating
-            ? { rotateY: 90, scale: 0.92, opacity: 0.15 }
-            : undefined
-        }
-        transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
-        style={isNavigating ? { transformStyle: "preserve-3d" } : undefined}
-        className="relative w-full min-h-screen flex flex-col bg-white dark:bg-black transition-colors"
-      >
-        <Navbar onOpenSandbox={handleTriggerNavigation} onPreheat={handlePreheat} />
-
-        <main className="flex-grow">
-          {/* Full-screen photography carousel Hero */}
-          <Hero onOpenSandbox={handleTriggerNavigation} onPreheat={handlePreheat} />
-
-          {/* Complete physical workspace suite */}
-          <About />
-          <Workspace />
-          <Services />
-          <PricingCalculator />
-          <Gallery />
-          <FAQ />
-          <Contact />
-        </main>
-
-        <Footer />
-      </motion.div>
-    </div>
-  );
+export default function Page() {
+  return <WorkspaceClient />;
 }

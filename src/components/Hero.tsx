@@ -14,10 +14,10 @@ export default function Hero({ onOpenSandbox, onPreheat }: HeroProps) {
   const [currentBg, setCurrentBg] = useState(0);
 
   const bgImages = [
-    "/images/image_1.jpg",
-    "/images/image_2.jpg",
-    "/images/image_5.jpg",
-    "/images/image_10.jpg",
+    "/images/image_1.webp",
+    "/images/image_2.webp",
+    "/images/image_5.webp",
+    "/images/image_10.webp",
   ];
 
   useEffect(() => {

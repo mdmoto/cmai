@@ -37,27 +37,27 @@ export default function Gallery() {
 
   const items: GalleryItem[] = [
     // Exterior (1)
-    { src: "/images/image_1.jpg", category: "exterior", title: "Chiang Mai AI Center Exterior" },
+    { src: "/images/image_1.webp", category: "exterior", title: "Chiang Mai AI Center Exterior" },
     
     // Lobby/Reception (2~4)
-    { src: "/images/image_2.jpg", category: "reception", title: "Main Lobby Entrance" },
-    { src: "/images/image_3.jpg", category: "reception", title: "Reception Desk" },
-    { src: "/images/image_4.jpg", category: "reception", title: "Lobby Visitor Seating" },
+    { src: "/images/image_2.webp", category: "reception", title: "Main Lobby Entrance" },
+    { src: "/images/image_3.webp", category: "reception", title: "Reception Desk" },
+    { src: "/images/image_4.webp", category: "reception", title: "Lobby Visitor Seating" },
     
     // Private Offices (5~9, no 6.jpg exists)
-    { src: "/images/image_5.jpg", category: "offices", title: "Premium Team Suite" },
-    { src: "/images/image_7.jpg", category: "offices", title: "Executive Workspace" },
-    { src: "/images/image_8.jpg", category: "offices", title: "Private Office View" },
-    { src: "/images/image_9.jpg", category: "offices", title: "Furnished Office Unit" },
+    { src: "/images/image_5.webp", category: "offices", title: "Premium Team Suite" },
+    { src: "/images/image_7.webp", category: "offices", title: "Executive Workspace" },
+    { src: "/images/image_8.webp", category: "offices", title: "Private Office View" },
+    { src: "/images/image_9.webp", category: "offices", title: "Furnished Office Unit" },
     
     // Common Areas (10~16)
-    { src: "/images/image_10.jpg", category: "common", title: "Common Coworking Space" },
-    { src: "/images/image_11.jpg", category: "common", title: "Pantry & Coffee Bar" },
-    { src: "/images/image_12.jpg", category: "common", title: "Meeting & Training Room" },
-    { src: "/images/image_13.jpg", category: "common", title: "Collaborative Area" },
-    { src: "/images/image_14.jpg", category: "common", title: "Lounge Seating" },
-    { src: "/images/image_15.jpg", category: "common", title: "Open Air Balcony" },
-    { src: "/images/image_16.jpg", category: "common", title: "Outdoor Spirit House Area" },
+    { src: "/images/image_10.webp", category: "common", title: "Common Coworking Space" },
+    { src: "/images/image_11.webp", category: "common", title: "Pantry & Coffee Bar" },
+    { src: "/images/image_12.webp", category: "common", title: "Meeting & Training Room" },
+    { src: "/images/image_13.webp", category: "common", title: "Collaborative Area" },
+    { src: "/images/image_14.webp", category: "common", title: "Lounge Seating" },
+    { src: "/images/image_15.webp", category: "common", title: "Open Air Balcony" },
+    { src: "/images/image_16.webp", category: "common", title: "Outdoor Spirit House Area" },
   ];
 
   const filteredItems = filter === "all" ? items : items.filter((item) => item.category === filter);

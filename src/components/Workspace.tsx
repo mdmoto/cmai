@@ -52,7 +52,7 @@ export default function Workspace() {
       num: 1,
       name: t("workspaceFloor1"),
       desc: t("workspaceFloor1Desc"),
-      img: "/images/floor_1.png",
+      img: "/images/floor_1.webp",
       units: [
         { id: "Entrance / Hall", type: "Facility", capacity: "Public Area", area: "180 sqm", price: "Free Access", status: "Available" },
         { id: "Meeting Room", type: "Facility", capacity: "8-10 Pax", area: "32 sqm", price: "Hourly Booking", status: "Available" },
@@ -63,7 +63,7 @@ export default function Workspace() {
       num: 2,
       name: t("workspaceFloor2"),
       desc: t("workspaceFloor2Desc"),
-      img: "/images/floor_2.png",
+      img: "/images/floor_2.webp",
       units: [
         { id: "B1-2", type: "Medium", capacity: "2-4 Pax", area: "20 sqm", price: "฿9,400/mo", features: "AC, Window", status: "Available", desks: 4 },
         { id: "B3-4", type: "Medium", capacity: "2-4 Pax", area: "29 sqm", price: "฿7,300/mo", features: "AC, Window", status: "Full", desks: 3 },
@@ -77,7 +77,7 @@ export default function Workspace() {
       num: 3,
       name: t("workspaceFloor3"),
       desc: t("workspaceFloor3Desc"),
-      img: "/images/floor_3.png",
+      img: "/images/floor_3.webp",
       units: [
         { id: "C1-2", type: "Medium", capacity: "2-4 Pax", area: "24 sqm", price: "฿9,700/mo", features: "AC, Window", status: "Available", desks: 4 },
         { id: "C3", type: "Small", capacity: "1-2 Pax", area: "12 sqm", price: "฿5,000/mo", features: "AC, Window", status: "Available", desks: 2 },
@@ -95,7 +95,7 @@ export default function Workspace() {
       num: 4,
       name: t("workspaceFloor4"),
       desc: t("workspaceFloor4Desc"),
-      img: "/images/floor_4.png",
+      img: "/images/floor_4.webp",
       units: [
         { id: "D1-2", type: "Medium", capacity: "2-4 Pax", area: "24 sqm", price: "฿9,700/mo", features: "AC, Window", status: "Available", desks: 4 },
         { id: "D3", type: "Small", capacity: "1-2 Pax", area: "12 sqm", price: "฿6,400/mo", features: "AC, Window", status: "Available", desks: 2 },
@@ -113,7 +113,7 @@ export default function Workspace() {
       num: 5,
       name: t("workspaceFloor5"),
       desc: t("workspaceFloor5Desc"),
-      img: "/images/floor_5.png",
+      img: "/images/floor_5.webp",
       units: [
         { id: "E1", type: "Large", capacity: "6-8 Pax", area: "35 sqm", price: "฿11,200/mo", features: "AC, Window", status: "Full", desks: 4 },
         { id: "E2", type: "Large", capacity: "6-8 Pax", area: "35 sqm", price: "฿5,600/mo", features: "W/o AC, Window", status: "Available", desks: 2 },
