@@ -94,6 +94,16 @@ const translations: Record<Language, TranslationDict> = {
     workspaceLimited: "Limited",
     workspaceFull: "Fully Leased",
     workspacePriceContact: "Contact for Details",
+    workspaceRentalOverviewTitle: "Chiang Mai Office Rental Guide & Overview",
+    workspaceRentalOverviewSub: "Everything you need to know about leasing private office suites and registered business addresses at Chiang Mai AI Center.",
+    workspaceHighlight1Title: "40+ Private Office Suites (1–8 Pax)",
+    workspaceHighlight1Desc: "Fully furnished 10–57 sqm private suites with ergonomic desks, independent air conditioning, and move-in readiness.",
+    workspaceHighlight2Title: "1 Gbps Redundant Fiber & Clean IP",
+    workspaceHighlight2Desc: "Enterprise symmetrical fiber connections with low latency to Singapore, Hong Kong, and global cloud backbones.",
+    workspaceHighlight3Title: "Free Parking & Prime Transit",
+    workspaceHighlight3Desc: "Dedicated on-site car and motorcycle parking on Mahidol Road, 5 mins (3.5 km) to Airport and 3 km to Chiang Mai Old City.",
+    workspaceHighlight4Title: "100% Legal DBD Business Address",
+    workspaceHighlight4Desc: "Authorized commercial landlord lease agreements meeting all Thai DBD and Revenue Department requirements for foreign & Thai companies.",
     
     // Services
     servicesSectionTitle: "Services",
@@ -176,6 +186,10 @@ const translations: Record<Language, TranslationDict> = {
     faqA5: "Yes, secure dedicated car and motorcycle parking spaces are available for office tenants and their guests.",
     faqQ6: "How do I schedule a visit?",
     faqA6: "You can easily book a physical or virtual tour using our online visit booking form below, or contact us directly via LINE, WeChat, or WhatsApp.",
+    faqQ7: "What is the price range and what utilities are included in the office rent?",
+    faqA7: "Private office suites range from ฿1,500/month for compact 1-2 person units up to ฿11,200/month for large executive suites (1-8 pax). Monthly rent includes 1 Gbps redundant fiber internet, reception mail/parcel handling, water utilities, free dedicated car and motorcycle parking, meeting room quota, and 24/7 security with smart access control. Electricity is metered transparently at commercial rates.",
+    faqQ8: "Where is the building located and how accessible is it from Chiang Mai Airport and Old City?",
+    faqA8: "Chiang Mai AI Center is located at 236/105 Moo 6, Mahidol Road, Nong Hoi, Mueang Chiang Mai 50000. Situated right on the main Mahidol commercial artery within 3 km of the city core, it is only 5 minutes (3.5 km) from Chiang Mai International Airport and Central Chiangmai Airport mall, with seamless dual-ring road access to the Superhighway and Nimman.",
 
     // Contact
     contactSectionTitle: "Contact",
@@ -401,6 +415,16 @@ const translations: Record<Language, TranslationDict> = {
     workspaceLimited: "席位紧缺",
     workspaceFull: "已全部租罄",
     workspacePriceContact: "欢迎详询",
+    workspaceRentalOverviewTitle: "清迈办公室租赁指南与全景概览",
+    workspaceRentalOverviewSub: "在清迈 AI 中心租赁独立办公室与办理商业地址登记的核心须知与规格对比。",
+    workspaceHighlight1Title: "40+ 间独立办公室（1–8 人套间）",
+    workspaceHighlight1Desc: "10–57 平方米精装修独立套间，配有人体工学办公桌椅、独立变频空调，即租即入驻。",
+    workspaceHighlight2Title: "1 Gbps 双路对称光纤与纯净企业 IP",
+    workspaceHighlight2Desc: "企业级对称光纤专线，直连新加坡、香港及全球云骨干网络，超低延迟无拥堵。",
+    workspaceHighlight3Title: "免费独立车位与迎宾大道交通",
+    workspaceHighlight3Desc: "大厦专属地面汽车与摩托车免费停车位，坐拥玛希敦大道，5 分钟达清迈机场，3 公里直通古城核心。",
+    workspaceHighlight4Title: "100% 合规 DBD 商业地址与税务挂靠",
+    workspaceHighlight4Desc: "泰资实体独栋商业大厦官方授权租赁合同，符合泰国商业发展局（DBD）及税务局 VAT 增值税全部登记标准。",
     
     // Services
     servicesSectionTitle: "商业服务",
@@ -483,6 +507,10 @@ const translations: Record<Language, TranslationDict> = {
     faqA5: "有的。我们为入驻企业租户及其到访客户提供安全、专属的汽车与摩托车停车区。",
     faqQ6: "如何预约现场参观？",
     faqA6: "您可以通过下方的在线表格轻松预约现场或远程视频参观，亦可通过 LINE、微信或 WhatsApp 直接与我们沟通。",
+    faqQ7: "办公室的租金范围是多少？租金包含哪些公共设施和费用？",
+    faqA7: "独立办公室租金从单人/双人精巧套间的 ฿1,500/月到大型高管套间的 ฿11,200/月（适合 1-8 人团队）。租金全包 1 Gbps 企业级对称光纤宽带、前台商务信件与包裹代收、公共水费、免费专属汽车与摩托车停车位、会议室使用额度以及 24/7 智能门禁安防。独立电费按标准商用独立电表透明计量结算。",
+    faqQ8: "大厦的具体地理位置在哪里？距离清迈机场与古城交通是否便利？",
+    faqA8: "清迈 AI 中心独栋大厦坐落于 236/105 Moo 6, Mahidol Road, Nong Hoi, Mueang Chiang Mai 50000。地处清迈主城区 3 公里核心商圈内的玛希敦大道（Mahidol Rd），距清迈国际机场及 Central Airport 购物中心仅 5 分钟车程（约 3.5 公里），临近环城路与超级公路，可直通古城核心与宁曼商圈，商务出行与客户接待极为便捷。",
 
     // Contact
     contactSectionTitle: "联系我们",
@@ -708,6 +736,16 @@ const translations: Record<Language, TranslationDict> = {
     workspaceLimited: "จำนวนจำกัด",
     workspaceFull: "เต็มแล้ว",
     workspacePriceContact: "ติดต่อสำหรับรายละเอียด",
+    workspaceRentalOverviewTitle: "ข้อมูลและจุดเด่นการเช่าออฟฟิศเชียงใหม่ (ถนนมหิดล)",
+    workspaceRentalOverviewSub: "ข้อมูลสำคัญและรายละเอียดอัตราค่าเช่าออฟฟิศส่วนตัวและจดทะเบียนบริษัท ณ Chiang Mai AI Center",
+    workspaceHighlight1Title: "ออฟฟิศส่วนตัวกว่า 40 ห้อง (1–8 คน)",
+    workspaceHighlight1Desc: "ห้องชุดส่วนตัวตกแต่งครบ 10–57 ตร.ม. พร้อมโต๊ะเก้าอี้เพื่อสุขภาพ แอร์ส่วนตัว พร้อมเข้าทำงานได้ทันที",
+    workspaceHighlight2Title: "เน็ตไฟเบอร์ 1 Gbps แบบสำรอง & Clean IP",
+    workspaceHighlight2Desc: "อินเทอร์เน็ตไฟเบอร์ระดับองค์กรแบบสมมาตร เชื่อมต่อเซิร์ฟเวอร์สิงคโปร์ ฮ่องกง และคลาวด์ระดับโลกด้วยความหน่วงต่ำ",
+    workspaceHighlight3Title: "ที่จอดรถยนต์/มอเตอร์ไซค์ฟรี & เดินทางสะดวก",
+    workspaceHighlight3Desc: "มีที่จอดรถยนต์และมอเตอร์ไซค์เฉพาะในพื้นที่อาคาร ริมถนนใหญ่มหิดล เพียง 5 นาที (3.5 กม.) ถึงสนามบิน และ 3 กม. ถึงคูเมือง",
+    workspaceHighlight4Title: "ที่อยู่จดทะเบียนบริษัท DBD ถูกต้องตามกฎหมาย 100%",
+    workspaceHighlight4Desc: "หนังสือยินยอมและสัญญาเช่าสถานที่เชิงพาณิชย์อย่างเป็นทางการ รองรับการจดทะเบียนบริษัท DBD และจดภาษีมูลค่าเพิ่ม VAT ครบวงจร",
     
     // Services
     servicesSectionTitle: "บริการ",
@@ -790,6 +828,10 @@ const translations: Record<Language, TranslationDict> = {
     faqA5: "มี มีพื้นที่จอดรถยนต์และรถจักรยานยนต์เฉพาะสำหรับผู้เช่าออฟฟิศและแขกของพวกเขา",
     faqQ6: "ฉันจะนัดหมายเข้าชมได้อย่างไร?",
     faqA6: "คุณสามารถนัดหมายการเข้าชมสถานที่จริงหรือเสมือนจริงได้ง่ายๆ โดยใช้แบบฟอร์มนัดหมายเข้าชมด้านล่าง หรือติดต่อเราโดยตรงผ่าน LINE, WeChat หรือ WhatsApp",
+    faqQ7: "อัตราค่าเช่าออฟฟิศเริ่มต้นเท่าไหร่และรวมค่าบริการอะไรบ้าง?",
+    faqA7: "ค่าเช่าออฟฟิศส่วนตัวเริ่มต้นที่ 1,500 บาท/เดือน สำหรับห้องขนาดกะทัดรัด 1-2 คน ไปจนถึง 11,200 บาท/เดือน สำหรับห้องชุดผู้บริหารขนาดใหญ่ (1-8 คน) ค่าเช่ารวมอินเทอร์เน็ตไฟเบอร์ 1 Gbps, บริการเคาน์เตอร์ต้อนรับและรับพัสดุ, ค่าน้ำ, ที่จอดรถยนต์และมอเตอร์ไซค์ฟรี, โควตาใช้งานห้องประชุม และระบบรักษาความปลอดภัยคีย์การ์ด 24 ชม. ค่าไฟฟ้าคิดตามมิเตอร์มาตรฐานโปร่งใส",
+    faqQ8: "อาคารตั้งอยู่ที่ไหน เดินทางสะดวกจากสนามบินเชียงใหม่และตัวเมืองหรือไม่?",
+    faqA8: "อาคารตั้งอยู่ที่ 236/105 หมู่ 6 ถนนมหิดล ตำบลหนองหอย อำเภอเมืองเชียงใหม่ 50000 ตั้งอยู่บนถนนสายหลักมหิดลในรัศมี 3 กม. จากใจกลางเมือง เดินทางเพียง 5 นาที (3.5 กม.) จากสนามบินนานาชาติเชียงใหม่และห้างเซ็นทรัลแอร์พอร์ต เชื่อมต่อถนนวงแหวนและซุปเปอร์ไฮเวย์ เดินทางไปคูเมืองหรือย่านนิมมานได้สะดวกรวดเร็ว",
 
     // Contact
     contactSectionTitle: "ติดต่อเรา",
@@ -1015,6 +1057,16 @@ const translations: Record<Language, TranslationDict> = {
     workspaceLimited: "残りわずか",
     workspaceFull: "満室",
     workspacePriceContact: "詳細はお問い合わせください",
+    workspaceRentalOverviewTitle: "チェンマイオフィス賃貸ガイド＆概要",
+    workspaceRentalOverviewSub: "チェンマイAIセンターにおけるプライベートオフィス賃貸および会社登記用住所に関する基本情報とスペック比較。",
+    workspaceHighlight1Title: "40室以上のプライベートオフィス（1〜8名）",
+    workspaceHighlight1Desc: "人間工学デスク、個別エアコン完備の10〜57㎡の家具付きプライベートスイート。即日入居可能。",
+    workspaceHighlight2Title: "1Gbps冗長化光回線＆クリーンIP",
+    workspaceHighlight2Desc: "シンガポール、香港、グローバルクラウドへ低遅延で直結するエンタープライズ対称型光ファイバー。",
+    workspaceHighlight3Title: "無料専用駐車場＆好立地アクセス",
+    workspaceHighlight3Desc: "敷地内に専用の自動車・バイク無料駐車場を完備。マヒドン通り沿いで空港まで5分（3.5km）、旧市街まで3km。",
+    workspaceHighlight4Title: "100%合法なDBD会社登記用住所",
+    workspaceHighlight4Desc: "タイ商務省（DBD）および国税局のVAT登録基準を完全に満たした正規の賃貸借契約書を発行可能。",
     
     // Services
     servicesSectionTitle: "サービス",
@@ -1097,6 +1149,10 @@ const translations: Record<Language, TranslationDict> = {
     faqA5: "はい、オフィス入居者様およびそのご来客者様用の、安全な専用駐車場（自動車・バイク）がございます。",
     faqQ6: "内覧はどのように予約すればよいですか？",
     faqA6: "以下のオンライン内覧予約フォームをご利用いただくか、LINE、WeChat、またはWhatsAppで直接お問い合わせください。",
+    faqQ7: "オフィスの賃料相場と、賃料に含まれる公共設備・サービスは何ですか？",
+    faqA7: "プライベートオフィスの賃料は、1〜2名用のコンパクトなユニットの月額1,500バーツから、最大8名用のエグゼクティブスイートの月額11,200バーツまで幅広くご用意しています。賃料には、1Gbpsの高速光回線、受付による郵便物・小包の受領通知、水道光熱費（共用部）、専用の自動車・バイク無料駐車場、会議室利用枠、24時間セキュリティが含まれます。個別電気代はメーター通り透明に精算されます。",
+    faqQ8: "建物の具体的な所在地はどこですか？チェンマイ空港や旧市街からのアクセスは便利ですか？",
+    faqA8: "チェンマイAIセンターは、236/105 Moo 6, Mahidol Road, Nong Hoi, Mueang Chiang Mai 50000に位置しています。チェンマイ旧市街から3km圏内のマヒドン通り沿いにあり、チェンマイ国際空港およびセントラル・エアポート・プラザから車でわずか5分（約3.5km）です。スーパーハイウェイやニマンヘミンへもスムーズにアクセス可能です。",
 
     // Contact
     contactSectionTitle: "お問い合わせ",

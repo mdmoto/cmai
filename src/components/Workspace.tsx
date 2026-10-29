@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { useTranslation } from "@/context/LanguageContext";
 import { motion, AnimatePresence } from "framer-motion";
-import { Layers, Search } from "lucide-react";
+import { Layers, Search, Building2, Wifi, Car, FileCheck2 } from "lucide-react";
 import Image from "next/image";
 
 interface OfficeUnit {
@@ -156,12 +156,12 @@ export default function Workspace() {
   return (
     <section id="workspace" className="py-28 bg-white dark:bg-black transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-8">
-        <div className="max-w-2xl mb-16">
+        <div className="max-w-3xl mb-16">
           <span className="text-[11px] font-sans tracking-[0.2em] text-[#86868b] uppercase font-semibold block mb-3">
-            {t("workspaceSectionTitle")}
+            {t("workspaceSectionTitle")} · ออฟฟิศให้เช่า เชียงใหม่
           </span>
           <h2 className="text-3xl sm:text-4xl font-light text-[#1d1d1f] dark:text-white tracking-tight mb-6">
-            Discover Premium <span className="font-semibold">Workspace</span>
+            Offices for Rent in Chiang Mai <span className="font-semibold block sm:inline text-neutral-900 dark:text-white">· 5 Floors &amp; Private Suites</span>
           </h2>
           <p className="text-base text-[#515154] dark:text-[#86868b] font-light leading-relaxed">
             {t("workspaceDesc")}
@@ -287,6 +287,71 @@ export default function Workspace() {
                   ))}
                 </tbody>
               </table>
+            </div>
+          </div>
+        </div>
+
+        {/* Office Rental Fact Sheet & Overview (High-Intent SEO & GEO Factual Content) */}
+        <div className="mt-20 pt-16 border-t border-neutral-100 dark:border-neutral-900">
+          <div className="max-w-3xl mb-12">
+            <span className="text-[11px] font-mono tracking-widest text-[#86868b] uppercase font-semibold block mb-2">
+              Office For Rent in Chiang Mai · ออฟฟิศให้เช่า เชียงใหม่
+            </span>
+            <h3 className="text-2xl sm:text-3xl font-light text-[#1d1d1f] dark:text-white tracking-tight mb-4">
+              {t("workspaceRentalOverviewTitle")}
+            </h3>
+            <p className="text-sm sm:text-base text-[#515154] dark:text-[#86868b] font-light leading-relaxed">
+              {t("workspaceRentalOverviewSub")}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="p-6 rounded-2xl bg-[#fafafa] dark:bg-[#070707] border border-neutral-200/50 dark:border-neutral-800/40 space-y-3">
+              <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+                <Building2 className="w-5 h-5" />
+              </div>
+              <h4 className="text-base font-semibold text-neutral-900 dark:text-white">
+                {t("workspaceHighlight1Title")}
+              </h4>
+              <p className="text-xs text-neutral-500 dark:text-neutral-400 leading-relaxed font-light">
+                {t("workspaceHighlight1Desc")}
+              </p>
+            </div>
+
+            <div className="p-6 rounded-2xl bg-[#fafafa] dark:bg-[#070707] border border-neutral-200/50 dark:border-neutral-800/40 space-y-3">
+              <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                <Wifi className="w-5 h-5" />
+              </div>
+              <h4 className="text-base font-semibold text-neutral-900 dark:text-white">
+                {t("workspaceHighlight2Title")}
+              </h4>
+              <p className="text-xs text-neutral-500 dark:text-neutral-400 leading-relaxed font-light">
+                {t("workspaceHighlight2Desc")}
+              </p>
+            </div>
+
+            <div className="p-6 rounded-2xl bg-[#fafafa] dark:bg-[#070707] border border-neutral-200/50 dark:border-neutral-800/40 space-y-3">
+              <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+                <Car className="w-5 h-5" />
+              </div>
+              <h4 className="text-base font-semibold text-neutral-900 dark:text-white">
+                {t("workspaceHighlight3Title")}
+              </h4>
+              <p className="text-xs text-neutral-500 dark:text-neutral-400 leading-relaxed font-light">
+                {t("workspaceHighlight3Desc")}
+              </p>
+            </div>
+
+            <div className="p-6 rounded-2xl bg-[#fafafa] dark:bg-[#070707] border border-neutral-200/50 dark:border-neutral-800/40 space-y-3">
+              <div className="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-950/40 text-purple-600 dark:text-purple-400 flex items-center justify-center">
+                <FileCheck2 className="w-5 h-5" />
+              </div>
+              <h4 className="text-base font-semibold text-neutral-900 dark:text-white">
+                {t("workspaceHighlight4Title")}
+              </h4>
+              <p className="text-xs text-neutral-500 dark:text-neutral-400 leading-relaxed font-light">
+                {t("workspaceHighlight4Desc")}
+              </p>
             </div>
           </div>
         </div>

@@ -15,6 +15,8 @@ export default function FAQ() {
     { q: t("faqQ4"), a: t("faqA4"), value: "item-4" },
     { q: t("faqQ5"), a: t("faqA5"), value: "item-5" },
     { q: t("faqQ6"), a: t("faqA6"), value: "item-6" },
+    { q: t("faqQ7"), a: t("faqA7"), value: "item-7" },
+    { q: t("faqQ8"), a: t("faqA8"), value: "item-8" },
   ];
 
   return (
