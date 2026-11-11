@@ -26,7 +26,8 @@ import {
   Type,
   ExternalLink,
   ShieldAlert,
-  Tag
+  Tag,
+  Cpu
 } from "lucide-react";
 
 // --- Number to Words Utilities ---
@@ -1721,9 +1722,18 @@ function ContractContent() {
                   LEASE AGREEMENT
                 </span>
               </div>
-              <p className="text-[11px] text-neutral-500 font-mono hidden sm:block">
-                Ref: {contractSerial || "CMAI-2026-LEASE"} · Chiang Mai AI Center (Colasola Co., Ltd.)
-              </p>
+              <div className="flex items-center gap-2 flex-wrap">
+                <p className="text-[11px] text-neutral-500 font-mono hidden sm:block">
+                  Ref: {contractSerial || "CMAI-2026-LEASE"} · Chiang Mai AI Center (Colasola Co., Ltd.)
+                </p>
+                <Link
+                  href="/cloud-contract"
+                  className="hidden md:inline-flex items-center gap-1 text-[11px] font-medium text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded border border-emerald-200 dark:border-emerald-800"
+                >
+                  <Cpu className="w-3 h-3" />
+                  <span>切换至企业级 AI 云工位与算力协议 (¥488 / ¥888 明星包) →</span>
+                </Link>
+              </div>
             </div>
           </div>
 

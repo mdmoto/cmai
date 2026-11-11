@@ -1,36 +1,77 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Chiang Mai AI Center
 
-## Getting Started
+Business infrastructure for international companies entering Thailand — not a coworking space.
 
-First, run the development server:
+**Live:** [lazzor.com](https://lazzor.com)
+
+## What it is
+
+A 5-floor / 40+ unit enterprise hub in Chiang Mai, built for foreign companies
+that need a real operating base in Thailand: a legal business address, private
+offices, enterprise networking, and the local compliance layer that normally
+takes months to assemble on your own.
+
+- 5 km to Chiang Mai International Airport
+- Prime business district location
+- Enterprise-grade internet throughout
+
+## Services
+
+| Service | Notes |
+| --- | --- |
+| Private offices | Fully furnished, for startups and international teams |
+| Business address | Registered address for company setup |
+| Mail handling | Business mail and parcels |
+| Meeting facilities | Meeting rooms and training space |
+| Enterprise internet | Business-grade connectivity |
+| Dedicated IP & VPN | Enterprise networking (self-hosted ocserv, see `install_ocserv.sh`) |
+| Business registration support | Delivered through local partners |
+| Local business support | Accounting, legal, tax, visa and translation partners |
+| Community | Networking events and startup activities |
+
+The AI Decision Sandbox linked from the site navbar runs on a separate service
+at [ai.lazzor.com](https://ai.lazzor.com).
+
+## Stack
+
+Next.js 16 (App Router) · React 19 · TypeScript · TailwindCSS v4 ·
+Radix UI · Framer Motion. Static export (`next build`) deployed to
+Cloudflare Pages.
+
+## SEO / GEO
+
+- `src/app/sitemap.ts` and `src/app/robots.ts` generate crawl artifacts at build time
+- `RealEstateAgent` JSON-LD schema
+- Bilingual English / Thai metadata and on-page copy
+- Audited against Google's crawl → index → render model plus AI-search (GEO)
+  practice; see `SEO_GEO_AUDIT.md`
+
+## Compliance
+
+The shareholder-matching service was deliberately removed to stay clear of Thai
+nominee-shareholder regulations. Do not reintroduce nominee arrangements.
+
+## Local development
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Environment variables are read from `.env.local` and are gitignored:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY=
+SMTP_HOST= SMTP_PORT= SMTP_USER= SMTP_PASS=
+SMTP_FROM= ADMIN_EMAIL=
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Status
 
-## Learn More
+Live and serving traffic. The office-availability, online-booking, interactive
+floor-plan and CMS features in the original spec are still unbuilt — see
+`Chiang_Mai_AI_Center_Website_Spec.md`.
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+> **Verify before publishing figures:** `src/components/About.tsx` currently
+> states 1,600 m² while `Chiang_Mai_AI_Center_Website_Spec.md` says 600 m².
+> Confirm the real area before this number is quoted anywhere externally.
