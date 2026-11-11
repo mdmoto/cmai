@@ -33,7 +33,11 @@ import {
   Zap,
   HelpCircle,
   Clock,
-  Laptop
+  Laptop,
+  HardDrive,
+  Sliders,
+  CheckSquare,
+  ShieldAlert,
 } from "lucide-react";
 
 // --- Number to Words Utilities ---
@@ -198,6 +202,171 @@ export const VALID_PROMO_CODES: Record<string, PromoCodeInfo> = {
     tagEng: "15% OFF",
   },
 };
+
+// --- Configurable Hardware Options ---
+export interface MacCpuOption {
+  id: string;
+  name: string;
+  specs: string;
+  priceDeltaCNY: number;
+  priceDeltaTHB: number;
+}
+
+export const MAC_CPU_OPTIONS: MacCpuOption[] = [
+  {
+    id: "m2",
+    name: "Apple M2 芯片",
+    specs: "8核 CPU · 10核 GPU · 16核神经网络引擎 · 高性价比经典款",
+    priceDeltaCNY: 0,
+    priceDeltaTHB: 0,
+  },
+  {
+    id: "m4",
+    name: "Apple M4 芯片 (最新旗舰)",
+    specs: "10核 CPU · 10核 GPU · 第二代 3nm 工艺 · 顶级单核与大模型推理",
+    priceDeltaCNY: 100,
+    priceDeltaTHB: 500,
+  },
+  {
+    id: "m2_pro",
+    name: "Apple M2 Pro 芯片",
+    specs: "10核 CPU · 16核 GPU · 200GB/s 内存带宽 · 高强度持续编译",
+    priceDeltaCNY: 150,
+    priceDeltaTHB: 750,
+  },
+  {
+    id: "m4_pro",
+    name: "Apple M4 Pro 芯片 (超高性能)",
+    specs: "14核 CPU · 20核 GPU · 273GB/s 内存带宽 · 极客重度编译研发",
+    priceDeltaCNY: 300,
+    priceDeltaTHB: 1500,
+  },
+];
+
+export interface MemoryOption {
+  id: string;
+  size: string;
+  priceDeltaCNY: number;
+  priceDeltaTHB: number;
+  description: string;
+}
+
+export const MAC_MEMORY_OPTIONS: MemoryOption[] = [
+  { id: "16gb", size: "16GB 统一内存", priceDeltaCNY: 0, priceDeltaTHB: 0, description: "标准开发者配置 · 流畅多开" },
+  { id: "24gb", size: "24GB 统一内存", priceDeltaCNY: 60, priceDeltaTHB: 300, description: "推荐规格 · 本地多容器与大任务" },
+  { id: "32gb", size: "32GB 统一内存", priceDeltaCNY: 120, priceDeltaTHB: 600, description: "重度编译 · 大型项目本地推理" },
+  { id: "64gb", size: "64GB 统一内存", priceDeltaCNY: 240, priceDeltaTHB: 1200, description: "极客顶配 · 极限内存吞吐" },
+];
+
+export interface StorageOption {
+  id: string;
+  size: string;
+  priceDeltaCNY: number;
+  priceDeltaTHB: number;
+}
+
+export const MAC_STORAGE_OPTIONS: StorageOption[] = [
+  { id: "512gb", size: "512GB 高速 NVMe SSD", priceDeltaCNY: 0, priceDeltaTHB: 0 },
+  { id: "1tb", size: "1TB 高速 NVMe SSD", priceDeltaCNY: 50, priceDeltaTHB: 250 },
+  { id: "2tb", size: "2TB 高速 NVMe SSD", priceDeltaCNY: 120, priceDeltaTHB: 600 },
+];
+
+// --- Configurable AI Subscription Options ---
+export interface AiSubscriptionOption {
+  id: string;
+  name: string;
+  modelFamily: "chatgpt" | "claude" | "dual";
+  tier: "personal" | "team" | "combo";
+  officialPriceUsd: number;
+  priceDeltaCNY: number;
+  priceDeltaTHB: number;
+  summary: string;
+  detailedSpecs: string[];
+}
+
+export const AI_SUBSCRIPTION_OPTIONS: AiSubscriptionOption[] = [
+  {
+    id: "chatgpt_plus",
+    name: "ChatGPT PLUS 官方个人会员 (已包含)",
+    modelFamily: "chatgpt",
+    tier: "personal",
+    officialPriceUsd: 20,
+    priceDeltaCNY: 0,
+    priceDeltaTHB: 0,
+    summary: "官方每月 $20 订阅全包 · GPT-4o / o1 / GPT-6 · 独立纯净原生环境",
+    detailedSpecs: [
+      "官方原价 $20/月 会员订阅费用全包，服务期内由服务商合规代充与续费",
+      "支持 GPT-4o、o1 推理模型、GPT-6 原生调用与高级语音模式 (Advanced Voice)",
+      "含 DALL-E 3 高清画图、Canvas 协作画布及自定义专属 GPTs 构建与使用",
+      "专享独立原生海外商业 IP 固定出口，彻底免除异地跳 IP 导致的封号与降智",
+      "海外正规银行合规外卡结算代充，全程提供 KYC 认证与风控拒付兜底保障",
+    ],
+  },
+  {
+    id: "claude_pro",
+    name: "Claude Pro 官方个人会员 (已包含)",
+    modelFamily: "claude",
+    tier: "personal",
+    officialPriceUsd: 20,
+    priceDeltaCNY: 0,
+    priceDeltaTHB: 0,
+    summary: "官方每月 $20 订阅全包 · Claude 3.5 Sonnet / 3.7 / Opus · 5倍配额",
+    detailedSpecs: [
+      "官方原价 $20/月 会员订阅全包，由服务商提供海外合规信用卡与手机号代充",
+      "完整支持顶尖代码模型 Claude 3.5 Sonnet、Claude 3.7 以及超大上下文 Opus",
+      "开箱即用 Artifacts 交互式沙箱（支持前端、SVG、交互组件即时调试预览）",
+      "相比免费账号享有 5 倍以上的高峰期调用配额与 Projects 知识库空间",
+      "专享纯净 Clean ASN 静态出口，免梯直连，无封号降智顾虑",
+    ],
+  },
+  {
+    id: "chatgpt_team",
+    name: "ChatGPT Team 企业团队席位 (高级升级)",
+    modelFamily: "chatgpt",
+    tier: "team",
+    officialPriceUsd: 30,
+    priceDeltaCNY: 60,
+    priceDeltaTHB: 300,
+    summary: "企业级数据不用于训练 · 无限高速 · 团队工作区协作 · 统一管理",
+    detailedSpecs: [
+      "企业合规保障：客户商业数据、研发源码与提示词绝对不参与 OpenAI 模型训练",
+      "支持多人团队协同工作区，统一管理权限与账单，共享私有企业 GPTs",
+      "相比个人版拥有更高用量配额上限与更快的专属计算响应队列",
+      "服务商协助完成企业主体认证 (KYC) 与合规商业外卡代缴扣款",
+    ],
+  },
+  {
+    id: "claude_team",
+    name: "Claude Team 企业协同席位 (高级升级)",
+    modelFamily: "claude",
+    tier: "team",
+    officialPriceUsd: 30,
+    priceDeltaCNY: 60,
+    priceDeltaTHB: 300,
+    summary: "企业团队级上下文 · 团队项目空间协作 · 优先新特性体验",
+    detailedSpecs: [
+      "团队共享 Projects 知识库空间与文档上下文，无缝支撑敏捷产研团队协同",
+      "提供更高频次的 Sonnet 与 Opus 高并发调用额度，告别日常限额打断",
+      "服务商全套提供企业海外认证资质与稳定代扣运维服务",
+    ],
+  },
+  {
+    id: "dual_combo",
+    name: "ChatGPT PLUS + Claude Pro 双官方会员全包 (顶配双开)",
+    modelFamily: "dual",
+    tier: "combo",
+    officialPriceUsd: 40,
+    priceDeltaCNY: 150,
+    priceDeltaTHB: 750,
+    summary: "同时开通两大顶尖 AI 官方会员 · 满足全能研发与出海全业务场景",
+    detailedSpecs: [
+      "同时获得 ChatGPT PLUS 与 Claude Pro 两个独立官方个人会员账号",
+      "每月合计 $40 官方美金订阅全额由服务商代缴代充",
+      "代码编写用 Claude 3.5 Sonnet，复杂推理与画图多模态用 GPT-4o/o1，生产力翻倍",
+      "双账号均享有专属合规海外外卡代充通道与服务期内全生命周期运维保障",
+    ],
+  },
+];
 
 // --- Cloud Packages Definitions ---
 export interface CloudPlanItem {
@@ -420,7 +589,10 @@ async function generateVectorCloudContractPdf(data: {
   contractHash: string;
   signingDateStr: string;
   selectedPlan: CloudPlanItem;
-  chosenAiService: string;
+  chosenCpuOption?: MacCpuOption;
+  chosenMemoryOption?: MemoryOption;
+  chosenStorageOption?: StorageOption;
+  chosenAiSubscription: AiSubscriptionOption;
   currency: "CNY" | "THB";
   durationMonths: number;
   monthlyServiceFee: number;
@@ -492,99 +664,104 @@ async function generateVectorCloudContractPdf(data: {
 
   // Title
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(13);
+  doc.setFontSize(12);
   doc.setTextColor(15, 23, 42);
-  doc.text("CLOUD WORKSTATION & COMPUTING SERVICE AGREEMENT", margin, 38);
-  doc.setFontSize(8);
+  doc.text("ENTERPRISE AI CLOUD WORKSTATION & INFRASTRUCTURE AGREEMENT", margin, 37);
+  doc.setFontSize(7.5);
   doc.setFont("helvetica", "normal");
   doc.setTextColor(71, 85, 105);
-  doc.text("Enterprise Cloud Workstation, Dedicated Clean IP & AI Services Agreement", margin, 43);
+  doc.text("Cloud Compute, Dedicated IP, Hardware Specs & AI KYC Subscription Agreement", margin, 42);
 
   // Plan Badge
   doc.setFillColor(238, 242, 255);
   doc.setDrawColor(199, 210, 254);
   doc.roundedRect(pageWidth - margin - 58, 33, 58, 12, 2, 2, "FD");
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(8.5);
+  doc.setFontSize(8);
   doc.setTextColor(67, 56, 202);
-  doc.text(`${data.selectedPlan.name}`, pageWidth - margin - 29, 39, { align: "center" });
+  doc.text(`${data.selectedPlan.name}`, pageWidth - margin - 29, 38.5, { align: "center" });
   doc.setFontSize(7);
   doc.setFont("helvetica", "normal");
-  doc.text(`${currSym}${data.monthlyServiceFee.toLocaleString()}/mo · ${data.durationMonths} Months`, pageWidth - margin - 29, 43, { align: "center" });
+  doc.text(`${currSym}${data.monthlyServiceFee.toLocaleString()}/mo · ${data.durationMonths}M Term`, pageWidth - margin - 29, 42.5, { align: "center" });
 
-  let y = 50;
+  let y = 48;
 
   // Parties Information Box
   doc.setFillColor(248, 250, 252);
   doc.setDrawColor(226, 232, 240);
-  doc.roundedRect(margin, y, contentWidth, 34, 2, 2, "FD");
+  doc.roundedRect(margin, y, contentWidth, 32, 2, 2, "FD");
 
-  doc.setFontSize(8);
+  doc.setFontSize(7.5);
   doc.setTextColor(15, 23, 42);
   doc.setFont("helvetica", "bold");
-  doc.text("SERVICE PROVIDER (Party A):", margin + 4, y + 6);
+  doc.text("SERVICE PROVIDER (Party A):", margin + 4, y + 5.5);
   doc.setFont("helvetica", "normal");
-  doc.text("Chiang Mai AI Center (Colasola Co., Ltd.) · Tax ID: 0505566006478", margin + 50, y + 6);
-  doc.text("236/105 Chiang Mai AI Center, Moo 6, Mahidol Rd, Nong Hoi, Chiang Mai 50000", margin + 50, y + 10);
+  doc.text("Chiang Mai AI Center (Colasola Co., Ltd.) · Tax ID: 0505566006478", margin + 48, y + 5.5);
+  doc.text("236/105 Chiang Mai AI Center, Moo 6, Mahidol Rd, Nong Hoi, Chiang Mai 50000", margin + 48, y + 9.5);
 
   doc.setFont("helvetica", "bold");
-  doc.text("CUSTOMER (Party B):", margin + 4, y + 17);
+  doc.text("CUSTOMER (Party B):", margin + 4, y + 15.5);
   doc.setFont("helvetica", "normal");
-  doc.text(`${data.effectiveCustomerName || "Customer"} ${data.customerType === "company" ? `(Rep: ${data.effectiveSignatoryDisplay})` : ""}`, margin + 50, y + 17);
+  doc.text(`${data.effectiveCustomerName || "Customer"} ${data.customerType === "company" ? `(Rep: ${data.effectiveSignatoryDisplay})` : ""}`, margin + 48, y + 15.5);
   doc.setFont("helvetica", "bold");
-  doc.text("ID / Tax / Business No:", margin + 4, y + 22);
+  doc.text("ID / Tax / Business No:", margin + 4, y + 20);
   doc.setFont("helvetica", "normal");
-  doc.text(String(data.customerIdNumber || "-"), margin + 50, y + 22);
+  doc.text(String(data.customerIdNumber || "-"), margin + 48, y + 20);
   doc.setFont("helvetica", "bold");
-  doc.text("Phone & Email:", margin + 4, y + 27);
+  doc.text("Phone & Email:", margin + 4, y + 24.5);
   doc.setFont("helvetica", "normal");
-  doc.text(`${data.customerPhone || "-"}  |  ${data.customerEmail || "-"}`, margin + 50, y + 27);
+  doc.text(`${data.customerPhone || "-"}  |  ${data.customerEmail || "-"}`, margin + 48, y + 24.5);
   doc.setFont("helvetica", "bold");
-  doc.text("Official Address:", margin + 4, y + 31);
+  doc.text("Official Address:", margin + 4, y + 28.5);
   doc.setFont("helvetica", "normal");
   const truncatedAddr = data.customerAddress && data.customerAddress.length > 70 ? data.customerAddress.slice(0, 67) + "..." : (data.customerAddress || "-");
-  doc.text(truncatedAddr, margin + 50, y + 31);
+  doc.text(truncatedAddr, margin + 48, y + 28.5);
 
-  y += 40;
+  y += 37;
 
-  // Section 1: Service Scope & Resource Allocation
+  // Section 1: Detailed Resource & Hardware Specifications
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(8.5);
+  doc.setFontSize(8);
   doc.setTextColor(15, 23, 42);
-  doc.text("1. SERVICE SCOPE & RESOURCE SPECIFICATIONS (服务项目与配置约定)", margin, y);
-  y += 4.5;
+  doc.text("1. DELIVERABLES & HARDWARE SPECIFICATIONS (服务标的与硬件配置清单)", margin, y);
+  y += 4;
   doc.setFont("helvetica", "normal");
-  doc.setFontSize(7.5);
+  doc.setFontSize(7);
   doc.setTextColor(51, 65, 85);
-  doc.text(`1.1 Selected Plan: ${data.selectedPlan.name} (${data.selectedPlan.enName}).`, margin, y);
-  y += 4;
-  doc.text(`1.2 Hardware & OS: ${data.selectedPlan.specs.hardware} | ${data.selectedPlan.specs.os}.`, margin, y);
-  y += 4;
-  doc.text(`1.3 Network & IP: ${data.selectedPlan.specs.ip} | ${data.selectedPlan.specs.network}.`, margin, y);
-  y += 4;
-  doc.text(`1.4 AI Account & Support: ${data.chosenAiService} (Included) | ${data.selectedPlan.specs.support}.`, margin, y);
-  y += 4;
-  doc.text(`1.5 Service Term: From ${data.startDate} to ${data.endDate} (Total: ${data.durationMonths} Month${data.durationMonths > 1 ? "s" : ""}).`, margin, y);
 
-  y += 7;
+  const hwLine = data.selectedPlan.id === "workstation_888"
+    ? `1.1 Hardware: 1V1 Dedicated Mac Workstation [CPU: ${data.chosenCpuOption?.name || "Apple M2"} | RAM: ${data.chosenMemoryOption?.size || "16GB"} | SSD: ${data.chosenStorageOption?.size || "512GB"} | OS: Native macOS].`
+    : `1.1 Hardware: Lightweight Cloud Computer (Micro PC) [4-8 vCPU / 8-16GB RAM / 120-240GB NVMe SSD / Sandbox].`;
+  doc.text(hwLine, margin, y);
+  y += 3.8;
 
-  // Section 2: Financial Summary Table
+  doc.text(`1.2 Official AI Subscription: ${data.chosenAiSubscription.name} ($${data.chosenAiSubscription.officialPriceUsd}/mo included).`, margin, y);
+  y += 3.8;
+  doc.text(`1.3 Network & IP: 1x Dedicated Native Static Commercial IP (Clean ASN, Fraud Score 0) + China-Thai IPLC (<18ms) + VPN.`, margin, y);
+  y += 3.8;
+  doc.text(`1.4 Support & Setup: 1-on-1 Engineering Setup, Dedicated Node Init, Network Tuning & Client 1-Click Connect.`, margin, y);
+  y += 3.8;
+  doc.text(`1.5 Service Term: ${data.startDate} to ${data.endDate} (${data.durationMonths} Month${data.durationMonths > 1 ? "s" : ""}).`, margin, y);
+
+  y += 6;
+
+  // Section 2: Financial Schedule Table
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(8.5);
+  doc.setFontSize(8);
   doc.setTextColor(15, 23, 42);
   doc.text("2. FEES & PAYMENT SCHEDULE (费用明细与支付清单)", margin, y);
-  y += 4.5;
+  y += 4;
 
   doc.setFillColor(241, 245, 249);
-  doc.rect(margin, y, contentWidth, 5.5, "F");
-  doc.setFontSize(7.5);
+  doc.rect(margin, y, contentWidth, 5, "F");
+  doc.setFontSize(7);
   doc.setFont("helvetica", "bold");
-  doc.text("Item / Description", margin + 4, y + 4);
-  doc.text(`Amount (${data.currency})`, pageWidth - margin - 4, y + 4, { align: "right" });
-  y += 5.5;
+  doc.text("Item / Description", margin + 4, y + 3.6);
+  doc.text(`Amount (${data.currency})`, pageWidth - margin - 4, y + 3.6, { align: "right" });
+  y += 5;
 
   const feeItems = [
-    [`Monthly Cloud Service Fee (${data.selectedPlan.name})`, `${currSym}${data.monthlyServiceFee.toLocaleString()} / mo`],
+    [`Monthly Cloud Service Fee (${data.selectedPlan.name} with Selected Specs)`, `${currSym}${data.monthlyServiceFee.toLocaleString()} / mo`],
     [`Total Subscription Service Fee (${data.durationMonths} Months)`, `${currSym}${(data.monthlyServiceFee * data.durationMonths).toLocaleString()}`],
     [`One-time Setup / Initialization Fee (开机/开户技术服务费)`, data.setupFee === 0 ? "Waived (¥0 免收)" : `${currSym}${data.setupFee.toLocaleString()}`],
     [`TOTAL INITIAL PAYMENT DUE UPON SIGNING (首期签约应付合计)`, `${currSym}${data.totalInitialPayment.toLocaleString()}`],
@@ -594,54 +771,55 @@ async function generateVectorCloudContractPdf(data: {
     const isTotal = idx === feeItems.length - 1;
     if (isTotal) {
       doc.setFillColor(236, 253, 245);
-      doc.rect(margin, y, contentWidth, 6.5, "F");
+      doc.rect(margin, y, contentWidth, 6, "F");
       doc.setFont("helvetica", "bold");
       doc.setTextColor(6, 95, 70);
     } else {
       doc.setTextColor(51, 65, 85);
       doc.setFont("helvetica", "normal");
     }
-    doc.text(desc, margin + 4, y + 4.2);
-    doc.text(amt, pageWidth - margin - 4, y + 4.2, { align: "right" });
+    doc.text(desc, margin + 4, y + 3.8);
+    doc.text(amt, pageWidth - margin - 4, y + 3.8, { align: "right" });
     doc.setDrawColor(226, 232, 240);
-    doc.line(margin, y + (isTotal ? 6.5 : 5.5), pageWidth - margin, y + (isTotal ? 6.5 : 5.5));
-    y += isTotal ? 6.5 : 5.5;
+    doc.line(margin, y + (isTotal ? 6 : 5), pageWidth - margin, y + (isTotal ? 6 : 5));
+    y += isTotal ? 6 : 5;
   });
 
-  y += 6;
+  y += 5;
 
   // Section 3: SLA & Critical Terms
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(8.5);
+  doc.setFontSize(8);
   doc.setTextColor(15, 23, 42);
-  doc.text("3. KEY TERMS, SLA & COMPLIANCE (核心保障、SLA 与合规条款)", margin, y);
-  y += 4.5;
+  doc.text("3. KEY TERMS, SLA & LEGAL COMPLIANCE (核心保障、SLA 与合规约定)", margin, y);
+  y += 4;
   doc.setFont("helvetica", "normal");
-  doc.setFontSize(7);
+  doc.setFontSize(6.8);
   doc.setTextColor(71, 85, 105);
   const clauses = [
-    "3.1 99.9% Service SLA: Party A guarantees 99.9% hardware and dedicated line availability. Unscheduled hardware outages exceeding 4 hours are compensated 3x.",
-    "3.2 Dedicated Clean IP: 100% exclusive native static commercial IP (Clean ASN, Fraud Score 0). Strict anti-ban environment for enterprise development and e-commerce.",
-    "3.3 Data Privacy & Code Security: Source code never lands off-premise. All customer data, virtual machine images, and AI training outputs belong solely to Party B.",
-    "3.4 Acceptable Use Policy: Party B agrees to use resources solely for lawful development, research, and commerce. Malicious scans, DDoS, or telecom fraud are strictly prohibited.",
-    "3.5 Renewal & Termination: Party B may renew 7 days prior to expiry. Governing law: The Laws of the Kingdom of Thailand (Chiang Mai Jurisdiction).",
+    "3.1 99.9% Service SLA: Party A guarantees 99.9% hardware and line uptime. Outages exceeding 4 hours are compensated 3x in duration.",
+    "3.2 Clean Static IP: Exclusive native commercial IP (Fraud Score 0, Clean ASN). Suitable for App Store dev accounts and global AI models.",
+    "3.3 AI Membership & KYC: Monthly official subscriptions are paid by Party A using compliant overseas cards; anti-ban support included.",
+    "3.4 Code Privacy: Source code never lands off-premise. All customer data, virtual machines, and AI assets belong 100% to Party B.",
+    "3.5 Acceptable Use: Prohibited for DDoS, network attacks, spam, or financial fraud. Violations result in immediate termination.",
+    "3.6 Governing Law: The Laws of the Kingdom of Thailand (Chiang Mai Jurisdiction). Electronic signatures hold full legal validity.",
   ];
   clauses.forEach((c) => {
     doc.text(c, margin, y);
-    y += 3.8;
+    y += 3.5;
   });
 
   y += 4;
 
   // Dual Signatures Block
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(8.5);
+  doc.setFontSize(8);
   doc.setTextColor(15, 23, 42);
   doc.text("SIGNATURES & COUNTERSIGNATURE (双方盖章与签署)", margin, y);
-  y += 4;
+  y += 3.5;
 
   const sigBoxWidth = (contentWidth - 6) / 2;
-  const sigBoxHeight = 40;
+  const sigBoxHeight = 38;
 
   // Provider Box (Party A)
   doc.setFillColor(255, 255, 255);
@@ -650,23 +828,23 @@ async function generateVectorCloudContractPdf(data: {
   doc.setFontSize(7.5);
   doc.setFont("helvetica", "bold");
   doc.setTextColor(15, 23, 42);
-  doc.text("SERVICE PROVIDER / 服务提供方 (Colasola Co., Ltd.):", margin + 4, y + 5);
-  doc.setFontSize(7);
+  doc.text("SERVICE PROVIDER / 服务提供方 (Party A):", margin + 4, y + 4.5);
+  doc.setFontSize(6.8);
   doc.setFont("helvetica", "normal");
   doc.setTextColor(100, 116, 139);
-  doc.text("Chiang Mai AI Center · cloud.lazzor.com", margin + 4, y + 9);
+  doc.text("Colasola Co., Ltd. (Chiang Mai AI Center)", margin + 4, y + 8.5);
 
   // Official Stamp
   if (data.stampDataUrl && data.stampDataUrl.startsWith("data:")) {
     try {
-      doc.addImage(data.stampDataUrl, "PNG", margin + 26, y + 9, 22, 22, undefined, "FAST");
+      doc.addImage(data.stampDataUrl, "PNG", margin + 26, y + 8, 22, 22, undefined, "FAST");
     } catch {}
   }
 
   doc.setFontSize(6.5);
   doc.setTextColor(15, 23, 42);
-  doc.text("Authorized Representative (法定代表人/授权代表)", margin + 4, y + 32);
-  doc.text(`Date: ${data.signingDateStr}`, margin + 4, y + 36);
+  doc.text("Authorized Representative (法定代表授权章)", margin + 4, y + 31);
+  doc.text(`Date: ${data.signingDateStr}`, margin + 4, y + 35);
 
   // Customer Box (Party B)
   const custX = margin + sigBoxWidth + 6;
@@ -674,28 +852,28 @@ async function generateVectorCloudContractPdf(data: {
   doc.setFontSize(7.5);
   doc.setFont("helvetica", "bold");
   doc.setTextColor(15, 23, 42);
-  doc.text("CUSTOMER / 客户认购方:", custX + 4, y + 5);
-  doc.setFontSize(7);
+  doc.text("CUSTOMER / 客户认购方 (Party B):", custX + 4, y + 4.5);
+  doc.setFontSize(6.8);
   doc.setFont("helvetica", "normal");
   doc.setTextColor(100, 116, 139);
-  doc.text(String(data.effectiveCustomerName || "Customer"), custX + 4, y + 9);
+  doc.text(String(data.effectiveCustomerName || "Customer"), custX + 4, y + 8.5);
 
   // Customer Signature
   if (data.signatureData && data.signatureData.startsWith("data:")) {
     try {
-      doc.addImage(data.signatureData, "PNG", custX + 6, y + 10, sigBoxWidth - 12, 20, undefined, "FAST");
+      doc.addImage(data.signatureData, "PNG", custX + 6, y + 9.5, sigBoxWidth - 12, 19, undefined, "FAST");
     } catch {}
   }
 
   doc.setFontSize(6.5);
   doc.setTextColor(15, 23, 42);
-  doc.text(`Signed by: ${data.effectiveSignatoryDisplay || data.effectiveCustomerName}`, custX + 4, y + 32);
-  doc.text(`Date: ${data.signingDateStr}`, custX + 4, y + 36);
+  doc.text(`Signed by: ${data.effectiveSignatoryDisplay || data.effectiveCustomerName}`, custX + 4, y + 31);
+  doc.text(`Date: ${data.signingDateStr}`, custX + 4, y + 35);
 
   // Page 1 Footer
-  doc.setFontSize(6.5);
+  doc.setFontSize(6);
   doc.setTextColor(148, 163, 184);
-  doc.text("Official Cloud Service Agreement · Colasola Co., Ltd. (Chiang Mai AI Center) · Tax ID: 0505566006478 · cloud.lazzor.com", pageWidth / 2, pageHeight - 6, { align: "center" });
+  doc.text("Official Cloud Service Protocol · Colasola Co., Ltd. (Chiang Mai AI Center) · Tax ID: 0505566006478 · cloud.lazzor.com", pageWidth / 2, pageHeight - 5, { align: "center" });
 
   // Optional Annex: Customer ID Document
   if (data.idImage && data.idImage.startsWith("data:")) {
@@ -754,18 +932,29 @@ function CloudContractContent() {
   );
 
   const [selectedPlanId, setSelectedPlanId] = useState<string>(
-    matchedPlan ? matchedPlan.id : "ai_lazy_488"
+    matchedPlan ? matchedPlan.id : "workstation_888"
   );
   const [currency, setCurrency] = useState<"CNY" | "THB">("CNY");
   const [durationMonths, setDurationMonths] = useState<number>(1); // 1, 3, 6, 12
-  const [chosenAiService, setChosenAiService] = useState<string>("ChatGPT PLUS (官方会员)");
+
+  // --- Hardware Configuration States for 888 Workstation ---
+  const [selectedCpuId, setSelectedCpuId] = useState<string>("m2");
+  const [selectedMemoryId, setSelectedMemoryId] = useState<string>("16gb");
+  const [selectedStorageId, setSelectedStorageId] = useState<string>("512gb");
+
+  // --- Hardware Configuration States for 488 Micro PC ---
+  const [microPcTier, setMicroPcTier] = useState<"std" | "pro">("std");
+  const [microPcOs, setMicroPcOs] = useState<"ubuntu" | "windows">("ubuntu");
+
+  // --- AI Subscription Specification State ---
+  const [selectedAiSubId, setSelectedAiSubId] = useState<string>("chatgpt_plus");
 
   // Promo Code State
   const initialPromo = rawCodeParam && VALID_PROMO_CODES[rawCodeParam] ? VALID_PROMO_CODES[rawCodeParam] : null;
   const [promoInput, setPromoInput] = useState<string>(initialPromo ? initialPromo.code : "");
   const [appliedPromo, setAppliedPromo] = useState<PromoCodeInfo | null>(initialPromo);
   const [promoMessage, setPromoMessage] = useState<{ type: "success" | "error"; text: string } | null>(
-    initialPromo ? { type: "success", text: `优惠码 "${initialPromo.code}" 验证成功！已享受 ${initialPromo.percentOff}% 折扣。` } : null
+    initialPromo ? { type: "success", text: `优惠码 "${initialPromo.code}" 验证成功！已减免 ${initialPromo.percentOff}%。` } : null
   );
 
   // Customer Profile
@@ -852,7 +1041,6 @@ function CloudContractContent() {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    // Handle high DPI
     const ratio = window.devicePixelRatio || 1;
     const rect = canvas.getBoundingClientRect();
     canvas.width = rect.width * ratio;
@@ -914,7 +1102,6 @@ function CloudContractContent() {
     setHasDrawn(false);
   };
 
-  // Convert Typed Name to Signature Canvas
   const handleTypedSignature = (text: string) => {
     setTypedSigText(text);
     if (!text.trim()) {
@@ -937,7 +1124,6 @@ function CloudContractContent() {
     setSignatureData(offCanvas.toDataURL("image/png"));
   };
 
-  // Verify Promo Code
   const handleVerifyPromo = () => {
     const clean = promoInput.trim().toLowerCase();
     if (!clean) {
@@ -950,7 +1136,7 @@ function CloudContractContent() {
       setAppliedPromo(found);
       setPromoMessage({
         type: "success",
-        text: `优惠码 "${found.code}" 验证成功！已减免 ${found.percentOff}% (${found.name})。`,
+        text: `优惠码 "${found.code}" 验证成功！已享受 ${found.percentOff}% 折扣 (${found.name})。`,
       });
     } else {
       setAppliedPromo(null);
@@ -961,7 +1147,6 @@ function CloudContractContent() {
     }
   };
 
-  // Handle ID Image Upload
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -981,9 +1166,33 @@ function CloudContractContent() {
   // Currently Selected Plan
   const currentPlan = CLOUD_PLANS.find((p) => p.id === selectedPlanId) || CLOUD_PLANS[0];
 
-  // Price Calculations
-  const baseMonthlyPrice = currency === "CNY" ? currentPlan.priceCNY : currentPlan.priceTHB;
+  // Configured Specs
+  const chosenCpu = MAC_CPU_OPTIONS.find((c) => c.id === selectedCpuId) || MAC_CPU_OPTIONS[0];
+  const chosenMemory = MAC_MEMORY_OPTIONS.find((m) => m.id === selectedMemoryId) || MAC_MEMORY_OPTIONS[0];
+  const chosenStorage = MAC_STORAGE_OPTIONS.find((s) => s.id === selectedStorageId) || MAC_STORAGE_OPTIONS[0];
+  const chosenAiSubscription = AI_SUBSCRIPTION_OPTIONS.find((a) => a.id === selectedAiSubId) || AI_SUBSCRIPTION_OPTIONS[0];
+
+  // Base Plan Price
+  const basePlanPrice = currency === "CNY" ? currentPlan.priceCNY : currentPlan.priceTHB;
   const baseSetupFee = currency === "CNY" ? currentPlan.setupFeeCNY : currentPlan.setupFeeTHB;
+
+  // Additional Hardware Delta (Applicable to 888 Mac Plan or 488 Micro PC)
+  let hwDeltaMonthly = 0;
+  if (selectedPlanId === "workstation_888") {
+    hwDeltaMonthly += currency === "CNY" ? chosenCpu.priceDeltaCNY : chosenCpu.priceDeltaTHB;
+    hwDeltaMonthly += currency === "CNY" ? chosenMemory.priceDeltaCNY : chosenMemory.priceDeltaTHB;
+    hwDeltaMonthly += currency === "CNY" ? chosenStorage.priceDeltaCNY : chosenStorage.priceDeltaTHB;
+  } else if (selectedPlanId === "ai_lazy_488") {
+    if (microPcTier === "pro") {
+      hwDeltaMonthly += currency === "CNY" ? 80 : 400;
+    }
+  }
+
+  // Additional AI Subscription Delta
+  const aiDeltaMonthly = currency === "CNY" ? chosenAiSubscription.priceDeltaCNY : chosenAiSubscription.priceDeltaTHB;
+
+  // Undiscounted Monthly Total
+  const subtotalMonthly = basePlanPrice + hwDeltaMonthly + aiDeltaMonthly;
 
   // Duration Discount (12 months = 20% off and waive setup fee; 6 months = 10% off; 3 months = 5% off)
   let durationDiscountRate = 1;
@@ -997,11 +1206,11 @@ function CloudContractContent() {
     durationDiscountRate = 0.95;
   }
 
-  // Combined Promo Rate
+  // Promo Discount Rate
   const promoDiscountRate = appliedPromo ? appliedPromo.rate : 1;
 
-  // Final Calculations
-  const effectiveMonthlyFee = Math.round(baseMonthlyPrice * durationDiscountRate * promoDiscountRate);
+  // Effective Monthly Fee after Discounts
+  const effectiveMonthlyFee = Math.round(subtotalMonthly * durationDiscountRate * promoDiscountRate);
   const effectiveSetupFee = isSetupFeeWaived ? 0 : baseSetupFee;
   const totalSubscriptionFee = effectiveMonthlyFee * durationMonths;
   const totalInitialPayment = totalSubscriptionFee + effectiveSetupFee;
@@ -1010,7 +1219,7 @@ function CloudContractContent() {
   const endDate = calculateServiceEndDate(startDate, durationMonths);
 
   // Effective Customer Info
-  const effectiveCustomerName = customerType === "company" ? (companyName || "企业客户名称") : (customerName || "客户姓名");
+  const effectiveCustomerName = customerType === "company" ? (companyName || "企业客户全称") : (customerName || "客户姓名");
   const effectiveSignatoryDisplay = customerType === "company" ? (signatoryName || "法定代表人") : (customerName || "签署人");
 
   // Currency Symbols
@@ -1025,7 +1234,10 @@ function CloudContractContent() {
         contractHash,
         signingDateStr: formatEngDate(signingDateIso),
         selectedPlan: currentPlan,
-        chosenAiService,
+        chosenCpuOption: chosenCpu,
+        chosenMemoryOption: chosenMemory,
+        chosenStorageOption: chosenStorage,
+        chosenAiSubscription,
         currency,
         durationMonths,
         monthlyServiceFee: effectiveMonthlyFee,
@@ -1061,12 +1273,10 @@ function CloudContractContent() {
     }
   };
 
-  // Native Print
   const handleNativePrint = () => {
     window.print();
   };
 
-  // Copy Contract Link
   const handleCopyLink = () => {
     const url = `${window.location.origin}/contract?plan=${currentPlan.id}${appliedPromo ? `&code=${appliedPromo.code}` : ""}`;
     navigator.clipboard.writeText(url).then(() => {
@@ -1078,7 +1288,7 @@ function CloudContractContent() {
   return (
     <div className="min-h-screen bg-neutral-100 dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100 flex flex-col font-sans transition-colors">
       {/* Top Navbar */}
-      <header className="sticky top-0 z-40 bg-white/90 dark:bg-neutral-900/90 backdrop-blur-md border-b border-neutral-200 dark:border-neutral-800 print:hidden">
+      <header className="sticky top-0 z-40 bg-white/95 dark:bg-neutral-900/95 backdrop-blur-md border-b border-neutral-200 dark:border-neutral-800 print:hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link
@@ -1117,7 +1327,7 @@ function CloudContractContent() {
 
             <button
               onClick={handleNativePrint}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-medium rounded-lg border border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-800 text-neutral-800 dark:text-neutral-200 transition-colors shadow-xs"
+              className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-medium rounded-lg border border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-800 text-neutral-800 dark:text-neutral-200 transition-colors shadow-xs cursor-pointer"
             >
               <Printer className="w-3.5 h-3.5" />
               <span>打印合同</span>
@@ -1126,7 +1336,7 @@ function CloudContractContent() {
             <button
               onClick={handleDownloadPdf}
               disabled={isExportingPdf}
-              className="flex items-center gap-1.5 px-4 py-1.5 text-xs font-medium rounded-lg bg-neutral-950 hover:bg-neutral-800 dark:bg-white dark:hover:bg-neutral-100 text-white dark:text-neutral-950 transition-colors shadow-xs disabled:opacity-50"
+              className="flex items-center gap-1.5 px-4 py-1.5 text-xs font-medium rounded-lg bg-neutral-950 hover:bg-neutral-800 dark:bg-white dark:hover:bg-neutral-100 text-white dark:text-neutral-950 transition-colors shadow-xs disabled:opacity-50 cursor-pointer"
             >
               {isExportingPdf ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
               <span>导出矢量 PDF</span>
@@ -1137,9 +1347,9 @@ function CloudContractContent() {
 
       {/* Main Container */}
       <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Left Side: Interactive Configurator & Signature Controls (Hidden during print) */}
+        {/* Left Side: Interactive Configurator (Hidden during print) */}
         <section className="lg:col-span-5 flex flex-col gap-6 print:hidden">
-          {/* Step 1: Select Plan */}
+          {/* Step 1: Base Package Selection */}
           <div className="bg-white dark:bg-neutral-900 rounded-2xl p-5 border border-neutral-200/80 dark:border-neutral-800/80 shadow-xs">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
@@ -1147,14 +1357,14 @@ function CloudContractContent() {
                   1
                 </span>
                 <h2 className="text-sm font-bold text-neutral-900 dark:text-white">
-                  选定云服务方案与配置
+                  选定基础套餐
                 </h2>
               </div>
               <div className="flex items-center gap-1 bg-neutral-100 dark:bg-neutral-800 p-1 rounded-lg text-xs font-medium">
                 <button
                   type="button"
                   onClick={() => setCurrency("CNY")}
-                  className={`px-2 py-0.5 rounded transition-all ${
+                  className={`px-2 py-0.5 rounded transition-all cursor-pointer ${
                     currency === "CNY" ? "bg-white dark:bg-neutral-700 shadow-xs font-bold text-neutral-950 dark:text-white" : "text-neutral-500"
                   }`}
                 >
@@ -1163,7 +1373,7 @@ function CloudContractContent() {
                 <button
                   type="button"
                   onClick={() => setCurrency("THB")}
-                  className={`px-2 py-0.5 rounded transition-all ${
+                  className={`px-2 py-0.5 rounded transition-all cursor-pointer ${
                     currency === "THB" ? "bg-white dark:bg-neutral-700 shadow-xs font-bold text-neutral-950 dark:text-white" : "text-neutral-500"
                   }`}
                 >
@@ -1172,68 +1382,9 @@ function CloudContractContent() {
               </div>
             </div>
 
-            {/* Featured New Plans: 488 and 888 (Prominently Highlighted) */}
-            <div className="grid grid-cols-1 gap-3.5 mb-4">
-              {/* Plan 1: AI Lazy Bundle 488 */}
-              <div
-                onClick={() => setSelectedPlanId("ai_lazy_488")}
-                className={`relative rounded-xl p-4 cursor-pointer border-2 transition-all ${
-                  selectedPlanId === "ai_lazy_488"
-                    ? "border-emerald-500 bg-emerald-50/40 dark:bg-emerald-950/20 shadow-sm"
-                    : "border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 bg-white dark:bg-neutral-900"
-                }`}
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex flex-col">
-                    <div className="flex items-center gap-1.5 mb-1">
-                      <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-500 text-white tracking-wider uppercase">
-                        RECOMMENDED
-                      </span>
-                      <span className="text-[11px] text-neutral-500 font-medium">
-                        全包爆款 · 免运维
-                      </span>
-                    </div>
-                    <h3 className="text-base font-bold text-neutral-950 dark:text-white flex items-center gap-1.5">
-                      海外AI无忧懒人包
-                    </h3>
-                    <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5 leading-relaxed">
-                      专为个人与团队出海打造的海外 AI 与研发软硬件全套免运维基座。
-                    </p>
-                  </div>
-                  <div className="text-right flex flex-col items-end">
-                    <span className="text-[11px] text-neutral-400 line-through">
-                      {currency === "CNY" ? "¥688" : "฿3,440"}
-                    </span>
-                    <div className="text-lg font-black text-emerald-600 dark:text-emerald-400">
-                      {currency === "CNY" ? "¥488" : "฿2,440"}
-                      <span className="text-xs font-normal text-neutral-500"> /月</span>
-                    </div>
-                    <span className="text-[10px] text-neutral-500">
-                      开户费 {currency === "CNY" ? "¥98" : "฿490"} (首月一次性)
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex flex-wrap gap-1.5 mt-3 pt-3 border-t border-neutral-200/60 dark:border-neutral-800/60">
-                  <span className="px-2 py-0.5 rounded text-[10px] bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300">
-                    +微主机
-                  </span>
-                  <span className="px-2 py-0.5 rounded text-[10px] bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300">
-                    +独立商业IP
-                  </span>
-                  <span className="px-2 py-0.5 rounded text-[10px] bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300">
-                    +VPN
-                  </span>
-                  <span className="px-2 py-0.5 rounded text-[10px] bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300">
-                    +ChatGPT/Claude账号
-                  </span>
-                  <span className="px-2 py-0.5 rounded text-[10px] bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300">
-                    +KYC代充
-                  </span>
-                </div>
-              </div>
-
-              {/* Plan 2: Cloud Workstation 888 */}
+            {/* Two Primary Packages */}
+            <div className="grid grid-cols-1 gap-3 mb-4">
+              {/* Plan 1: Workstation 888 (Flagship) */}
               <div
                 onClick={() => setSelectedPlanId("workstation_888")}
                 className={`relative rounded-xl p-4 cursor-pointer border-2 transition-all ${
@@ -1252,51 +1403,74 @@ function CloudContractContent() {
                         FLAGSHIP · 极客旗舰首选
                       </span>
                     </div>
-                    <h3 className="text-base font-bold text-neutral-950 dark:text-white flex items-center gap-1.5">
-                      云工位全服务包
+                    <h3 className="text-base font-bold text-neutral-950 dark:text-white">
+                      云工位全服务包 (888套餐)
                     </h3>
                     <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5 leading-relaxed">
-                      1V1 物理独享 Apple Silicon 算力、独立静态 IP、企业 VPN 与官方 AI 顶配会员全功能云工位。
+                      1V1 物理独享 Apple Silicon 算力 · 独立静态IP · 企业VPN · 官方AI会员全包
                     </p>
                   </div>
-                  <div className="text-right flex flex-col items-end">
+                  <div className="text-right flex flex-col items-end shrink-0">
                     <span className="text-[11px] text-neutral-400 line-through">
                       {currency === "CNY" ? "¥1,188" : "฿5,940"}
                     </span>
                     <div className="text-lg font-black text-blue-600 dark:text-blue-400">
                       {currency === "CNY" ? "¥888" : "฿4,440"}
-                      <span className="text-xs font-normal text-neutral-500"> /月</span>
+                      <span className="text-xs font-normal text-neutral-500"> /月起</span>
                     </div>
                     <span className="text-[10px] text-neutral-500">
                       开机费 {currency === "CNY" ? "¥198" : "฿990"} (首月一次性)
                     </span>
                   </div>
                 </div>
+              </div>
 
-                <div className="flex flex-wrap gap-1.5 mt-3 pt-3 border-t border-neutral-200/60 dark:border-neutral-800/60">
-                  <span className="px-2 py-0.5 rounded text-[10px] bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300">
-                    +Mac 1V1 独享
-                  </span>
-                  <span className="px-2 py-0.5 rounded text-[10px] bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300">
-                    +独立静态IP
-                  </span>
-                  <span className="px-2 py-0.5 rounded text-[10px] bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300">
-                    +VPN
-                  </span>
-                  <span className="px-2 py-0.5 rounded text-[10px] bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300">
-                    +ChatGPT/Claude账号
-                  </span>
-                  <span className="px-2 py-0.5 rounded text-[10px] bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300">
-                    +KYC代充
-                  </span>
+              {/* Plan 2: AI Lazy 488 */}
+              <div
+                onClick={() => setSelectedPlanId("ai_lazy_488")}
+                className={`relative rounded-xl p-4 cursor-pointer border-2 transition-all ${
+                  selectedPlanId === "ai_lazy_488"
+                    ? "border-emerald-500 bg-emerald-50/40 dark:bg-emerald-950/20 shadow-sm"
+                    : "border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 bg-white dark:bg-neutral-900"
+                }`}
+              >
+                <div className="flex items-start justify-between">
+                  <div className="flex flex-col">
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-500 text-white tracking-wider uppercase">
+                        RECOMMENDED
+                      </span>
+                      <span className="text-[11px] text-neutral-500 font-medium">
+                        MOST POPULAR · 全包爆款
+                      </span>
+                    </div>
+                    <h3 className="text-base font-bold text-neutral-950 dark:text-white">
+                      海外AI无忧懒人包 (488套餐)
+                    </h3>
+                    <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5 leading-relaxed">
+                      微主机 · 独立静态商业IP · VPN · 官方AI账号 · 专享海外代充
+                    </p>
+                  </div>
+                  <div className="text-right flex flex-col items-end shrink-0">
+                    <span className="text-[11px] text-neutral-400 line-through">
+                      {currency === "CNY" ? "¥688" : "฿3,440"}
+                    </span>
+                    <div className="text-lg font-black text-emerald-600 dark:text-emerald-400">
+                      {currency === "CNY" ? "¥488" : "฿2,440"}
+                      <span className="text-xs font-normal text-neutral-500"> /月起</span>
+                    </div>
+                    <span className="text-[10px] text-neutral-500">
+                      开户费 {currency === "CNY" ? "¥98" : "฿490"} (首月一次性)
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Other Plans Dropdown */}
+            {/* Other Plans Select */}
             <div className="pt-2 border-t border-neutral-100 dark:border-neutral-800">
-              <label className="block text-xs font-medium text-neutral-600 dark:text-neutral-400 mb-1.5">
-                切换至其它场景服务包：
+              <label className="block text-xs font-medium text-neutral-500 dark:text-neutral-400 mb-1">
+                切换至其它场景服务：
               </label>
               <select
                 value={selectedPlanId}
@@ -1310,106 +1484,361 @@ function CloudContractContent() {
                 ))}
               </select>
             </div>
+          </div>
 
-            {/* AI Account Choice */}
-            <div className="mt-4 pt-4 border-t border-neutral-100 dark:border-neutral-800">
-              <label className="block text-xs font-bold text-neutral-700 dark:text-neutral-300 mb-2">
-                官方 AI 会员专属权益 (已含每月订阅，2选1)：
-              </label>
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  onClick={() => setChosenAiService("ChatGPT PLUS (官方会员订阅)")}
-                  className={`py-2 px-3 rounded-lg text-xs font-medium border text-left flex items-center justify-between transition-all ${
-                    chosenAiService.includes("ChatGPT")
-                      ? "border-emerald-500 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-800 dark:text-emerald-200 font-bold"
-                      : "border-neutral-200 dark:border-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-800"
-                  }`}
-                >
-                  <span>ChatGPT PLUS 官方会员</span>
-                  {chosenAiService.includes("ChatGPT") && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />}
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setChosenAiService("Claude Pro 官方会员 (Sonnet/Opus 极速通道)")}
-                  className={`py-2 px-3 rounded-lg text-xs font-medium border text-left flex items-center justify-between transition-all ${
-                    chosenAiService.includes("Claude")
-                      ? "border-emerald-500 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-800 dark:text-emerald-200 font-bold"
-                      : "border-neutral-200 dark:border-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-800"
-                  }`}
-                >
-                  <span>Claude Pro 官方会员</span>
-                  {chosenAiService.includes("Claude") && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />}
-                </button>
+          {/* Step 2: Detail Hardware Specifications (Requested: M2, M4, RAM etc.) */}
+          <div className="bg-white dark:bg-neutral-900 rounded-2xl p-5 border border-neutral-200/80 dark:border-neutral-800/80 shadow-xs">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <span className="w-6 h-6 rounded-full bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 text-xs font-bold flex items-center justify-center">
+                  2
+                </span>
+                <h2 className="text-sm font-bold text-neutral-900 dark:text-white">
+                  硬件算力规格自选 (CPU类型 / 内存 / 存储)
+                </h2>
               </div>
+              <span className="text-[11px] font-mono text-neutral-400">
+                {selectedPlanId === "workstation_888" ? "1V1 物理独享 Mac 硬件" : "云端虚拟化算力"}
+              </span>
             </div>
 
-            {/* Duration Selector */}
-            <div className="mt-4 pt-4 border-t border-neutral-100 dark:border-neutral-800">
-              <label className="block text-xs font-bold text-neutral-700 dark:text-neutral-300 mb-2">
-                服务采购周期与优惠力度：
-              </label>
-              <div className="grid grid-cols-4 gap-2">
-                {[
-                  { m: 1, label: "月付", discount: "原价" },
-                  { m: 3, label: "季付 (3月)", discount: "95折" },
-                  { m: 6, label: "半年付", discount: "9折" },
-                  { m: 12, label: "年付 (12月)", discount: "8折+免开机费" },
-                ].map((item) => (
-                  <button
-                    key={item.m}
-                    type="button"
-                    onClick={() => setDurationMonths(item.m)}
-                    className={`py-2 px-1.5 rounded-lg text-center flex flex-col items-center justify-center border transition-all ${
-                      durationMonths === item.m
-                        ? "border-neutral-950 dark:border-white bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 font-bold shadow-xs"
-                        : "border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-800 text-neutral-700 dark:text-neutral-300"
+            {selectedPlanId === "workstation_888" ? (
+              <div className="space-y-4">
+                {/* 1. CPU Chip Selection (M2 / M4 / M2 Pro / M4 Pro) */}
+                <div>
+                  <label className="block text-xs font-bold text-neutral-700 dark:text-neutral-300 mb-2 flex items-center gap-1.5">
+                    <Cpu className="w-3.5 h-3.5 text-blue-600" />
+                    <span>Apple Silicon 芯片架构 (CPU 类型) *</span>
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {MAC_CPU_OPTIONS.map((cpu) => {
+                      const isSelected = selectedCpuId === cpu.id;
+                      const deltaText = cpu.priceDeltaCNY === 0 ? "标配 ¥0" : `+${currSym}${currency === "CNY" ? cpu.priceDeltaCNY : cpu.priceDeltaTHB}/月`;
+                      return (
+                        <div
+                          key={cpu.id}
+                          onClick={() => setSelectedCpuId(cpu.id)}
+                          className={`p-3 rounded-xl border text-left cursor-pointer transition-all flex flex-col justify-between ${
+                            isSelected
+                              ? "border-blue-600 bg-blue-50/50 dark:bg-blue-950/30 text-neutral-950 dark:text-white font-semibold shadow-xs"
+                              : "border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 text-neutral-700 dark:text-neutral-300"
+                          }`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-bold">{cpu.name}</span>
+                            <span className={`text-[10px] font-mono ${isSelected ? "text-blue-600 dark:text-blue-400 font-bold" : "text-neutral-400"}`}>
+                              {deltaText}
+                            </span>
+                          </div>
+                          <span className="text-[10px] text-neutral-500 mt-1 line-clamp-2">
+                            {cpu.specs}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* 2. Memory Selection */}
+                <div>
+                  <label className="block text-xs font-bold text-neutral-700 dark:text-neutral-300 mb-2 flex items-center gap-1.5">
+                    <Laptop className="w-3.5 h-3.5 text-blue-600" />
+                    <span>统一内存容量 (Unified Memory) *</span>
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {MAC_MEMORY_OPTIONS.map((mem) => {
+                      const isSelected = selectedMemoryId === mem.id;
+                      const deltaText = mem.priceDeltaCNY === 0 ? "标配 ¥0" : `+${currSym}${currency === "CNY" ? mem.priceDeltaCNY : mem.priceDeltaTHB}/月`;
+                      return (
+                        <div
+                          key={mem.id}
+                          onClick={() => setSelectedMemoryId(mem.id)}
+                          className={`p-2.5 rounded-xl border text-left cursor-pointer transition-all ${
+                            isSelected
+                              ? "border-blue-600 bg-blue-50/50 dark:bg-blue-950/30 text-neutral-950 dark:text-white font-semibold shadow-xs"
+                              : "border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 text-neutral-700 dark:text-neutral-300"
+                          }`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-bold">{mem.size}</span>
+                            <span className={`text-[10px] font-mono ${isSelected ? "text-blue-600 dark:text-blue-400 font-bold" : "text-neutral-400"}`}>
+                              {deltaText}
+                            </span>
+                          </div>
+                          <span className="text-[10px] text-neutral-500 mt-0.5 block">
+                            {mem.description}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* 3. Storage Selection */}
+                <div>
+                  <label className="block text-xs font-bold text-neutral-700 dark:text-neutral-300 mb-2 flex items-center gap-1.5">
+                    <HardDrive className="w-3.5 h-3.5 text-blue-600" />
+                    <span>NVMe 高速固态存储 (SSD) *</span>
+                  </label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {MAC_STORAGE_OPTIONS.map((st) => {
+                      const isSelected = selectedStorageId === st.id;
+                      const deltaText = st.priceDeltaCNY === 0 ? "标配" : `+${currSym}${currency === "CNY" ? st.priceDeltaCNY : st.priceDeltaTHB}`;
+                      return (
+                        <button
+                          key={st.id}
+                          type="button"
+                          onClick={() => setSelectedStorageId(st.id)}
+                          className={`p-2 rounded-xl border text-center transition-all cursor-pointer ${
+                            isSelected
+                              ? "border-blue-600 bg-blue-50/50 dark:bg-blue-950/30 font-bold text-neutral-950 dark:text-white shadow-xs"
+                              : "border-neutral-200 dark:border-neutral-800 text-neutral-600 hover:bg-neutral-50"
+                          }`}
+                        >
+                          <span className="text-xs block">{st.size.replace(" 高速 NVMe SSD", "")}</span>
+                          <span className="text-[10px] text-neutral-400 font-mono">{deltaText}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            ) : selectedPlanId === "ai_lazy_488" ? (
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs font-bold text-neutral-700 dark:text-neutral-300 mb-2">
+                    微主机算力规格：
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div
+                      onClick={() => setMicroPcTier("std")}
+                      className={`p-3 rounded-xl border cursor-pointer transition-all ${
+                        microPcTier === "std"
+                          ? "border-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/30 font-bold"
+                          : "border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50"
+                      }`}
+                    >
+                      <div className="flex justify-between items-center text-xs">
+                        <span>标准型 (4 vCPU / 8GB)</span>
+                        <span className="text-[10px] text-emerald-600">标配 ¥0</span>
+                      </div>
+                      <span className="text-[10px] text-neutral-500 mt-1 block">120GB NVMe 独立系统盘 · 满足日常挂机</span>
+                    </div>
+
+                    <div
+                      onClick={() => setMicroPcTier("pro")}
+                      className={`p-3 rounded-xl border cursor-pointer transition-all ${
+                        microPcTier === "pro"
+                          ? "border-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/30 font-bold"
+                          : "border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50"
+                      }`}
+                    >
+                      <div className="flex justify-between items-center text-xs">
+                        <span>增强型 (8 vCPU / 16GB)</span>
+                        <span className="text-[10px] text-emerald-600 font-mono">+{currSym}{currency === "CNY" ? 80 : 400}/月</span>
+                      </div>
+                      <span className="text-[10px] text-neutral-500 mt-1 block">240GB NVMe 高速盘 · 支撑多店铺多任务</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-neutral-700 dark:text-neutral-300 mb-2">
+                    预装系统沙箱环境：
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setMicroPcOs("ubuntu")}
+                      className={`p-2.5 rounded-xl border text-left text-xs transition-all cursor-pointer ${
+                        microPcOs === "ubuntu"
+                          ? "border-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/30 font-bold"
+                          : "border-neutral-200 dark:border-neutral-800 text-neutral-600"
+                      }`}
+                    >
+                      Ubuntu 24.04 (预装防关联指纹浏览器)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setMicroPcOs("windows")}
+                      className={`p-2.5 rounded-xl border text-left text-xs transition-all cursor-pointer ${
+                        microPcOs === "windows"
+                          ? "border-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/30 font-bold"
+                          : "border-neutral-200 dark:border-neutral-800 text-neutral-600"
+                      }`}
+                    >
+                      Windows Server 隔离开发沙箱
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="p-3 bg-neutral-50 rounded-xl text-xs text-neutral-600">
+                当前场景包包含固定高规格资源配置：{currentPlan.specs.hardware} ({currentPlan.specs.os})。
+              </div>
+            )}
+          </div>
+
+          {/* Step 3: AI Subscription Detailed Specifications (Requested: ChatGPT & Claude) */}
+          <div className="bg-white dark:bg-neutral-900 rounded-2xl p-5 border border-neutral-200/80 dark:border-neutral-800/80 shadow-xs">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <span className="w-6 h-6 rounded-full bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 text-xs font-bold flex items-center justify-center">
+                  3
+                </span>
+                <h2 className="text-sm font-bold text-neutral-900 dark:text-white">
+                  官方 AI 顶配会员规格选定 (含每月订阅全包)
+                </h2>
+              </div>
+              <span className="text-[10px] text-emerald-600 font-semibold bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded">
+                合规海外外卡代充 · 零风控拒付
+              </span>
+            </div>
+
+            <div className="space-y-2.5">
+              {AI_SUBSCRIPTION_OPTIONS.map((opt) => {
+                const isSelected = selectedAiSubId === opt.id;
+                const deltaStr = opt.priceDeltaCNY === 0 ? "套餐内已包含 (¥0)" : `+${currSym}${currency === "CNY" ? opt.priceDeltaCNY : opt.priceDeltaTHB}/月`;
+                return (
+                  <div
+                    key={opt.id}
+                    onClick={() => setSelectedAiSubId(opt.id)}
+                    className={`p-3.5 rounded-xl border cursor-pointer transition-all ${
+                      isSelected
+                        ? "border-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/30 shadow-xs"
+                        : "border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 bg-white dark:bg-neutral-900"
                     }`}
                   >
-                    <span className="text-xs">{item.label}</span>
-                    <span className={`text-[10px] ${durationMonths === item.m ? "text-neutral-300 dark:text-neutral-700" : "text-emerald-600 dark:text-emerald-400 font-medium"}`}>
-                      {item.discount}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${isSelected ? "border-emerald-600 bg-emerald-600 text-white" : "border-neutral-400"}`}>
+                          {isSelected && <Check className="w-2.5 h-2.5" />}
+                        </div>
+                        <span className="text-xs font-bold text-neutral-900 dark:text-white">
+                          {opt.name}
+                        </span>
+                      </div>
+                      <span className={`text-[11px] font-mono font-medium ${isSelected ? "text-emerald-700 dark:text-emerald-400 font-bold" : "text-neutral-400"}`}>
+                        {deltaStr}
+                      </span>
+                    </div>
 
-            {/* Promo Code Input */}
-            <div className="mt-4 pt-4 border-t border-neutral-100 dark:border-neutral-800">
-              <label className="block text-xs font-medium text-neutral-700 dark:text-neutral-300 mb-1.5">
-                优惠码 / 合作伙伴代码 (Promo Code)：
-              </label>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={promoInput}
-                  onChange={(e) => setPromoInput(e.target.value)}
-                  placeholder="例如: cmai2026 或 colasola2026"
-                  className="flex-1 text-xs bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg px-3 py-2 outline-hidden uppercase"
-                />
-                <button
-                  type="button"
-                  onClick={handleVerifyPromo}
-                  className="px-3.5 py-2 bg-neutral-900 hover:bg-neutral-800 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-white rounded-lg text-xs font-medium transition-colors"
-                >
-                  应用
-                </button>
-              </div>
-              {promoMessage && (
-                <p className={`text-[11px] mt-1.5 font-medium ${promoMessage.type === "success" ? "text-emerald-600 dark:text-emerald-400" : "text-rose-500"}`}>
-                  {promoMessage.text}
-                </p>
-              )}
+                    <p className="text-[11px] text-neutral-500 dark:text-neutral-400 mt-1 pl-6">
+                      {opt.summary}
+                    </p>
+
+                    {isSelected && (
+                      <div className="mt-2.5 pt-2 pl-6 border-t border-emerald-200/60 dark:border-emerald-800/60 space-y-1">
+                        {opt.detailedSpecs.map((spec, sIdx) => (
+                          <div key={sIdx} className="flex items-start gap-1.5 text-[10px] text-neutral-700 dark:text-neutral-300">
+                            <span className="text-emerald-600 font-bold">✓</span>
+                            <span>{spec}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
 
-          {/* Step 2: Customer Identity Form */}
+          {/* Step 4: Billing Cycle, Promo Code & Price Breakdown */}
           <div className="bg-white dark:bg-neutral-900 rounded-2xl p-5 border border-neutral-200/80 dark:border-neutral-800/80 shadow-xs">
-            <div className="flex items-center gap-2 mb-4">
+            <div className="flex items-center gap-2 mb-3">
               <span className="w-6 h-6 rounded-full bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 text-xs font-bold flex items-center justify-center">
-                2
+                4
+              </span>
+              <h2 className="text-sm font-bold text-neutral-900 dark:text-white">
+                采购周期与优惠码
+              </h2>
+            </div>
+
+            {/* Duration Selector */}
+            <div className="grid grid-cols-4 gap-2 mb-4">
+              {[
+                { m: 1, label: "月付", discount: "基础周期" },
+                { m: 3, label: "季付 (3月)", discount: "95折特惠" },
+                { m: 6, label: "半年付", discount: "9折特惠" },
+                { m: 12, label: "年付合约", discount: "8折+免开机费" },
+              ].map((item) => (
+                <button
+                  key={item.m}
+                  type="button"
+                  onClick={() => setDurationMonths(item.m)}
+                  className={`py-2 px-1 rounded-xl text-center flex flex-col items-center justify-center border transition-all cursor-pointer ${
+                    durationMonths === item.m
+                      ? "border-neutral-950 dark:border-white bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 font-bold shadow-xs"
+                      : "border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-800 text-neutral-700 dark:text-neutral-300"
+                  }`}
+                >
+                  <span className="text-xs">{item.label}</span>
+                  <span className={`text-[10px] ${durationMonths === item.m ? "text-neutral-300 dark:text-neutral-700" : "text-emerald-600 dark:text-emerald-400 font-medium"}`}>
+                    {item.discount}
+                  </span>
+                </button>
+              ))}
+            </div>
+
+            {/* Promo Code Input */}
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={promoInput}
+                onChange={(e) => setPromoInput(e.target.value)}
+                placeholder="优惠码 (如 cmai2026 或 colasola2026)"
+                className="flex-1 text-xs bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg px-3 py-2 outline-hidden uppercase font-mono"
+              />
+              <button
+                type="button"
+                onClick={handleVerifyPromo}
+                className="px-4 py-2 bg-neutral-900 hover:bg-neutral-800 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-white rounded-lg text-xs font-medium transition-colors cursor-pointer"
+              >
+                验证优惠
+              </button>
+            </div>
+            {promoMessage && (
+              <p className={`text-[11px] mt-1.5 font-medium ${promoMessage.type === "success" ? "text-emerald-600 dark:text-emerald-400" : "text-rose-500"}`}>
+                {promoMessage.text}
+              </p>
+            )}
+
+            {/* Realtime Price Calculation Box */}
+            <div className="mt-4 p-3.5 rounded-xl bg-neutral-50 dark:bg-neutral-800/60 border border-neutral-200 dark:border-neutral-700 text-xs space-y-1.5">
+              <div className="flex justify-between text-neutral-600 dark:text-neutral-400">
+                <span>月度基础服务费 (含自选硬件与 AI 会员):</span>
+                <span>{currSym}{subtotalMonthly.toLocaleString()} / 月</span>
+              </div>
+              {durationDiscountRate < 1 && (
+                <div className="flex justify-between text-emerald-600 dark:text-emerald-400 font-medium">
+                  <span>长周期阶梯折扣 ({durationMonths}个月):</span>
+                  <span>省 {Math.round((1 - durationDiscountRate) * 100)}%</span>
+                </div>
+              )}
+              {appliedPromo && (
+                <div className="flex justify-between text-emerald-600 dark:text-emerald-400 font-medium">
+                  <span>专属优惠券抵扣 ({appliedPromo.name}):</span>
+                  <span>省 {appliedPromo.percentOff}%</span>
+                </div>
+              )}
+              <div className="flex justify-between text-neutral-600 dark:text-neutral-400">
+                <span>一次性开机/开户技术服务费:</span>
+                <span>{effectiveSetupFee === 0 ? "¥0 (年付特惠全免)" : `${currSym}${effectiveSetupFee.toLocaleString()}`}</span>
+              </div>
+              <div className="pt-2 border-t border-neutral-200 dark:border-neutral-700 flex justify-between items-baseline font-bold text-sm text-neutral-950 dark:text-white">
+                <span>首期签约应付合计:</span>
+                <span className="text-base text-emerald-600 dark:text-emerald-400">
+                  {currSym}{totalInitialPayment.toLocaleString()}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Step 5: Customer Profile Information */}
+          <div className="bg-white dark:bg-neutral-900 rounded-2xl p-5 border border-neutral-200/80 dark:border-neutral-800/80 shadow-xs">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="w-6 h-6 rounded-full bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 text-xs font-bold flex items-center justify-center">
+                5
               </span>
               <h2 className="text-sm font-bold text-neutral-900 dark:text-white">
                 签约主体信息 (乙方 / Customer)
@@ -1417,28 +1846,28 @@ function CloudContractContent() {
             </div>
 
             {/* Type Switch */}
-            <div className="grid grid-cols-2 gap-2 mb-4">
+            <div className="grid grid-cols-2 gap-2 mb-3">
               <button
                 type="button"
                 onClick={() => setCustomerType("individual")}
-                className={`py-1.5 text-xs font-medium rounded-lg border text-center transition-all ${
+                className={`py-1.5 text-xs font-medium rounded-lg border text-center transition-all cursor-pointer ${
                   customerType === "individual"
                     ? "bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 font-bold"
                     : "border-neutral-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-400"
                 }`}
               >
-                个人开发者 / 个人
+                个人开发者 / 个人认购
               </button>
               <button
                 type="button"
                 onClick={() => setCustomerType("company")}
-                className={`py-1.5 text-xs font-medium rounded-lg border text-center transition-all ${
+                className={`py-1.5 text-xs font-medium rounded-lg border text-center transition-all cursor-pointer ${
                   customerType === "company"
                     ? "bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 font-bold"
                     : "border-neutral-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-400"
                 }`}
               >
-                企业客户 / 团队
+                出海企业 / 团队采购
               </button>
             </div>
 
@@ -1473,7 +1902,7 @@ function CloudContractContent() {
                   <div className="grid grid-cols-2 gap-2">
                     <div>
                       <label className="block text-neutral-600 dark:text-neutral-400 mb-1">
-                        法定代表/签约人
+                        法定代表人/签约人
                       </label>
                       <input
                         type="text"
@@ -1485,7 +1914,7 @@ function CloudContractContent() {
                     </div>
                     <div>
                       <label className="block text-neutral-600 dark:text-neutral-400 mb-1">
-                        职位头衔
+                        职务头衔
                       </label>
                       <input
                         type="text"
@@ -1527,7 +1956,7 @@ function CloudContractContent() {
                 </div>
                 <div>
                   <label className="block text-neutral-600 dark:text-neutral-400 mb-1">
-                    电子邮箱 (接收账号凭据) *
+                    电子邮箱 (接收账号及凭据) *
                   </label>
                   <input
                     type="email"
@@ -1541,7 +1970,7 @@ function CloudContractContent() {
 
               <div>
                 <label className="block text-neutral-600 dark:text-neutral-400 mb-1">
-                  通讯地址 / 法定注册地址
+                  通讯地址 / 注册地址
                 </label>
                 <input
                   type="text"
@@ -1566,18 +1995,18 @@ function CloudContractContent() {
             </div>
           </div>
 
-          {/* Step 3: Identity Document Upload */}
+          {/* Step 6: Identity Document Upload */}
           <div className="bg-white dark:bg-neutral-900 rounded-2xl p-5 border border-neutral-200/80 dark:border-neutral-800/80 shadow-xs">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
                 <span className="w-6 h-6 rounded-full bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 text-xs font-bold flex items-center justify-center">
-                  3
+                  6
                 </span>
                 <h2 className="text-sm font-bold text-neutral-900 dark:text-white">
-                  客户实名认证附件 (可选 / KYC Annex)
+                  客户资质与 KYC 实名凭证上传 (可选)
                 </h2>
               </div>
-              <span className="text-[10px] text-neutral-400">身份证 / 护照 / 营业执照</span>
+              <span className="text-[10px] text-neutral-400">身份证 / 营业执照</span>
             </div>
 
             {idImage ? (
@@ -1596,7 +2025,7 @@ function CloudContractContent() {
                 <button
                   type="button"
                   onClick={() => setIdImage(null)}
-                  className="p-1.5 rounded-lg text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors"
+                  className="p-1.5 rounded-lg text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors cursor-pointer"
                   title="删除"
                 >
                   <Trash2 className="w-4 h-4" />
@@ -1611,10 +2040,10 @@ function CloudContractContent() {
                   <Upload className="w-4 h-4" />
                 </div>
                 <span className="text-xs font-medium text-neutral-700 dark:text-neutral-300">
-                  点击上传身份证、护照或营业执照照片
+                  点击上传身份证、护照或营业执照文件
                 </span>
                 <span className="text-[10px] text-neutral-400">
-                  支持 JPG / PNG，用于合规实名备案与 KYC 代充保障
+                  JPG / PNG，用于合规实名备案与 KYC 官方外卡充值保障
                 </span>
                 <input
                   ref={fileInputRef}
@@ -1627,12 +2056,12 @@ function CloudContractContent() {
             )}
           </div>
 
-          {/* Step 4: Digital Signature Canvas */}
+          {/* Step 7: Digital Signature Canvas */}
           <div className="bg-white dark:bg-neutral-900 rounded-2xl p-5 border border-neutral-200/80 dark:border-neutral-800/80 shadow-xs">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
                 <span className="w-6 h-6 rounded-full bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 text-xs font-bold flex items-center justify-center">
-                  4
+                  7
                 </span>
                 <h2 className="text-sm font-bold text-neutral-900 dark:text-white">
                   客户在线电子签约 (Digital Signature)
@@ -1645,7 +2074,7 @@ function CloudContractContent() {
                     setSigMode("draw");
                     setSignatureData(null);
                   }}
-                  className={`px-2 py-0.5 rounded transition-all flex items-center gap-1 ${
+                  className={`px-2 py-0.5 rounded transition-all cursor-pointer flex items-center gap-1 ${
                     sigMode === "draw" ? "bg-white dark:bg-neutral-700 shadow-xs font-bold text-neutral-950 dark:text-white" : "text-neutral-500"
                   }`}
                 >
@@ -1658,7 +2087,7 @@ function CloudContractContent() {
                     setSigMode("type");
                     setSignatureData(null);
                   }}
-                  className={`px-2 py-0.5 rounded transition-all flex items-center gap-1 ${
+                  className={`px-2 py-0.5 rounded transition-all cursor-pointer flex items-center gap-1 ${
                     sigMode === "type" ? "bg-white dark:bg-neutral-700 shadow-xs font-bold text-neutral-950 dark:text-white" : "text-neutral-500"
                   }`}
                 >
@@ -1696,7 +2125,7 @@ function CloudContractContent() {
                   <button
                     type="button"
                     onClick={clearCanvas}
-                    className="flex items-center gap-1 text-[11px] text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200 px-2 py-1 rounded hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+                    className="flex items-center gap-1 text-[11px] text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200 px-2 py-1 rounded hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors cursor-pointer"
                   >
                     <RotateCcw className="w-3 h-3" />
                     <span>清除重签</span>
@@ -1722,24 +2151,23 @@ function CloudContractContent() {
               </div>
             )}
 
-            {/* Terms Checkbox */}
             <label className="flex items-start gap-2 mt-4 cursor-pointer">
               <input
                 type="checkbox"
                 checked={termsAgreed}
                 onChange={(e) => setTermsAgreed(e.target.checked)}
-                className="mt-0.5 rounded text-neutral-900 focus:ring-0 w-4 h-4"
+                className="mt-0.5 rounded text-neutral-900 focus:ring-0 w-4 h-4 cursor-pointer"
               />
               <span className="text-xs text-neutral-600 dark:text-neutral-400 leading-snug">
-                我已仔细阅读并确认同意《企业级 AI 云工位与海外算力服务协议》及 SLA 保障条款，确认所填签约信息真实有效，电子签名与防伪存证具有完全法律约束力。
+                我已仔细阅读并确认《企业级 AI 云工位与海外算力服务协议》所有细则及 SLA 交付标准，确认所选硬件参数与 AI 账号规格无误，电子签名与时间戳哈希存证具有完全法律效力。
               </span>
             </label>
           </div>
         </section>
 
-        {/* Right Side: The Official Digital Contract Sheet (A4 Aesthetic Paper Document) */}
+        {/* Right Side: The Official Digital Contract Sheet (Detailed & Professional) */}
         <section className="lg:col-span-7 flex flex-col items-center">
-          <div className="w-full max-w-[800px] bg-white text-neutral-900 rounded-2xl p-6 sm:p-10 shadow-lg border border-neutral-200 print:border-none print:shadow-none print:p-0 print:m-0 print:max-w-none print:w-full print:rounded-none">
+          <div className="w-full max-w-[820px] bg-white text-neutral-900 rounded-2xl p-6 sm:p-10 shadow-lg border border-neutral-200 print:border-none print:shadow-none print:p-0 print:m-0 print:max-w-none print:w-full print:rounded-none">
             {/* Document Header */}
             <div className="flex flex-col sm:flex-row items-start justify-between gap-4 pb-5 border-b-2 border-neutral-900">
               <div className="flex items-center gap-3.5">
@@ -1754,7 +2182,7 @@ function CloudContractContent() {
                     企业级 AI 云工位与海外算力服务协议
                   </h1>
                   <span className="text-[11px] text-neutral-600">
-                    Colasola Co., Ltd. (Thailand) · 商业登记税号: 0505566006478
+                    Colasola Co., Ltd. (Thailand) · 商业登记税号: 0505566006478 · cloud.lazzor.com
                   </span>
                 </div>
               </div>
@@ -1802,13 +2230,13 @@ function CloudContractContent() {
               </div>
 
               <div className="text-left sm:text-right shrink-0">
-                <div className="text-xs text-neutral-500">签约优惠服务费</div>
+                <div className="text-xs text-neutral-500">签约实际服务费 (含所选规格)</div>
                 <div className="text-xl font-black text-neutral-950">
                   {currSym}{effectiveMonthlyFee.toLocaleString()}
                   <span className="text-xs font-normal text-neutral-500"> /月</span>
                 </div>
                 <div className="text-[11px] text-neutral-500">
-                  服务周期: {durationMonths} 个月
+                  服务期: {durationMonths} 个月
                   {appliedPromo && <span className="text-emerald-700 font-bold ml-1">({appliedPromo.percentOff}% 折扣)</span>}
                 </div>
               </div>
@@ -1857,67 +2285,163 @@ function CloudContractContent() {
               </div>
             </div>
 
-            {/* Checklist of Included Features (Directly matching user's two images) */}
+            {/* Section 1: Detailed Deliverables & Hardware Specs Table */}
             <div className="mt-5">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-500 mb-2">
-                SERVICE ENTITLEMENTS & INCLUDED CAPABILITIES (本方案包含的专属权益清单)
+              <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-500 mb-2 flex items-center justify-between">
+                <span>1. DELIVERABLES & HARDWARE SPECIFICATIONS (交付清单与硬件详细规格)</span>
+                <span className="text-[10px] text-neutral-400 font-normal">逐项严格核对与验收标准</span>
               </h3>
-              <div className="grid grid-cols-1 gap-2 bg-neutral-50/70 p-3.5 rounded-xl border border-neutral-200 text-xs">
-                {currentPlan.features.map((feat, idx) => (
-                  <div key={idx} className="flex items-start gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                    <span className="text-neutral-800 leading-relaxed font-medium">
-                      {feat}
-                    </span>
-                  </div>
-                ))}
-                <div className="flex items-start gap-2 pt-1 border-t border-neutral-200/80">
-                  <Sparkles className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
-                  <span className="text-neutral-800 leading-relaxed font-medium">
-                    选定 AI 官方会员：<strong>{chosenAiService}</strong> (由服务商全流程提供正规海外卡代开与月度合规代充，免除封号拒付风控)
-                  </span>
-                </div>
+
+              <div className="rounded-xl border border-neutral-200 overflow-hidden text-xs">
+                <table className="w-full text-left border-collapse">
+                  <tbody className="divide-y divide-neutral-200">
+                    {/* Item 1: Hardware & Chip Specs */}
+                    <tr className="bg-neutral-50/50">
+                      <td className="py-2.5 px-3.5 font-bold text-neutral-800 w-1/4">
+                        算力硬件规格
+                        <span className="block text-[10px] font-normal text-neutral-500">Hardware / CPU / RAM</span>
+                      </td>
+                      <td className="py-2.5 px-3.5 text-neutral-700">
+                        {selectedPlanId === "workstation_888" ? (
+                          <div className="space-y-1">
+                            <div className="font-bold text-neutral-900 flex items-center gap-2">
+                              <span>1V1 物理独享工作站：{chosenCpu.name} ({chosenCpu.specs})</span>
+                            </div>
+                            <div className="text-neutral-600">
+                              统一内存: <strong>{chosenMemory.size}</strong> · 存储空间: <strong>{chosenStorage.size}</strong> · 操作系统: 原生 macOS (Sonoma/Sequoia)
+                            </div>
+                            <div className="text-[11px] text-emerald-700">
+                              ✓ 物理机完全独占 · 支持 App Store 提审与原生 Xcode 编译开发零卡顿
+                            </div>
+                          </div>
+                        ) : selectedPlanId === "ai_lazy_488" ? (
+                          <div className="space-y-1">
+                            <div className="font-bold text-neutral-900">
+                              轻量共享型云电脑 (微主机) - {microPcTier === "pro" ? "增强型 8 vCPU / 16GB RAM / 240GB NVMe" : "标准型 4 vCPU / 8GB RAM / 120GB NVMe"}
+                            </div>
+                            <div className="text-neutral-600">
+                              运行环境: {microPcOs === "ubuntu" ? "Ubuntu 24.04 LTS (预装防关联指纹浏览器环境)" : "Windows Server 安全隔离开发沙箱"}
+                            </div>
+                            <div className="text-[11px] text-emerald-700">
+                              ✓ 预装反指纹伪装与 7×24h 自动化值守守护进程
+                            </div>
+                          </div>
+                        ) : (
+                          <div>{currentPlan.specs.hardware} · {currentPlan.specs.os}</div>
+                        )}
+                      </td>
+                    </tr>
+
+                    {/* Item 2: AI Subscription Specs */}
+                    <tr>
+                      <td className="py-2.5 px-3.5 font-bold text-neutral-800">
+                        AI 顶配会员规格
+                        <span className="block text-[10px] font-normal text-neutral-500">Official AI Membership</span>
+                      </td>
+                      <td className="py-2.5 px-3.5 text-neutral-700">
+                        <div className="space-y-1">
+                          <div className="font-bold text-neutral-900 flex items-center gap-2">
+                            <span>{chosenAiSubscription.name}</span>
+                            <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800">
+                              官方原价 ${chosenAiSubscription.officialPriceUsd}/月 费用全包
+                            </span>
+                          </div>
+                          <div className="text-neutral-600 text-[11px]">
+                            {chosenAiSubscription.summary}
+                          </div>
+                          <div className="text-[11px] text-neutral-600">
+                            <strong>保障承诺：</strong>服务商使用合规海外商业外卡代缴代充；服务期内若出现非人为官方风控，提供 24h 免费协助解封或重置更换，免除风控拒付降智。
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+
+                    {/* Item 3: Dedicated Clean IP */}
+                    <tr className="bg-neutral-50/50">
+                      <td className="py-2.5 px-3.5 font-bold text-neutral-800">
+                        独立静态商业 IP
+                        <span className="block text-[10px] font-normal text-neutral-500">Dedicated Clean IP</span>
+                      </td>
+                      <td className="py-2.5 px-3.5 text-neutral-700">
+                        <div className="space-y-0.5">
+                          <div className="font-semibold text-neutral-900">
+                            1× 海外原生独占静态商业出口 IP (Clean ASN, Fraud Score 0)
+                          </div>
+                          <div className="text-neutral-600 text-[11px]">
+                            专属绑定所分配云工位/物理机，出口长期固定，不与其他租户共享。支持海外开发者后台、TikTok/亚马逊跨境防关联、App Store 提审与大模型免降智直连。
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+
+                    {/* Item 4: Dedicated Network & Tunnel */}
+                    <tr>
+                      <td className="py-2.5 px-3.5 font-bold text-neutral-800">
+                        网络传输与安全隧道
+                        <span className="block text-[10px] font-normal text-neutral-500">IPLC Line & Enterprise VPN</span>
+                      </td>
+                      <td className="py-2.5 px-3.5 text-neutral-700">
+                        <div className="text-neutral-800">
+                          <strong>中泰 IPLC / 国际专线端到端直连</strong> (&lt;18ms 超低抖动延迟) + 企业级 VPN 安全传输隧道（提供 WireGuard / Cisco AnyConnect SSL VPN 全平台凭据，数据端到端硬件级加密）。
+                        </div>
+                      </td>
+                    </tr>
+
+                    {/* Item 5: Setup & Support */}
+                    <tr className="bg-neutral-50/50">
+                      <td className="py-2.5 px-3.5 font-bold text-neutral-800">
+                        开机/开户技术服务
+                        <span className="block text-[10px] font-normal text-neutral-500">Setup & Engineering Support</span>
+                      </td>
+                      <td className="py-2.5 px-3.5 text-neutral-700">
+                        <div className="text-neutral-800 text-[11px] leading-relaxed">
+                          含 1 对 1 专属技术支持环境深度调优、专属节点初始化上架、客户端一键直连配置交付、7×24h 物理服务器心跳监控与故障 15 分钟内应急响应。
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
             </div>
 
             {/* Financial Schedule Table */}
             <div className="mt-5">
               <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-500 mb-2">
-                FEES & SETTLEMENT SCHEDULE (费用明细与首期结算表)
+                2. FEES & SETTLEMENT SCHEDULE (费用明细与首期结算表)
               </h3>
               <div className="overflow-hidden rounded-xl border border-neutral-200 text-xs">
                 <table className="w-full text-left border-collapse">
                   <thead>
                     <tr className="bg-neutral-100 text-neutral-700 font-bold border-b border-neutral-200">
-                      <th className="py-2 px-3">计费项目 (Item Description)</th>
+                      <th className="py-2 px-3">计费明细项 (Item Description)</th>
                       <th className="py-2 px-3">周期 / 数量</th>
-                      <th className="py-2 px-3">基准单价</th>
+                      <th className="py-2 px-3">核定单价</th>
                       <th className="py-2 px-3 text-right">结算金额 ({currency})</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-neutral-200 text-neutral-800">
                     <tr>
-                      <td className="py-2 px-3 font-medium">
-                        {currentPlan.name} - 云服务订阅费
+                      <td className="py-2.5 px-3 font-medium">
+                        {currentPlan.name} 服务费 (含所选硬件芯片、内存与 AI 会员规格)
                       </td>
-                      <td className="py-2 px-3">{durationMonths} 个月</td>
-                      <td className="py-2 px-3">
-                        {currSym}{baseMonthlyPrice.toLocaleString()} / 月
+                      <td className="py-2.5 px-3">{durationMonths} 个月</td>
+                      <td className="py-2.5 px-3">
+                        {currSym}{effectiveMonthlyFee.toLocaleString()} / 月
                       </td>
-                      <td className="py-2 px-3 text-right font-medium">
+                      <td className="py-2.5 px-3 text-right font-medium">
                         {currSym}{(effectiveMonthlyFee * durationMonths).toLocaleString()}
                       </td>
                     </tr>
                     <tr>
-                      <td className="py-2 px-3 font-medium">
-                        专属节点初始化与 1 对 1 环境调优开机/开户费
+                      <td className="py-2.5 px-3 font-medium">
+                        专属物理节点初始化与 1 对 1 环境调优开机/开户服务费
                       </td>
-                      <td className="py-2 px-3">首月一次性</td>
-                      <td className="py-2 px-3">
+                      <td className="py-2.5 px-3">首月一次性</td>
+                      <td className="py-2.5 px-3">
                         {currSym}{baseSetupFee.toLocaleString()}
                       </td>
-                      <td className="py-2 px-3 text-right font-medium">
-                        {effectiveSetupFee === 0 ? "¥0 (年付特惠免收)" : `${currSym}${effectiveSetupFee.toLocaleString()}`}
+                      <td className="py-2.5 px-3 text-right font-medium">
+                        {effectiveSetupFee === 0 ? "¥0 (年付特惠全免)" : `${currSym}${effectiveSetupFee.toLocaleString()}`}
                       </td>
                     </tr>
                     {appliedPromo && (
@@ -1946,45 +2470,45 @@ function CloudContractContent() {
               </div>
             </div>
 
-            {/* Legal Clauses Section */}
-            <div className="mt-6 space-y-3 text-[11px] text-neutral-600 leading-relaxed border-t border-neutral-200 pt-5">
+            {/* Legal Clauses Section: Structured & Explicit */}
+            <div className="mt-6 space-y-3.5 text-[11px] text-neutral-600 leading-relaxed border-t border-neutral-200 pt-5">
               <h3 className="text-xs font-bold text-neutral-900 uppercase tracking-wider mb-2">
-                TERMS & CONDITIONS (服务条款与法律约定)
+                3. TERMS & CONDITIONS (核心基础条款与服务保障细则)
               </h3>
 
               <div>
-                <strong className="text-neutral-900">1. 服务范围与资源配置约定：</strong>
-                甲方按照本协议约定的规格标准为乙方开通对应的云工位、微主机或 1V1 Apple Silicon 独立硬件资源，并交付专属独立海外原生静态商业 IP 及 VPN 直连接入凭证。甲方承诺保障中泰 IPLC / 国际专线超低延迟传输链路稳定。
+                <strong className="text-neutral-900">第一条 服务交付与标的标准：</strong>
+                甲方承诺按照本合同第一条所列明的具体规格标准向乙方交付所选定的 Apple Silicon 物理机（包含指定 CPU 芯片型号、统一内存及 SSD 空间）或微主机算力，并配置 1× 独享海外原生静态商业 IP 及专线 VPN 账号。甲方承诺在乙方完成首付款项后 24 小时内完成初始化调优并交付使用凭证。
               </div>
 
               <div>
-                <strong className="text-neutral-900">2. 服务可用性保障 (SLA) 与运维责任：</strong>
-                甲方为乙方提供 99.9% 算力与专线网络服务可用性。若因甲方网络或物理硬件故障导致服务不可用连续超过 4 小时，甲方按故障时长的 3 倍顺延乙方服务周期。1 对 1 技术顾问提供日常环境调优与专属节点初始化保障。
+                <strong className="text-neutral-900">第二条 官方 AI 会员服务及 KYC 合规代充条款：</strong>
+                甲方负责为乙方开通所选定的官方 AI 会员账号（ChatGPT Plus / Claude Pro / Team 席位），每月官方订阅美金费用全额由甲方承担并由境外正规银行商业外卡代缴。甲方承诺代充渠道合法合规，免除普通虚拟卡封号拒付风险。在服务有效期内，若账号发生非因乙方违法使用造成的官方风控异常，甲方提供全流程免费运维及重置更换保障。
               </div>
 
               <div>
-                <strong className="text-neutral-900">3. 独占纯净 IP 与官方 AI 账号合规防封承诺：</strong>
-                甲方分配之 IP 为 100% 独享海外原生静态商业 IP（Clean ASN、欺诈分 0），杜绝普通代理 IP 频繁飘移与降智风险。包含之官方 AI 账号由正规海外银行卡与专属手机号充值开通，开箱即用，并在服务期内提供全流程防风控合规运维保障。
+                <strong className="text-neutral-900">第三条 独立商业 IP 与专线 SLA 保障：</strong>
+                甲方交付之 IP 为 100% 原生静态商业 IP（固定 IPv4，Clean ASN，欺诈分 0），独占专用，支持苹果开发者账号及各类高风控外服平台。中泰专线提供端到端 &lt;18ms 超低时延。甲方承诺提供 99.9% 算力与网络可用性 SLA；若因甲方机房电力或网络单点故障导致服务连续中断超过 4 小时，甲方按实际中断时长的 3 倍无偿顺延服务期。
               </div>
 
               <div>
-                <strong className="text-neutral-900">4. 数据资产安全、隐私隔离与代码不落地承诺：</strong>
-                甲方机房采用物理隔离与高强度加密传输，严格恪守“源码不落地、数据全私有”原则。乙方在云工位内创建、运行、存储的所有代码库、业务数据、模型权重及产出成果，其 100% 知识产权与所有权归乙方所有。甲方绝不审查、扫描、转存或向任何第三方披露乙方数据。
+                <strong className="text-neutral-900">第四条 数据安全、知识产权与代码不落地保障：</strong>
+                甲方严格履行保密义务，采用机房物理隔离与全链路加密机制，确保“源码不落地、数据私有化”。乙方在云工位内创建、存储、运行的所有代码、项目工程、模型权重及业务资产，其 100% 知识产权与所有权独家归乙方所有。甲方绝不以任何形式审查、复制、镜像或向第三方透露乙方数据资产。
               </div>
 
               <div>
-                <strong className="text-neutral-900">5. 费用结算与服务期限：</strong>
-                本协议服务有效期自 <strong>{startDate}</strong> 起至 <strong>{endDate}</strong> 止（共 {durationMonths} 个月）。服务期满前 7 日，甲方将通过系统通知乙方续约事宜。
+                <strong className="text-neutral-900">第五条 服务期限与续费规则：</strong>
+                本协议服务有效期自 <strong>{startDate}</strong> 起至 <strong>{endDate}</strong> 止（共 {durationMonths} 个月）。服务期满前 7 个工作日，甲方将提醒乙方办理续费。若乙方选择年付合约，直接免收首月开机/开户技术服务费并享受合约优惠费率。
               </div>
 
               <div>
-                <strong className="text-neutral-900">6. 合规使用守则：</strong>
-                乙方承诺将本服务严格用于合法的软件研发、AI 辅助办公、跨境电商运营等业务，严禁利用本服务从事网络攻击、电信欺诈、垃圾邮件轰炸等违法违规行为。若乙方违规操作导致 IP 被封禁或招致司法调查，甲方有权立即关停服务并不予退款。
+                <strong className="text-neutral-900">第六条 合规使用守则与终止权：</strong>
+                乙方承诺将本服务严格用于正规的软件研发、出海业务、AI 办公与电商合规运营，严禁从事任何网络攻击（如 DDoS、端口嗅探）、电信诈骗、垃圾邮件轰炸或违反中泰两国法律法规的行为。如乙方违规操作导致 IP 被封或列入黑名单，甲方有权立即解除合同并不予退还剩余款项。
               </div>
 
               <div>
-                <strong className="text-neutral-900">7. 电子签名效力与司法管辖：</strong>
-                双方确认本电子协议通过数字时间戳与哈希防伪技术认证，经甲乙双方在线盖章/签名后即具备完全法律效力。如产生纠纷，双方应友好协商，协商不成时提交泰王国清迈当地管辖法院审理。
+                <strong className="text-neutral-900">第七条 电子签名效力与司法管辖：</strong>
+                双方确认本协议采用电子签名、数字时间戳及 SHA-256 哈希存证，具备与纸质合同完全同等的法律证明力。因本合同引起的争议，双方应友好协商，协商不成的，由泰王国清迈当地管辖法院审理。
               </div>
             </div>
 
@@ -2043,7 +2567,7 @@ function CloudContractContent() {
                   <span>签署人姓名: {effectiveSignatoryDisplay}</span>
                   <span>签署时间: {signingDateIso}</span>
                   <span className="text-[10px] text-emerald-600 font-semibold mt-1">
-                    {termsAgreed ? "✓ 已在线签署并确认全部条款" : "待勾选同意协议并签名"}
+                    {termsAgreed ? "✓ 已在线签署并确认全部条款与配置" : "待勾选同意协议并签名"}
                   </span>
                 </div>
               </div>
@@ -2066,7 +2590,7 @@ function CloudContractContent() {
 
             {/* Document Bottom Footer */}
             <div className="mt-8 pt-4 border-t border-neutral-200 text-center text-[10px] text-neutral-400 font-mono">
-              Chiang Mai AI Center · Colasola Co., Ltd. · cloud.lazzor.com · Official Digital Lease & Service Protocol · Serial: {contractSerial}
+              Chiang Mai AI Center · Colasola Co., Ltd. · cloud.lazzor.com · Official Digital Protocol · Serial: {contractSerial}
             </div>
           </div>
         </section>
