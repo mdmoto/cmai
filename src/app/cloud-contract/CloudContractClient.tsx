@@ -635,11 +635,11 @@ async function generateVectorCloudContractPdf(data: {
   contractSerial: string;
   contractHash: string;
   signingDateStr: string;
-  selectedPlan: CloudPlanItem;
+  selectedPlan?: CloudPlanItem | null;
   chosenCpuOption?: MacCpuOption;
   chosenMemoryOption?: MemoryOption;
   chosenStorageOption?: StorageOption;
-  chosenAiSubscription: AiSubscriptionOption;
+  chosenAiSubscription?: AiSubscriptionOption | null;
   selectedAddons: AddonService[];
   currency: "CNY" | "THB";
   durationMonths: number;
@@ -731,7 +731,8 @@ async function generateVectorCloudContractPdf(data: {
   doc.setFont("helvetica", "bold");
   doc.setFontSize(8);
   doc.setTextColor(67, 56, 202);
-  doc.text(`${data.selectedPlan.name}`, pageWidth - margin - 29, 38.5, { align: "center" });
+  const planBadgeText = data.selectedPlan ? data.selectedPlan.name : "Custom / 0 Total";
+  doc.text(planBadgeText, pageWidth - margin - 29, 38.5, { align: "center" });
   doc.setFontSize(7);
   doc.setFont("helvetica", "normal");
   doc.text(`${currSym}${data.monthlyServiceFee.toLocaleString()}/mo · ${data.durationMonths}M Term`, pageWidth - margin - 29, 42.5, { align: "center" });
@@ -781,13 +782,18 @@ async function generateVectorCloudContractPdf(data: {
   doc.setFontSize(7);
   doc.setTextColor(51, 65, 85);
 
-  const hwLine = data.selectedPlan.id === "workstation_888"
-    ? `1.1 Workstation Hardware: 1V1 Apple Silicon [CPU: ${data.chosenCpuOption?.name || "Apple M2"} | RAM: ${data.chosenMemoryOption?.size || "8GB"} | SSD: ${data.chosenStorageOption?.size || "256GB SSD"} | OS: Native macOS].`
-    : `1.1 Workstation Hardware: Lightweight Cloud Computer (Micro PC) [4-8 vCPU / 8-16GB RAM / 120-240GB SSD / Sandbox].`;
+  const hwLine = data.selectedPlan
+    ? data.selectedPlan.id === "workstation_888"
+      ? `1.1 Workstation Hardware: 1V1 Apple Silicon [CPU: ${data.chosenCpuOption?.name || "Apple M2"} | RAM: ${data.chosenMemoryOption?.size || "8GB"} | SSD: ${data.chosenStorageOption?.size || "256GB SSD"} | OS: Native macOS].`
+      : `1.1 Workstation Hardware: Lightweight Cloud Computer (Micro PC) [4-8 vCPU / 8-16GB RAM / 120-240GB SSD / Sandbox].`
+    : `1.1 Workstation Hardware: None (未选配基础云主机硬件).`;
   doc.text(hwLine, margin, y);
   y += 3.8;
 
-  doc.text(`1.2 Official AI Subscription: ${data.chosenAiSubscription.name} ($${data.chosenAiSubscription.officialPriceUsd}/mo included with compliant card billing).`, margin, y);
+  const aiLine = data.chosenAiSubscription
+    ? `1.2 Official AI Subscription: ${data.chosenAiSubscription.name} ($${data.chosenAiSubscription.officialPriceUsd}/mo included with compliant card billing).`
+    : `1.2 Official AI Subscription: None (未选配官方 AI 会员账号).`;
+  doc.text(aiLine, margin, y);
   y += 3.8;
   doc.text(`1.3 Network & IP: 1x Dedicated Native Static Commercial IP (Clean ASN, Fraud Score 0) + China-Thai IPLC (<18ms) + VPN.`, margin, y);
   y += 3.8;
@@ -824,12 +830,18 @@ async function generateVectorCloudContractPdf(data: {
   doc.text(`Amount (${data.currency})`, pageWidth - margin - 4, y + 3.6, { align: "right" });
   y += 5;
 
-  const feeItems = [
-    [`Monthly Cloud Service Fee (${data.selectedPlan.name} with Configured Specs)`, `${currSym}${data.monthlyServiceFee.toLocaleString()} / mo`],
-    [`Total Subscription Service Fee (${data.durationMonths} Months)`, `${currSym}${(data.monthlyServiceFee * data.durationMonths).toLocaleString()}`],
-    [`One-time Setup / Initialization Fee (开机/开户技术服务费)`, data.setupFee === 0 ? "Waived (¥0 免收)" : `${currSym}${data.setupFee.toLocaleString()}`],
-    [`TOTAL INITIAL PAYMENT DUE UPON SIGNING (首期签约应付合计)`, `${currSym}${data.totalInitialPayment.toLocaleString()}`],
-  ];
+  const feeItems: [string, string][] = [];
+  if (data.selectedPlan) {
+    feeItems.push([`Monthly Cloud Service Fee (${data.selectedPlan.name} with Configured Specs)`, `${currSym}${data.monthlyServiceFee.toLocaleString()} / mo`]);
+    feeItems.push([`Total Subscription Service Fee (${data.durationMonths} Months)`, `${currSym}${(data.monthlyServiceFee * data.durationMonths).toLocaleString()}`]);
+    feeItems.push([`One-time Setup / Initialization Fee (开机/开户技术服务费)`, data.setupFee === 0 ? "Waived (¥0 免收)" : `${currSym}${data.setupFee.toLocaleString()}`]);
+  } else if (data.monthlyServiceFee > 0) {
+    feeItems.push([`Monthly Recurring Services Fee`, `${currSym}${data.monthlyServiceFee.toLocaleString()} / mo`]);
+    feeItems.push([`Total Subscription Service Fee (${data.durationMonths} Months)`, `${currSym}${(data.monthlyServiceFee * data.durationMonths).toLocaleString()}`]);
+  } else {
+    feeItems.push([`Monthly Recurring Services Fee (未选配按月基础产品)`, `${currSym}0 / mo`]);
+  }
+  feeItems.push([`TOTAL INITIAL PAYMENT DUE UPON SIGNING (首期签约应付合计)`, `${currSym}${data.totalInitialPayment.toLocaleString()}`]);
 
   feeItems.forEach(([desc, amt], idx) => {
     const isTotal = idx === feeItems.length - 1;
@@ -1027,9 +1039,10 @@ function CloudContractContent() {
       (rawPlanParam === "4090" && p.id === "vision_creator_pack")
   );
 
-  const [selectedPlanId, setSelectedPlanId] = useState<string>(
-    matchedPlan ? matchedPlan.id : "workstation_888"
-  );
+  const [selectedPlanId, setSelectedPlanId] = useState<string>(() => {
+    if (rawPlanParam === "none" || rawPlanParam === "0" || rawPlanParam === "empty" || rawPlanParam === "null") return "";
+    return matchedPlan ? matchedPlan.id : "workstation_888";
+  });
   const [currency, setCurrency] = useState<"CNY" | "THB">(
     rawCurParam === "THB" ? "THB" : "CNY"
   );
@@ -1067,6 +1080,7 @@ function CloudContractContent() {
 
   // --- AI Subscription Specification State ---
   const [selectedAiSubId, setSelectedAiSubId] = useState<string>(() => {
+    if (rawAiParam === "none" || rawAiParam === "0" || rawAiParam === "empty" || rawAiParam === "null") return "";
     const found = AI_SUBSCRIPTION_OPTIONS.find((a) => a.id.toLowerCase() === rawAiParam);
     if (found) return found.id;
     if (rawAiParam === "pro100" || rawAiParam.includes("pro100")) return "chatgpt_pro100";
@@ -1366,7 +1380,7 @@ function CloudContractContent() {
   };
 
   // Currently Selected Base Plan
-  const currentPlan = CLOUD_PLANS.find((p) => p.id === selectedPlanId) || CLOUD_PLANS[0];
+  const currentPlan = CLOUD_PLANS.find((p) => p.id === selectedPlanId) || null;
 
   // Configured Specs for Mac Workstation
   const chosenCpu = MAC_CPU_OPTIONS.find((c) => c.id === selectedCpuId) || MAC_CPU_OPTIONS[0];
@@ -1377,11 +1391,11 @@ function CloudContractContent() {
     return MAC_MEMORY_OPTIONS.find((m) => m.id === selectedMemoryId) || MAC_MEMORY_OPTIONS[0];
   })();
   const chosenStorage = MAC_STORAGE_OPTIONS.find((s) => s.id === selectedStorageId) || MAC_STORAGE_OPTIONS[0];
-  const chosenAiSubscription = AI_SUBSCRIPTION_OPTIONS.find((a) => a.id === selectedAiSubId) || AI_SUBSCRIPTION_OPTIONS[0];
+  const chosenAiSubscription = AI_SUBSCRIPTION_OPTIONS.find((a) => a.id === selectedAiSubId) || null;
 
   // Base Plan Price
-  const basePlanPrice = currency === "CNY" ? currentPlan.priceCNY : currentPlan.priceTHB;
-  const baseSetupFee = currency === "CNY" ? currentPlan.setupFeeCNY : currentPlan.setupFeeTHB;
+  const basePlanPrice = currentPlan ? (currency === "CNY" ? currentPlan.priceCNY : currentPlan.priceTHB) : 0;
+  const baseSetupFee = currentPlan ? (currency === "CNY" ? currentPlan.setupFeeCNY : currentPlan.setupFeeTHB) : 0;
 
   // Additional Hardware Delta (Applicable to 888 Mac Plan or 488 Micro PC)
   let hwDeltaMonthly = 0;
@@ -1406,7 +1420,7 @@ function CloudContractContent() {
   }
 
   // Additional AI Subscription Delta
-  const aiDeltaMonthly = currency === "CNY" ? chosenAiSubscription.priceDeltaCNY : chosenAiSubscription.priceDeltaTHB;
+  const aiDeltaMonthly = chosenAiSubscription ? (currency === "CNY" ? chosenAiSubscription.priceDeltaCNY : chosenAiSubscription.priceDeltaTHB) : 0;
 
   // Additional Add-on Services Delta
   const activeAddons = CLOUD_ADDON_SERVICES.filter((a) => selectedAddonIds.includes(a.id));
@@ -1446,7 +1460,7 @@ function CloudContractContent() {
 
   // Effective Monthly Fee after Discounts
   const effectiveMonthlyFee = Math.round(subtotalMonthly * durationDiscountRate * promoDiscountRate);
-  const effectiveSetupFee = isSetupFeeWaived ? 0 : baseSetupFee;
+  const effectiveSetupFee = (isSetupFeeWaived || !currentPlan) ? 0 : baseSetupFee;
   const totalSubscriptionFee = effectiveMonthlyFee * durationMonths;
   const totalInitialPayment = totalSubscriptionFee + effectiveSetupFee + addonsOneTimeFee + customOneTimeDelta;
 
@@ -1501,7 +1515,7 @@ function CloudContractContent() {
 
       const link = document.createElement("a");
       link.href = `data:application/pdf;base64,${pdfBase64}`;
-      link.download = `${contractSerial}_${currentPlan.name}.pdf`;
+      link.download = `${contractSerial}_${currentPlan ? currentPlan.name : "Custom_Contract"}.pdf`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -1551,20 +1565,27 @@ function CloudContractContent() {
     const pathname = typeof window !== "undefined" ? window.location.pathname : "/contract";
     const p = new URLSearchParams();
 
-    const plan = overrideParams?.plan ?? selectedPlanId;
-    if (plan) p.set("plan", plan);
-
-    if (plan === "workstation_888") {
-      p.set("cpu", overrideParams?.cpu ?? selectedCpuId);
-      p.set("ram", overrideParams?.ram ?? selectedMemoryId);
-      p.set("ssd", overrideParams?.ssd ?? selectedStorageId);
-    } else if (plan === "ai_lazy_488") {
-      p.set("tier", overrideParams?.tier ?? microPcTier);
-      p.set("os", overrideParams?.os ?? microPcOs);
+    const plan = overrideParams?.plan !== undefined ? overrideParams.plan : selectedPlanId;
+    if (plan) {
+      p.set("plan", plan);
+      if (plan === "workstation_888") {
+        p.set("cpu", overrideParams?.cpu ?? selectedCpuId);
+        p.set("ram", overrideParams?.ram ?? selectedMemoryId);
+        p.set("ssd", overrideParams?.ssd ?? selectedStorageId);
+      } else if (plan === "ai_lazy_488") {
+        p.set("tier", overrideParams?.tier ?? microPcTier);
+        p.set("os", overrideParams?.os ?? microPcOs);
+      }
+    } else {
+      p.set("plan", "none");
     }
 
-    const ai = overrideParams?.ai ?? selectedAiSubId;
-    if (ai) p.set("ai", ai);
+    const ai = overrideParams?.ai !== undefined ? overrideParams.ai : selectedAiSubId;
+    if (ai) {
+      p.set("ai", ai);
+    } else {
+      p.set("ai", "none");
+    }
 
     const addons = overrideParams?.addons ?? selectedAddonIds;
     if (addons.length > 0) p.set("addons", addons.join(","));
@@ -1703,7 +1724,7 @@ function CloudContractContent() {
 
   // Customizer: Compute invitation letter
   const computeInvitationText = (url: string) => {
-    const plan = CLOUD_PLANS.find((p) => p.id === custPlanId) || CLOUD_PLANS[0];
+    const plan = CLOUD_PLANS.find((p) => p.id === custPlanId) || null;
     const cpu = MAC_CPU_OPTIONS.find((c) => c.id === custCpuId) || MAC_CPU_OPTIONS[0];
     const mem = (() => {
       if ((custCpuId === "m4" || custCpuId === "m6") && custMemoryId === "8") {
@@ -1712,13 +1733,13 @@ function CloudContractContent() {
       return MAC_MEMORY_OPTIONS.find((m) => m.id === custMemoryId) || MAC_MEMORY_OPTIONS[0];
     })();
     const ssd = MAC_STORAGE_OPTIONS.find((s) => s.id === custStorageId) || MAC_STORAGE_OPTIONS[0];
-    const ai = AI_SUBSCRIPTION_OPTIONS.find((a) => a.id === custAiSubId) || AI_SUBSCRIPTION_OPTIONS[0];
+    const ai = AI_SUBSCRIPTION_OPTIONS.find((a) => a.id === custAiSubId) || null;
 
     const recipient = custCustomerType === "company" ? (custCompanyName || custCustomerName || "贵司") : (custCustomerName || "尊敬的客户");
     const currSym = custCurrency === "CNY" ? "¥" : "฿";
 
     // Dynamic cost calculation
-    const baseP = custCurrency === "CNY" ? plan.priceCNY : plan.priceTHB;
+    const baseP = plan ? (custCurrency === "CNY" ? plan.priceCNY : plan.priceTHB) : 0;
     let hwD = 0;
     if (custPlanId === "workstation_888") {
       let memD = custCurrency === "CNY" ? mem.priceDeltaCNY : mem.priceDeltaTHB;
@@ -1729,7 +1750,7 @@ function CloudContractContent() {
       }
       hwD += (custCurrency === "CNY" ? cpu.priceDeltaCNY : cpu.priceDeltaTHB) + memD + (custCurrency === "CNY" ? ssd.priceDeltaCNY : ssd.priceDeltaTHB);
     }
-    const aiD = custCurrency === "CNY" ? ai.priceDeltaCNY : ai.priceDeltaTHB;
+    const aiD = ai ? (custCurrency === "CNY" ? ai.priceDeltaCNY : ai.priceDeltaTHB) : 0;
     const activeAdds = CLOUD_ADDON_SERVICES.filter((a) => custAddonIds.includes(a.id));
     const addsRec = activeAdds.filter((a) => !a.isOneTime).reduce((s, a) => s + (custCurrency === "CNY" ? a.monthlyPriceCNY : a.monthlyPriceTHB), 0);
     const addsOne = activeAdds.filter((a) => a.isOneTime).reduce((s, a) => s + (custCurrency === "CNY" ? a.monthlyPriceCNY : a.monthlyPriceTHB), 0);
@@ -1749,8 +1770,8 @@ function CloudContractContent() {
     const promoFound = custPromoCode && VALID_PROMO_CODES[custPromoCode.toLowerCase()] ? VALID_PROMO_CODES[custPromoCode.toLowerCase()] : null;
     const promoR = promoFound ? promoFound.rate : 1;
     const effM = Math.round(sub * durRate * promoR);
-    const baseS = custCurrency === "CNY" ? plan.setupFeeCNY : plan.setupFeeTHB;
-    const effS = setupWaived ? 0 : baseS;
+    const baseS = plan ? (custCurrency === "CNY" ? plan.setupFeeCNY : plan.setupFeeTHB) : 0;
+    const effS = (setupWaived || !plan) ? 0 : baseS;
     const initialT = effM * custDurationMonths + effS + addsOne + custCustOneTime;
 
     return `【Chiang Mai AI Center · 官方专属服务电子合同】
@@ -1759,10 +1780,10 @@ function CloudContractContent() {
 您好！为您专属定制的「Chiang Mai AI Center 企业级云工位与海外算力服务协议」已生成就绪。
 
 📋 定制方案配置：
-● 签约方案：${plan.name}
-● 硬件规格：${custPlanId === "workstation_888" ? `${cpu.name} · ${mem.size} 统一内存 · ${ssd.size} 存储 (原生 macOS)` : "轻量高可用微主机 (防指纹浏览器日常值守环境)"}
-● 官方 AI 会员：${ai.name} (每月官方订阅全包)
-● 纯净商业网络：${1 + custExtraIpCount}x 独享原生静态商业 IP (Clean ASN) + 中泰 IPLC 极速专线 (<18ms)
+● 签约方案：${plan ? plan.name : "纯定制增值服务 (未选配基础云主机)"}
+● 硬件规格：${plan ? (custPlanId === "workstation_888" ? `${cpu.name} · ${mem.size} 统一内存 · ${ssd.size} 存储 (原生 macOS)` : "轻量高可用微主机 (防指纹浏览器日常值守环境)") : "未配置硬件主机"}
+● 官方 AI 会员：${ai ? `${ai.name} (每月官方订阅全包)` : "未选配 AI 会员"}
+● 纯净商业网络：${(plan ? 1 : 0) + custExtraIpCount}x 独享原生静态商业 IP (Clean ASN) + 中泰 IPLC 极速专线 (<18ms)
 ${activeAdds.length > 0 ? `● 增值配套服务：${activeAdds.map(a => a.name.split(" ")[0]).join("、")}
 ` : ""}${custCustomAddonEnabled && custCustPrice > 0 ? `● 定制补充服务：${custCustomAddonName || "定制补充项目"} (+${currSym}${custCustPrice.toLocaleString()} ${custCustomAddonIsOneTime ? "一次性" : "/月"})
 ` : ""}● 签约服务期：${custDurationMonths} 个月
@@ -1970,6 +1991,29 @@ ${activeAdds.length > 0 ? `● 增值配套服务：${activeAdds.map(a => a.name
             </button>
           </div>
 
+          {/* Global Reset / Deselect All Action Banner */}
+          <div className="bg-white dark:bg-neutral-900 rounded-2xl p-3.5 border border-neutral-200/80 dark:border-neutral-800/80 shadow-xs flex items-center justify-between gap-2 text-xs">
+            <div className="flex items-center gap-2 text-neutral-600 dark:text-neutral-400 min-w-0">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
+              <span className="truncate">支持自由取消或全部清空，签约总金额可直接归零 (<strong>{currSym}0</strong>)</span>
+            </div>
+            {(selectedPlanId || selectedAiSubId || selectedAddonIds.length > 0 || extraIpCount > 0 || customAddonEnabled) && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedPlanId("");
+                  setSelectedAiSubId("");
+                  setSelectedAddonIds([]);
+                  setExtraIpCount(0);
+                  setCustomAddonEnabled(false);
+                }}
+                className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-neutral-100 dark:bg-neutral-800 hover:bg-red-50 dark:hover:bg-red-950/40 text-neutral-600 dark:text-neutral-400 hover:text-red-600 dark:hover:text-red-400 border border-neutral-200 dark:border-neutral-700 transition-all cursor-pointer whitespace-nowrap shrink-0"
+              >
+                全部取消 (总额归零)
+              </button>
+            )}
+          </div>
+
           {/* Step 1: Base Package Selection */}
           <div className="bg-white dark:bg-neutral-900 rounded-2xl p-5 border border-neutral-200/80 dark:border-neutral-800/80 shadow-xs">
             <div className="flex items-center justify-between mb-4">
@@ -1980,6 +2024,19 @@ ${activeAdds.length > 0 ? `● 增值配套服务：${activeAdds.map(a => a.name
                 <h2 className="text-sm font-bold text-neutral-900 dark:text-white">
                   选定基础套餐
                 </h2>
+                {selectedPlanId ? (
+                  <button
+                    type="button"
+                    onClick={() => setSelectedPlanId("")}
+                    className="text-[11px] text-neutral-500 hover:text-red-500 underline ml-1.5 cursor-pointer transition-colors"
+                  >
+                    取消勾选 (0元)
+                  </button>
+                ) : (
+                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-500 font-mono">
+                    未勾选 (¥0)
+                  </span>
+                )}
               </div>
               <div className="flex items-center gap-1 bg-neutral-100 dark:bg-neutral-800 p-1 rounded-lg text-xs font-medium">
                 <button
@@ -2007,29 +2064,38 @@ ${activeAdds.length > 0 ? `● 增值配套服务：${activeAdds.map(a => a.name
             <div className="grid grid-cols-1 gap-3 mb-4">
               {/* Plan 1: Workstation 888 (Flagship) */}
               <div
-                onClick={() => setSelectedPlanId("workstation_888")}
+                onClick={() => setSelectedPlanId(selectedPlanId === "workstation_888" ? "" : "workstation_888")}
                 className={`relative rounded-xl p-4 cursor-pointer border-2 transition-all ${
                   selectedPlanId === "workstation_888"
                     ? "border-blue-600 bg-blue-50/40 dark:bg-blue-950/20 shadow-sm"
-                    : "border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 bg-white dark:bg-neutral-900"
+                    : "border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 bg-white dark:bg-neutral-900 opacity-80 hover:opacity-100"
                 }`}
               >
-                <div className="flex items-start justify-between">
-                  <div className="flex flex-col">
-                    <div className="flex items-center gap-1.5 mb-1">
-                      <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 tracking-wider uppercase">
-                        DEV CHOICE
-                      </span>
-                      <span className="text-[11px] text-neutral-500 font-medium">
-                        FLAGSHIP · 极客旗舰首选
-                      </span>
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-start gap-2.5">
+                    <div className={`w-5 h-5 rounded-md border flex items-center justify-center shrink-0 mt-0.5 transition-colors ${
+                      selectedPlanId === "workstation_888"
+                        ? "border-blue-600 bg-blue-600 text-white"
+                        : "border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800"
+                    }`}>
+                      {selectedPlanId === "workstation_888" && <Check className="w-3.5 h-3.5 stroke-[3]" />}
                     </div>
-                    <h3 className="text-base font-bold text-neutral-950 dark:text-white">
-                      云工位全服务包 (888套餐)
-                    </h3>
-                    <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5 leading-relaxed">
-                      1V1 物理独享 Apple Silicon 算力 · 独立静态IP · 企业VPN · 官方AI会员全包
-                    </p>
+                    <div className="flex flex-col">
+                      <div className="flex items-center gap-1.5 mb-1">
+                        <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 tracking-wider uppercase">
+                          DEV CHOICE
+                        </span>
+                        <span className="text-[11px] text-neutral-500 font-medium">
+                          FLAGSHIP · 极客旗舰首选
+                        </span>
+                      </div>
+                      <h3 className="text-base font-bold text-neutral-950 dark:text-white">
+                        云工位全服务包 (888套餐)
+                      </h3>
+                      <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5 leading-relaxed">
+                        1V1 物理独享 Apple Silicon 算力 · 独立静态IP · 企业VPN · 官方AI会员全包
+                      </p>
+                    </div>
                   </div>
                   <div className="text-right flex flex-col items-end shrink-0">
                     <span className="text-[11px] text-neutral-400 line-through">
@@ -2048,29 +2114,38 @@ ${activeAdds.length > 0 ? `● 增值配套服务：${activeAdds.map(a => a.name
 
               {/* Plan 2: AI Lazy 488 */}
               <div
-                onClick={() => setSelectedPlanId("ai_lazy_488")}
+                onClick={() => setSelectedPlanId(selectedPlanId === "ai_lazy_488" ? "" : "ai_lazy_488")}
                 className={`relative rounded-xl p-4 cursor-pointer border-2 transition-all ${
                   selectedPlanId === "ai_lazy_488"
                     ? "border-emerald-500 bg-emerald-50/40 dark:bg-emerald-950/20 shadow-sm"
-                    : "border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 bg-white dark:bg-neutral-900"
+                    : "border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 bg-white dark:bg-neutral-900 opacity-80 hover:opacity-100"
                 }`}
               >
-                <div className="flex items-start justify-between">
-                  <div className="flex flex-col">
-                    <div className="flex items-center gap-1.5 mb-1">
-                      <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-500 text-white tracking-wider uppercase">
-                        RECOMMENDED
-                      </span>
-                      <span className="text-[11px] text-neutral-500 font-medium">
-                        MOST POPULAR · 全包爆款
-                      </span>
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-start gap-2.5">
+                    <div className={`w-5 h-5 rounded-md border flex items-center justify-center shrink-0 mt-0.5 transition-colors ${
+                      selectedPlanId === "ai_lazy_488"
+                        ? "border-emerald-600 bg-emerald-600 text-white"
+                        : "border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800"
+                    }`}>
+                      {selectedPlanId === "ai_lazy_488" && <Check className="w-3.5 h-3.5 stroke-[3]" />}
                     </div>
-                    <h3 className="text-base font-bold text-neutral-950 dark:text-white">
-                      海外AI无忧懒人包 (488套餐)
-                    </h3>
-                    <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5 leading-relaxed">
-                      微主机 · 独立静态商业IP · VPN · 官方AI账号 · 专享海外代充
-                    </p>
+                    <div className="flex flex-col">
+                      <div className="flex items-center gap-1.5 mb-1">
+                        <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-500 text-white tracking-wider uppercase">
+                          RECOMMENDED
+                        </span>
+                        <span className="text-[11px] text-neutral-500 font-medium">
+                          MOST POPULAR · 全包爆款
+                        </span>
+                      </div>
+                      <h3 className="text-base font-bold text-neutral-950 dark:text-white">
+                        海外AI无忧懒人包 (488套餐)
+                      </h3>
+                      <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5 leading-relaxed">
+                        微主机 · 独立静态商业IP · VPN · 官方AI账号 · 专享海外代充
+                      </p>
+                    </div>
                   </div>
                   <div className="text-right flex flex-col items-end shrink-0">
                     <span className="text-[11px] text-neutral-400 line-through">
@@ -2098,6 +2173,7 @@ ${activeAdds.length > 0 ? `● 增值配套服务：${activeAdds.map(a => a.name
                 onChange={(e) => setSelectedPlanId(e.target.value)}
                 className="w-full text-xs font-medium bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg px-3 py-2 text-neutral-800 dark:text-neutral-200 outline-hidden"
               >
+                <option value="">-- 不选择基础云主机 (仅采购其它服务 / 总额归零) --</option>
                 {CLOUD_PLANS.map((p) => (
                   <option key={p.id} value={p.id}>
                     {p.name} ({currency === "CNY" ? `¥${p.priceCNY}` : `฿${p.priceTHB}`}/月)
@@ -2119,11 +2195,18 @@ ${activeAdds.length > 0 ? `● 增值配套服务：${activeAdds.map(a => a.name
                 </h2>
               </div>
               <span className="text-[11px] font-mono text-neutral-400">
-                {selectedPlanId === "workstation_888" ? "1V1 物理独享 Apple Silicon" : "云端虚拟化算力"}
+                {selectedPlanId === "workstation_888" ? "1V1 物理独享 Apple Silicon" : selectedPlanId === "ai_lazy_488" ? "云端虚拟化算力" : "未选配基础主机"}
               </span>
             </div>
 
-            {selectedPlanId === "workstation_888" ? (
+            {!selectedPlanId ? (
+              <div className="p-4 rounded-xl border border-dashed border-neutral-300 dark:border-neutral-700 bg-neutral-50/50 dark:bg-neutral-800/30 text-center text-xs text-neutral-500">
+                <span className="font-semibold text-neutral-700 dark:text-neutral-300">暂未选定基础云主机硬件</span>
+                <p className="mt-1 text-[11px] text-neutral-400">
+                  如需独享 Apple Silicon (M2/M4/M6) 或微主机硬件环境，请在上方步骤 1 勾选套餐。
+                </p>
+              </div>
+            ) : selectedPlanId === "workstation_888" ? (
               <div className="space-y-4">
                 {/* 1. CPU: M2 / M4 / M6 */}
                 <div>
@@ -2311,11 +2394,11 @@ ${activeAdds.length > 0 ? `● 增值配套服务：${activeAdds.map(a => a.name
                   </div>
                 </div>
               </div>
-            ) : (
+            ) : currentPlan ? (
               <div className="p-3 bg-neutral-50 rounded-xl text-xs text-neutral-600">
                 当前场景包包含固定高规格资源配置：{currentPlan.specs.hardware} ({currentPlan.specs.os})。
               </div>
-            )}
+            ) : null}
           </div>
 
           {/* Step 3: AI Subscription Detailed Specifications */}
@@ -2328,6 +2411,19 @@ ${activeAdds.length > 0 ? `● 增值配套服务：${activeAdds.map(a => a.name
                 <h2 className="text-sm font-bold text-neutral-900 dark:text-white">
                   官方 AI 顶配会员规格选定 (含每月订阅全包)
                 </h2>
+                {selectedAiSubId ? (
+                  <button
+                    type="button"
+                    onClick={() => setSelectedAiSubId("")}
+                    className="text-[11px] text-neutral-500 hover:text-red-500 underline ml-1.5 cursor-pointer transition-colors"
+                  >
+                    取消选配 (0元)
+                  </button>
+                ) : (
+                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-500 font-mono">
+                    未选配 (¥0)
+                  </span>
+                )}
               </div>
               <span className="text-[10px] text-emerald-600 font-semibold bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded">
                 合规海外外卡代充 · 零风控拒付
@@ -2341,11 +2437,11 @@ ${activeAdds.length > 0 ? `● 增值配套服务：${activeAdds.map(a => a.name
                 return (
                   <div
                     key={opt.id}
-                    onClick={() => setSelectedAiSubId(opt.id)}
+                    onClick={() => setSelectedAiSubId(selectedAiSubId === opt.id ? "" : opt.id)}
                     className={`p-3.5 rounded-xl border cursor-pointer transition-all ${
                       isSelected
                         ? "border-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/30 shadow-xs"
-                        : "border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 bg-white dark:bg-neutral-900"
+                        : "border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 bg-white dark:bg-neutral-900 opacity-80 hover:opacity-100"
                     }`}
                   >
                     <div className="flex items-center justify-between">
@@ -3093,7 +3189,9 @@ ${activeAdds.length > 0 ? `● 增值配套服务：${activeAdds.map(a => a.name
 
             {/* Selected Plan Highlight Banner */}
             <div className={`mt-5 p-4 rounded-xl border-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
-              currentPlan.id === "ai_lazy_488"
+              !currentPlan
+                ? "border-neutral-300 bg-neutral-50/80"
+                : currentPlan.id === "ai_lazy_488"
                 ? "border-emerald-500 bg-emerald-50/50"
                 : currentPlan.id === "workstation_888"
                 ? "border-blue-600 bg-blue-50/50"
@@ -3102,20 +3200,22 @@ ${activeAdds.length > 0 ? `● 增值配套服务：${activeAdds.map(a => a.name
               <div className="flex flex-col">
                 <div className="flex items-center gap-2">
                   <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-neutral-900 text-white font-mono uppercase">
-                    {currentPlan.badge}
+                    {currentPlan ? currentPlan.badge : "CUSTOM / 0 TOTAL"}
                   </span>
                   <span className="text-xs font-bold text-neutral-700">
-                    {currentPlan.category}
+                    {currentPlan ? currentPlan.category : "自由定制采购方案"}
                   </span>
                 </div>
                 <div className="text-lg font-black text-neutral-950 mt-1">
-                  {currentPlan.name}
-                  <span className="text-xs font-normal text-neutral-500 ml-2">
-                    ({currentPlan.enName})
-                  </span>
+                  {currentPlan ? currentPlan.name : "未选配基础云主机"}
+                  {currentPlan && (
+                    <span className="text-xs font-normal text-neutral-500 ml-2">
+                      ({currentPlan.enName})
+                    </span>
+                  )}
                 </div>
                 <div className="text-xs text-neutral-600 mt-0.5">
-                  {currentPlan.description}
+                  {currentPlan ? currentPlan.description : "当前未选配基础硬件云主机。若选购增值服务或AI会员将按单项计费，全部未选则总额为 ¥0。"}
                 </div>
               </div>
 
@@ -3192,7 +3292,11 @@ ${activeAdds.length > 0 ? `● 增值配套服务：${activeAdds.map(a => a.name
                         <span className="block text-[10px] font-normal text-neutral-500">Hardware / CPU / RAM</span>
                       </td>
                       <td className="py-2.5 px-3.5 text-neutral-700">
-                        {selectedPlanId === "workstation_888" ? (
+                        {!selectedPlanId ? (
+                          <div className="text-neutral-500 text-[11px] italic">
+                            未选定基础云主机硬件（按需纯定制模式）
+                          </div>
+                        ) : selectedPlanId === "workstation_888" ? (
                           <div className="space-y-1">
                             <div className="font-bold text-neutral-900 flex items-center gap-2">
                               <span>1V1 物理独享工作站：{chosenCpu.name} ({chosenCpu.specs})</span>
@@ -3216,8 +3320,10 @@ ${activeAdds.length > 0 ? `● 增值配套服务：${activeAdds.map(a => a.name
                               ✓ 预装反指纹伪装与 7×24h 自动化值守守护进程
                             </div>
                           </div>
-                        ) : (
+                        ) : currentPlan ? (
                           <div>{currentPlan.specs.hardware} · {currentPlan.specs.os}</div>
+                        ) : (
+                          <div className="text-neutral-500">未选配</div>
                         )}
                       </td>
                     </tr>
@@ -3229,20 +3335,26 @@ ${activeAdds.length > 0 ? `● 增值配套服务：${activeAdds.map(a => a.name
                         <span className="block text-[10px] font-normal text-neutral-500">Official AI Membership</span>
                       </td>
                       <td className="py-2.5 px-3.5 text-neutral-700">
-                        <div className="space-y-1">
-                          <div className="font-bold text-neutral-900 flex items-center gap-2">
-                            <span>{chosenAiSubscription.name}</span>
-                            <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800">
-                              官方原价 ${chosenAiSubscription.officialPriceUsd}/月 费用全包
-                            </span>
+                        {chosenAiSubscription ? (
+                          <div className="space-y-1">
+                            <div className="font-bold text-neutral-900 flex items-center gap-2">
+                              <span>{chosenAiSubscription.name}</span>
+                              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800">
+                                官方原价 ${chosenAiSubscription.officialPriceUsd}/月 费用全包
+                              </span>
+                            </div>
+                            <div className="text-neutral-600 text-[11px]">
+                              {chosenAiSubscription.summary}
+                            </div>
+                            <div className="text-[11px] text-neutral-600">
+                              <strong>保障承诺：</strong>服务商使用合规海外商业外卡代缴代充；服务期内若出现非人为官方风控，提供 24h 免费协助解封或重置更换，免除风控拒付降智。
+                            </div>
                           </div>
-                          <div className="text-neutral-600 text-[11px]">
-                            {chosenAiSubscription.summary}
+                        ) : (
+                          <div className="text-neutral-500 text-[11px] italic">
+                            未选配官方 AI 会员账号（不产生 AI 订阅费用）
                           </div>
-                          <div className="text-[11px] text-neutral-600">
-                            <strong>保障承诺：</strong>服务商使用合规海外商业外卡代缴代充；服务期内若出现非人为官方风控，提供 24h 免费协助解封或重置更换，免除风控拒付降智。
-                          </div>
-                        </div>
+                        )}
                       </td>
                     </tr>
 
@@ -3338,30 +3450,56 @@ ${activeAdds.length > 0 ? `● 增值配套服务：${activeAdds.map(a => a.name
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-neutral-200 text-neutral-800">
-                    <tr>
-                      <td className="py-2.5 px-3 font-medium">
-                        {currentPlan.name} 服务费 (含 CPU: {chosenCpu.name} / 内存: {chosenMemory.size} / SSD: {chosenStorage.size} / AI: {chosenAiSubscription.name})
-                      </td>
-                      <td className="py-2.5 px-3">{durationMonths} 个月</td>
-                      <td className="py-2.5 px-3">
-                        {currSym}{effectiveMonthlyFee.toLocaleString()} / 月
-                      </td>
-                      <td className="py-2.5 px-3 text-right font-medium">
-                        {currSym}{(effectiveMonthlyFee * durationMonths).toLocaleString()}
-                      </td>
-                    </tr>
-                    <tr>
-                      <td className="py-2.5 px-3 font-medium">
-                        专属物理节点初始化与 1 对 1 环境调优开机/开户服务费
-                      </td>
-                      <td className="py-2.5 px-3">首月一次性</td>
-                      <td className="py-2.5 px-3">
-                        {currSym}{baseSetupFee.toLocaleString()}
-                      </td>
-                      <td className="py-2.5 px-3 text-right font-medium">
-                        {effectiveSetupFee === 0 ? "¥0 (年付特惠全免)" : `${currSym}${effectiveSetupFee.toLocaleString()}`}
-                      </td>
-                    </tr>
+                    {currentPlan ? (
+                      <tr>
+                        <td className="py-2.5 px-3 font-medium">
+                          {currentPlan.name} 服务费 (含 CPU: {chosenCpu.name} / 内存: {chosenMemory.size} / SSD: {chosenStorage.size} {chosenAiSubscription ? `/ AI: ${chosenAiSubscription.name}` : ""})
+                        </td>
+                        <td className="py-2.5 px-3">{durationMonths} 个月</td>
+                        <td className="py-2.5 px-3">
+                          {currSym}{effectiveMonthlyFee.toLocaleString()} / 月
+                        </td>
+                        <td className="py-2.5 px-3 text-right font-medium">
+                          {currSym}{(effectiveMonthlyFee * durationMonths).toLocaleString()}
+                        </td>
+                      </tr>
+                    ) : effectiveMonthlyFee > 0 ? (
+                      <tr>
+                        <td className="py-2.5 px-3 font-medium">
+                          按月服务费 (含 {chosenAiSubscription ? `AI: ${chosenAiSubscription.name}` : ""} {extraIpCount > 0 ? `+ ${extraIpCount}x 额外独立IP` : ""})
+                        </td>
+                        <td className="py-2.5 px-3">{durationMonths} 个月</td>
+                        <td className="py-2.5 px-3">
+                          {currSym}{effectiveMonthlyFee.toLocaleString()} / 月
+                        </td>
+                        <td className="py-2.5 px-3 text-right font-medium">
+                          {currSym}{(effectiveMonthlyFee * durationMonths).toLocaleString()}
+                        </td>
+                      </tr>
+                    ) : (
+                      <tr>
+                        <td className="py-2.5 px-3 text-neutral-500 italic">
+                          未选配按月基础订阅产品 (月服务费为 ¥0)
+                        </td>
+                        <td className="py-2.5 px-3 text-neutral-400">-</td>
+                        <td className="py-2.5 px-3 text-neutral-400">{currSym}0 / 月</td>
+                        <td className="py-2.5 px-3 text-right font-medium text-neutral-400">{currSym}0</td>
+                      </tr>
+                    )}
+                    {currentPlan && (
+                      <tr>
+                        <td className="py-2.5 px-3 font-medium">
+                          专属物理节点初始化与 1 对 1 环境调优开机/开户服务费
+                        </td>
+                        <td className="py-2.5 px-3">首月一次性</td>
+                        <td className="py-2.5 px-3">
+                          {currSym}{baseSetupFee.toLocaleString()}
+                        </td>
+                        <td className="py-2.5 px-3 text-right font-medium">
+                          {effectiveSetupFee === 0 ? "¥0 (年付特惠全免)" : `${currSym}${effectiveSetupFee.toLocaleString()}`}
+                        </td>
+                      </tr>
+                    )}
                     {addonsOneTimeFee > 0 && (
                       <tr>
                         <td className="py-2.5 px-3 font-medium">
@@ -3614,7 +3752,9 @@ ${activeAdds.length > 0 ? `● 增值配套服务：${activeAdds.map(a => a.name
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-neutral-500">签约交付标的:</span>
-                <span className="font-semibold text-neutral-900 dark:text-white">{currentPlan.name} (含 {chosenCpu.name} / {chosenMemory.size} / {chosenStorage.size})</span>
+                <span className="font-semibold text-neutral-900 dark:text-white">
+                  {currentPlan ? `${currentPlan.name} (含 ${chosenCpu.name} / ${chosenMemory.size} / ${chosenStorage.size})` : "纯定制/增值服务方案 (未选配基础主机)"}
+                </span>
               </div>
             </div>
 
@@ -3800,7 +3940,7 @@ ${activeAdds.length > 0 ? `● 增值配套服务：${activeAdds.map(a => a.name
                     {CLOUD_PLANS.map((plan) => (
                       <div
                         key={plan.id}
-                        onClick={() => setCustPlanId(plan.id)}
+                        onClick={() => setCustPlanId(custPlanId === plan.id ? "" : plan.id)}
                         className={`p-3 rounded-xl border cursor-pointer transition-all ${
                           custPlanId === plan.id
                             ? "border-blue-600 bg-blue-50/60 dark:bg-blue-950/40 shadow-xs"
@@ -3943,7 +4083,7 @@ ${activeAdds.length > 0 ? `● 增值配套服务：${activeAdds.map(a => a.name
                     {AI_SUBSCRIPTION_OPTIONS.map((ai) => (
                       <div
                         key={ai.id}
-                        onClick={() => setCustAiSubId(ai.id)}
+                        onClick={() => setCustAiSubId(custAiSubId === ai.id ? "" : ai.id)}
                         className={`p-2.5 rounded-xl border cursor-pointer transition-all flex items-center justify-between ${
                           custAiSubId === ai.id
                             ? "border-blue-600 bg-blue-50/60 dark:bg-blue-950/40 shadow-xs"
