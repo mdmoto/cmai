@@ -288,7 +288,7 @@ function generateStandaloneContractHtml(data: {
         <img alt="Chiang Mai AI Center" class="h-10 sm:h-14 md:h-16 w-auto object-contain shrink-0" src="https://lazzor.com/images/cmai_header_logo.png">
         <div class="border-l-2 border-neutral-300 pl-2.5 sm:pl-3 py-0.5">
           <div class="font-extrabold text-xs sm:text-sm tracking-wide text-neutral-900 uppercase">Chiang Mai AI Center</div>
-          <div class="text-[10px] sm:text-[11px] text-neutral-600 font-medium">Colasola Co., Ltd. (บริษัท โคล่าโซล่า จำกัด)</div>
+          <div class="text-[10px] sm:text-[11px] text-neutral-600 font-medium">Chiang Mai AI Center Co., Ltd.</div>
           <div class="text-[9px] sm:text-[10px] text-neutral-500 font-mono break-all">Tax ID: 0505566006478 · Chiang Mai AI Center, Chiang Mai</div>
         </div>
       </div>
@@ -314,7 +314,7 @@ function generateStandaloneContractHtml(data: {
 
   <div class="space-y-3.5 text-xs sm:text-[12.5px] leading-relaxed mb-6">
     <p>
-      <strong>Between / ระหว่าง:</strong> Chiang Mai AI Center (Colasola Co., Ltd. / บริษัท โคล่าโซล่า จำกัด)<br>
+      <strong>Between / ระหว่าง:</strong> Chiang Mai AI Center Co., Ltd.<br>
       <strong>Company Registration No. / Tax ID / ทะเบียนนิติบุคคลเลขที่:</strong> 0505566006478<br>
       <strong>Address / ที่อยู่:</strong> 236/105 Chiang Mai AI Center, Moo 6, Mahidol Road, Nong Hoi, Mueang Chiang Mai, Chiang Mai 50000 (บ้านเลขที่ 236/105 หมู่ 6 ถ.มหิดล ตำบลหนองหอย อำเภอเมืองเชียงใหม่ จังหวัดเชียงใหม่ 50000)<br>
       hereinafter referred to as the <strong>Landlord</strong> / ซึ่งในที่นี้เรียกว่า <strong>“ผู้ให้เช่า”</strong>
@@ -420,14 +420,14 @@ function generateStandaloneContractHtml(data: {
   <div class="border-t-2 border-black pt-5 grid grid-cols-1 sm:grid-cols-2 print:grid-cols-2 gap-6 text-xs">
     <div class="space-y-2">
       <p class="font-bold uppercase">ผู้ให้เช่า / LANDLORD:<br>
-        <span class="text-blue-950 font-semibold">Chiang Mai AI Center (Colasola Co., Ltd. / บริษัท โคล่าโซล่า จำกัด)</span>
+        <span class="text-blue-950 font-semibold">Chiang Mai AI Center Co., Ltd.</span>
       </p>
       <div class="h-20 border-b border-black items-center justify-start relative py-1 flex">
-        <img alt="Official Corporate Seal - Colasola Co., Ltd." class="h-24 w-24 object-contain -my-2" src="https://lazzor.com/images/colasola_stamp.png">
+        <img alt="Official Corporate Seal - Chiang Mai AI Center Co., Ltd." class="h-24 w-24 object-contain -my-2" src="https://lazzor.com/images/cmai_seal.png">
       </div>
       <div class="space-y-0.5 text-[10.5px]">
         <p><strong>Written Name / ชื่อเต็ม:</strong> Authorized Director</p>
-        <p><strong>Title / ตำแหน่ง:</strong> Managing Director (Colasola Co., Ltd.)</p>
+        <p><strong>Title / ตำแหน่ง:</strong> Managing Director (Chiang Mai AI Center Co., Ltd.)</p>
         <p><strong>Date / วันที่:</strong> ${data.signedAt ? data.signedAt.slice(0, 10) : "14 September 2026"}</p>
         <p><strong>Phone / เบอร์โทร:</strong> +66 62 345 8238</p>
       </div>
@@ -638,7 +638,7 @@ export async function POST(req: Request) {
         <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 640px; margin: 0 auto; color: #111; line-height: 1.6; border: 1px solid #e5e5e5; border-radius: 12px; overflow: hidden;">
           <div style="background-color: #0f172a; padding: 24px; color: #fff;">
             <h2 style="margin: 0 0 4px 0; font-size: 20px; font-weight: 800; letter-spacing: 0.5px;">CHIANG MAI AI CENTER</h2>
-            <p style="margin: 0; font-size: 12px; color: #94a3b8;">Colasola Co., Ltd. · Office Lease Application Confirmation</p>
+            <p style="margin: 0; font-size: 12px; color: #94a3b8;">Chiang Mai AI Center Co., Ltd. · Office Lease Application Confirmation</p>
           </div>
           <div style="padding: 24px;">
             <div style="background-color: #ecfdf5; border: 1.5px solid #10b981; border-radius: 8px; padding: 16px 18px; margin-bottom: 20px;">
@@ -653,7 +653,7 @@ export async function POST(req: Request) {
             <p style="font-size: 14px; margin-top: 0;">Dear <strong>${effectiveTenant}</strong>,</p>
             <p style="font-size: 13px; color: #334155; line-height: 1.6;">
               Thank you for submitting your office lease application with Chiang Mai AI Center. Your application details and verification documents have been securely registered in our system and are currently undergoing human verification.<br/><br/>
-              <strong>Important Notice:</strong> Once your initial payment is received and confirmed by our accounting team, the Landlord (Colasola Co., Ltd.) will formally countersign and stamp the agreement, and the officially executed Lease Agreement will be dispatched directly to your email.
+              <strong>Important Notice:</strong> Once your initial payment is received and confirmed by our accounting team, the Landlord (Chiang Mai AI Center Co., Ltd.) will formally countersign and stamp the agreement, and the officially executed Lease Agreement will be dispatched directly to your email.
             </p>
             
             <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin: 20px 0; font-size: 13px;">
@@ -682,7 +682,7 @@ export async function POST(req: Request) {
             </div>
             
             <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid #e2e8f0; font-size: 11px; color: #94a3b8; text-align: center;">
-              Chiang Mai AI Center · Colasola Co., Ltd.<br/>
+              Chiang Mai AI Center Co., Ltd.<br/>
               236/105 Chiang Mai AI Center, Moo 6, Mahidol Road, Nong Hoi, Mueang Chiang Mai 50000<br/>
               Tax ID: 0505566006478
             </div>
@@ -823,7 +823,7 @@ export async function POST(req: Request) {
         name: effectiveTenant,
         email: cleanEmail,
         replyto: cleanEmail,
-        from_name: "Chiang Mai AI Center (Colasola Co., Ltd.)",
+        from_name: "Chiang Mai AI Center Co., Ltd.",
         subject: `[LEASE APPLICATION / 待收款复核] Room ${roomId} - ${effectiveTenant} (${contractSerial})`,
         "Contract Reference": contractSerial,
         "Digital Hash Checksum": contractHash,

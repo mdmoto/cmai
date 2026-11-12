@@ -235,7 +235,7 @@ export const VALID_PROMO_CODES: Record<string, PromoCodeInfo> = {
     code: "colasola20206",
     rate: 0.90,
     percentOff: 10,
-    name: "Colasola Special Partner (9折 / 10% OFF)",
+    name: "Chiang Mai AI Center Partner (9折 / 10% OFF)",
     tagEng: "10% OFF",
     tagThai: "ลด 10%",
   },
@@ -243,7 +243,7 @@ export const VALID_PROMO_CODES: Record<string, PromoCodeInfo> = {
     code: "colasola2026",
     rate: 0.90,
     percentOff: 10,
-    name: "Colasola Special Partner (9折 / 10% OFF)",
+    name: "Chiang Mai AI Center Partner (9折 / 10% OFF)",
     tagEng: "10% OFF",
     tagThai: "ลด 10%",
   },
@@ -323,7 +323,7 @@ async function generateVectorContractPdf(data: {
   doc.setFont("helvetica", "normal");
   doc.setFontSize(8.5);
   doc.setTextColor(100, 116, 139);
-  doc.text("Colasola Co., Ltd. · Tax ID: 0505566006478", margin + 32, 22);
+  doc.text("Chiang Mai AI Center Co., Ltd. · Tax ID: 0505566006478", margin + 32, 22);
   doc.text("236/105 Chiang Mai AI Center, Moo 6, Mahidol Rd, Nong Hoi, Mueang Chiang Mai 50000", margin + 32, 26);
 
   // Right Reference Info
@@ -373,7 +373,7 @@ async function generateVectorContractPdf(data: {
   doc.setFont("helvetica", "bold");
   doc.text("LANDLORD:", margin + 4, y + 6);
   doc.setFont("helvetica", "normal");
-  doc.text("Chiang Mai AI Center (Colasola Co., Ltd.) · Tax ID: 0505566006478", margin + 34, y + 6);
+  doc.text("Chiang Mai AI Center Co., Ltd. · Tax ID: 0505566006478", margin + 34, y + 6);
   doc.text("236/105 Chiang Mai AI Center, Moo 6, Mahidol Rd, Nong Hoi, Mueang Chiang Mai 50000", margin + 34, y + 10);
 
   doc.setFont("helvetica", "bold");
@@ -498,7 +498,7 @@ async function generateVectorContractPdf(data: {
   doc.setFontSize(7.5);
   doc.setFont("helvetica", "normal");
   doc.setTextColor(100, 116, 139);
-  doc.text("Chiang Mai AI Center (Colasola Co., Ltd.)", margin + 4, y + 9);
+  doc.text("Chiang Mai AI Center Co., Ltd.", margin + 4, y + 9);
 
   // Official Stamp
   if (data.stampDataUrl && data.stampDataUrl.startsWith("data:")) {
@@ -539,7 +539,7 @@ async function generateVectorContractPdf(data: {
   // Footer on Page 1
   doc.setFontSize(7);
   doc.setTextColor(148, 163, 184);
-  doc.text("Official Tenancy Document · Chiang Mai AI Center · Colasola Co., Ltd. · Tax ID: 0505566006478", pageWidth / 2, pageHeight - 8, { align: "center" });
+  doc.text("Official Tenancy Document · Chiang Mai AI Center Co., Ltd. · Tax ID: 0505566006478", pageWidth / 2, pageHeight - 8, { align: "center" });
 
   // Optional Page 2: Tenant Identity / Passport Document Attachment
   if (data.idImage && data.idImage.startsWith("data:")) {
@@ -561,7 +561,7 @@ async function generateVectorContractPdf(data: {
 
     doc.setFontSize(7);
     doc.setTextColor(148, 163, 184);
-    doc.text("Official Tenancy Document · Chiang Mai AI Center · Colasola Co., Ltd.", pageWidth / 2, pageHeight - 8, { align: "center" });
+    doc.text("Official Tenancy Document · Chiang Mai AI Center Co., Ltd.", pageWidth / 2, pageHeight - 8, { align: "center" });
   }
 
   const rawUri = doc.output("datauristring");
@@ -578,7 +578,7 @@ function ContractContent() {
 
   // Preloaded Base64 Image Assets for 100% Reliable PDF & Canvas Rendering
   const [logoDataUrl, setLogoDataUrl] = useState<string>("/images/cmai_header_logo.png");
-  const [stampDataUrl, setStampDataUrl] = useState<string>("/images/colasola_stamp.png");
+  const [stampDataUrl, setStampDataUrl] = useState<string>("/images/cmai_seal.png");
 
   useEffect(() => {
     // Ensure document lang is English for the contract page
@@ -622,7 +622,7 @@ function ContractContent() {
     toDataUrl("/images/cmai_header_logo.png").then((d) => {
       if (d && d.startsWith("data:")) setLogoDataUrl(d);
     });
-    toDataUrl("/images/colasola_stamp.png").then((d) => {
+    toDataUrl("/images/cmai_seal.png").then((d) => {
       if (d && d.startsWith("data:")) setStampDataUrl(d);
     });
   }, []);
@@ -1280,7 +1280,7 @@ function ContractContent() {
             name: effectiveTenantName,
             email: tenantEmail.trim(),
             replyto: tenantEmail.trim(),
-            from_name: "Chiang Mai AI Center (Colasola Co., Ltd.)",
+            from_name: "Chiang Mai AI Center Co., Ltd.",
             subject: `[LEASE APPLICATION / 待收款复核] Room ${currentRoomObj.id} - ${effectiveTenantName} (${contractSerial})`,
             "Contract Reference": contractSerial,
             "Digital Hash Checksum": contractHash,
@@ -1577,7 +1577,7 @@ function ContractContent() {
           ctx.textAlign = "center";
           ctx.translate(w / 2, h / 2);
           ctx.rotate(-Math.PI / 6);
-          const wmText = "FOR CMAI / COLASOLA CO., LTD. LEASE ONLY";
+          const wmText = "FOR CHIANG MAI AI CENTER LEASE ONLY";
           ctx.strokeText(wmText, 0, 0);
           ctx.fillText(wmText, 0, 0);
           ctx.restore();
@@ -1724,7 +1724,7 @@ function ContractContent() {
               </div>
               <div className="flex items-center gap-2 flex-wrap">
                 <p className="text-[11px] text-neutral-500 font-mono hidden sm:block">
-                  Ref: {contractSerial || "CMAI-2026-LEASE"} · Chiang Mai AI Center (Colasola Co., Ltd.)
+                  Ref: {contractSerial || "CMAI-2026-LEASE"} · Chiang Mai AI Center Co., Ltd.
                 </p>
                 <Link
                   href="/cloud-contract"
@@ -2363,7 +2363,7 @@ function ContractContent() {
                   className="mt-0.5 w-4 h-4 rounded text-blue-600 border-neutral-300 focus:ring-blue-500 cursor-pointer"
                 />
                 <span className="text-neutral-700 dark:text-neutral-300 leading-relaxed font-medium">
-                  <strong>PDPA Privacy Consent:</strong> I hereby consent to Chiang Mai AI Center (Colasola Co., Ltd.) collecting and processing my submitted identity and contact details solely for this tenancy agreement and statutory legal/tax compliance in Thailand. This data will never be disclosed to unauthorized third parties.
+                  <strong>PDPA Privacy Consent:</strong> I hereby consent to Chiang Mai AI Center Co., Ltd. collecting and processing my submitted identity and contact details solely for this tenancy agreement and statutory legal/tax compliance in Thailand. This data will never be disclosed to unauthorized third parties.
                 </span>
               </label>
 
@@ -2396,7 +2396,7 @@ function ContractContent() {
                     Chiang Mai AI Center
                   </div>
                   <div className="text-[10px] sm:text-[11px] text-neutral-600 font-medium">
-                    Colasola Co., Ltd. (บริษัท โคล่าโซล่า จำกัด)
+                    Chiang Mai AI Center Co., Ltd.
                   </div>
                   <div className="text-[9px] sm:text-[10px] text-neutral-500 font-mono break-all">
                     Tax ID: 0505566006478 · Chiang Mai AI Center, Chiang Mai
@@ -2434,7 +2434,7 @@ function ContractContent() {
           {/* Agreement Parties */}
           <div className="space-y-3.5 text-xs sm:text-[12.5px] leading-relaxed mb-6">
             <p>
-              <strong>Between / ระหว่าง:</strong> Chiang Mai AI Center (Colasola Co., Ltd. / บริษัท โคล่าโซล่า จำกัด)<br />
+              <strong>Between / ระหว่าง:</strong> Chiang Mai AI Center Co., Ltd.<br />
               <strong>Company Registration No. / Tax ID / ทะเบียนนิติบุคคลเลขที่:</strong> 0505566006478<br />
               <strong>Address / ที่อยู่:</strong> 236/105 Chiang Mai AI Center, Moo 6, Mahidol Road, Nong Hoi, Mueang Chiang Mai, Chiang Mai 50000 (บ้านเลขที่ 236/105 หมู่ 6 ถ.มหิดล ตำบลหนองหอย อำเภอเมืองเชียงใหม่ จังหวัดเชียงใหม่ 50000)<br />
               hereinafter referred to as the <strong>Landlord</strong> / ซึ่งในที่นี้เรียกว่า <strong>“ผู้ให้เช่า”</strong>
@@ -2569,7 +2569,7 @@ function ContractContent() {
         {/* PAGE 2: Section 3 Tenant Obligations */}
         <div id="contract-page-2" className="contract-page border-b-2 border-dashed border-neutral-200 pb-6 mb-6 print:border-none print:pb-0 print:mb-0">
           <div className="flex justify-between items-center text-[10px] text-neutral-400 font-mono pb-2 mb-3 border-b border-neutral-200">
-            <span>Chiang Mai AI Center (Colasola Co., Ltd.) · Lease Agreement</span>
+            <span>Chiang Mai AI Center Co., Ltd. · Lease Agreement</span>
             <span>Ref: {contractSerial} · Page 2 of {idImage ? "4" : "3"}</span>
           </div>
 
@@ -2626,7 +2626,7 @@ function ContractContent() {
         {/* PAGE 3: Section 4 Landlord Obligations, Section 5-7, Signatures */}
         <div id="contract-page-3" className="contract-page border-b-2 border-dashed border-neutral-200 pb-6 mb-6 print:border-none print:pb-0 print:mb-0">
           <div className="flex justify-between items-center text-[10px] text-neutral-400 font-mono pb-2 mb-3 border-b border-neutral-200">
-            <span>Chiang Mai AI Center (Colasola Co., Ltd.) · Lease Agreement</span>
+            <span>Chiang Mai AI Center Co., Ltd. · Lease Agreement</span>
             <span>Ref: {contractSerial} · Page 3 of {idImage ? "4" : "3"}</span>
           </div>
 
@@ -2686,7 +2686,7 @@ function ContractContent() {
             <div className="space-y-2">
               <p className="font-bold uppercase">
                 ผู้ให้เช่า / LANDLORD:<br />
-                <span className="text-blue-950 font-semibold">Chiang Mai AI Center (Colasola Co., Ltd. / บริษัท โคล่าโซล่า จำกัด)</span>
+                <span className="text-blue-950 font-semibold">Chiang Mai AI Center Co., Ltd.</span>
               </p>
               
               {/* Unverified Placeholder (Shown on public screen & unverified printouts) */}
@@ -2713,7 +2713,7 @@ function ContractContent() {
                 <img
                   id="official-stamp-img"
                   src={stampDataUrl}
-                  alt="Official Corporate Seal - Colasola Co., Ltd."
+                  alt="Official Corporate Seal - Chiang Mai AI Center Co., Ltd."
                   className="h-24 w-24 object-contain opacity-95 pointer-events-none select-none -my-2"
                 />
               </div>
@@ -2774,7 +2774,7 @@ function ContractContent() {
         {idImage && (
           <div id="contract-page-4" className="contract-page print:border-none print:pb-0 print:mb-0">
             <div className="flex justify-between items-center text-[10px] text-neutral-400 font-mono pb-2 mb-3 border-b border-neutral-200">
-              <span>Chiang Mai AI Center (Colasola Co., Ltd.) · Official Attachment</span>
+              <span>Chiang Mai AI Center Co., Ltd. · Official Attachment</span>
               <span>Ref: {contractSerial} · Page 4 of 4</span>
             </div>
             <div className="mt-4 pt-2">

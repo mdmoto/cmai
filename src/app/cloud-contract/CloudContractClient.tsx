@@ -1335,7 +1335,12 @@ function CloudContractContent() {
 
   // Configured Specs for Mac Workstation
   const chosenCpu = MAC_CPU_OPTIONS.find((c) => c.id === selectedCpuId) || MAC_CPU_OPTIONS[0];
-  const chosenMemory = MAC_MEMORY_OPTIONS.find((m) => m.id === selectedMemoryId) || MAC_MEMORY_OPTIONS[0];
+  const chosenMemory = (() => {
+    if ((selectedCpuId === "m4" || selectedCpuId === "m6") && selectedMemoryId === "8") {
+      return MAC_MEMORY_OPTIONS.find((m) => m.id === "16") || MAC_MEMORY_OPTIONS[1];
+    }
+    return MAC_MEMORY_OPTIONS.find((m) => m.id === selectedMemoryId) || MAC_MEMORY_OPTIONS[0];
+  })();
   const chosenStorage = MAC_STORAGE_OPTIONS.find((s) => s.id === selectedStorageId) || MAC_STORAGE_OPTIONS[0];
   const chosenAiSubscription = AI_SUBSCRIPTION_OPTIONS.find((a) => a.id === selectedAiSubId) || AI_SUBSCRIPTION_OPTIONS[0];
 
@@ -1633,7 +1638,12 @@ function CloudContractContent() {
   const computeInvitationText = (url: string) => {
     const plan = CLOUD_PLANS.find((p) => p.id === custPlanId) || CLOUD_PLANS[0];
     const cpu = MAC_CPU_OPTIONS.find((c) => c.id === custCpuId) || MAC_CPU_OPTIONS[0];
-    const mem = MAC_MEMORY_OPTIONS.find((m) => m.id === custMemoryId) || MAC_MEMORY_OPTIONS[0];
+    const mem = (() => {
+      if ((custCpuId === "m4" || custCpuId === "m6") && custMemoryId === "8") {
+        return MAC_MEMORY_OPTIONS.find((m) => m.id === "16") || MAC_MEMORY_OPTIONS[1];
+      }
+      return MAC_MEMORY_OPTIONS.find((m) => m.id === custMemoryId) || MAC_MEMORY_OPTIONS[0];
+    })();
     const ssd = MAC_STORAGE_OPTIONS.find((s) => s.id === custStorageId) || MAC_STORAGE_OPTIONS[0];
     const ai = AI_SUBSCRIPTION_OPTIONS.find((a) => a.id === custAiSubId) || AI_SUBSCRIPTION_OPTIONS[0];
 
@@ -1861,16 +1871,16 @@ ${activeAdds.length > 0 ? `● 增值配套服务：${activeAdds.map(a => a.name
           )}
 
           {/* Customizer Shortcut Card */}
-          <div className="p-4 rounded-2xl bg-gradient-to-r from-blue-50/80 to-indigo-50/80 dark:from-neutral-900 dark:to-neutral-800/90 border border-blue-200/80 dark:border-neutral-700 flex items-center justify-between shadow-xs">
-            <div className="flex items-center gap-3">
+          <div className="p-4 rounded-2xl bg-gradient-to-r from-blue-50/80 to-indigo-50/80 dark:from-neutral-900 dark:to-neutral-800/90 border border-blue-200/80 dark:border-neutral-700 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+            <div className="flex items-center gap-3 min-w-0">
               <div className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-xs">
                 <Sparkles className="w-4 h-4" />
               </div>
-              <div className="flex flex-col">
-                <span className="text-xs font-bold text-neutral-900 dark:text-white">
+              <div className="flex flex-col min-w-0">
+                <span className="text-xs font-bold text-neutral-900 dark:text-white truncate">
                   合同定制与外发生成器
                 </span>
-                <span className="text-[11px] text-neutral-500">
+                <span className="text-[11px] text-neutral-500 line-clamp-2">
                   为客户单独定制硬件与费率，一键生成专属在线电子签署链接
                 </span>
               </div>
@@ -1878,7 +1888,7 @@ ${activeAdds.length > 0 ? `● 增值配套服务：${activeAdds.map(a => a.name
             <button
               type="button"
               onClick={handleOpenCustomizer}
-              className="px-3 py-1.5 text-xs font-bold rounded-lg bg-neutral-950 hover:bg-neutral-800 dark:bg-white dark:hover:bg-neutral-100 text-white dark:text-neutral-950 transition-colors cursor-pointer shrink-0"
+              className="w-full sm:w-auto px-3 py-1.5 text-xs font-bold rounded-lg bg-neutral-950 hover:bg-neutral-800 dark:bg-white dark:hover:bg-neutral-100 text-white dark:text-neutral-950 transition-colors cursor-pointer shrink-0 text-center"
             >
               打开定制器
             </button>
@@ -2052,7 +2062,12 @@ ${activeAdds.length > 0 ? `● 增值配套服务：${activeAdds.map(a => a.name
                       return (
                         <div
                           key={cpu.id}
-                          onClick={() => setSelectedCpuId(cpu.id)}
+                          onClick={() => {
+                            setSelectedCpuId(cpu.id);
+                            if ((cpu.id === "m4" || cpu.id === "m6") && selectedMemoryId === "8") {
+                              setSelectedMemoryId("16");
+                            }
+                          }}
                           className={`p-3 rounded-xl border text-center cursor-pointer transition-all flex flex-col justify-between ${
                             isSelected
                               ? "border-blue-600 bg-blue-50/50 dark:bg-blue-950/30 text-neutral-950 dark:text-white font-bold shadow-xs"
@@ -2881,7 +2896,7 @@ ${activeAdds.length > 0 ? `● 增值配套服务：${activeAdds.map(a => a.name
                 <span className="text-[10px] text-neutral-400">
                   HASH: {contractHash || "SHA256-VERIFIED"}
                 </span>
-                <div className="mt-1 flex items-center gap-1.5 justify-end">
+                <div className="mt-1 flex items-center gap-1.5 justify-start sm:justify-end">
                   {isSigned ? (
                     <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-sans font-bold text-[10px] border border-emerald-300">
                       <CheckCircle2 className="w-3 h-3 text-emerald-600" />
@@ -3623,7 +3638,12 @@ ${activeAdds.length > 0 ? `● 增值配套服务：${activeAdds.map(a => a.name
                           <button
                             key={cpu.id}
                             type="button"
-                            onClick={() => setCustCpuId(cpu.id)}
+                            onClick={() => {
+                              setCustCpuId(cpu.id);
+                              if ((cpu.id === "m4" || cpu.id === "m6") && custMemoryId === "8") {
+                                setCustMemoryId("16");
+                              }
+                            }}
                             className={`py-2 px-2.5 rounded-xl border text-xs font-bold transition-all cursor-pointer text-left ${
                               custCpuId === cpu.id
                                 ? "border-blue-600 bg-blue-600 text-white shadow-xs"
