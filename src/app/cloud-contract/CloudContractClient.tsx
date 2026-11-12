@@ -1475,7 +1475,7 @@ function CloudContractContent() {
   // Currency Symbols
   const currSym = currency === "CNY" ? "¥" : "฿";
 
-  // High-Fidelity Multi-Page PDF Export with 100% CJK & System Font Support (Zero Mojibake)
+  // High-Fidelity Multi-Page Chinese & English Official Contract PDF Export (Exact Match with On-Screen Chinese Layout)
   const handleDownloadPdf = async () => {
     try {
       setIsExportingPdf(true);
@@ -1484,127 +1484,108 @@ function CloudContractContent() {
       const page2El = document.getElementById("cloud-contract-page-2");
       const page3El = document.getElementById("cloud-contract-page-3");
 
-      let pdfBase64 = "";
+      if (!page1El || !page2El) {
+        throw new Error("Contract DOM pages not found");
+      }
 
-      // Attempt Engine 1: High-Resolution DOM Canvas Capture via html2canvas (Zero Garbled Characters)
-      if (page1El && page2El) {
-        try {
-          const { jsPDF } = await import("jspdf");
-          const html2canvasModule = await import("html2canvas");
-          const html2canvas = html2canvasModule.default || html2canvasModule;
+      const { jsPDF } = await import("jspdf");
+      const html2canvasModule = await import("html2canvas-pro");
+      const html2canvas = html2canvasModule.default || html2canvasModule;
 
-          const pdf = new jsPDF({
-            orientation: "portrait",
-            unit: "mm",
-            format: "a4",
-            compress: true,
-          });
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4",
+        compress: true,
+      });
 
-          const pagesToCapture = [page1El, page2El];
-          if (idImage && page3El) {
-            pagesToCapture.push(page3El);
-          }
+      const pageIds = ["cloud-contract-page-1", "cloud-contract-page-2"];
+      if (idImage && page3El) {
+        pageIds.push("cloud-contract-page-3");
+      }
 
-          for (let i = 0; i < pagesToCapture.length; i++) {
-            const targetEl = pagesToCapture[i];
-            const pageCanvas = await html2canvas(targetEl, {
-              scale: 2,
-              useCORS: true,
-              allowTaint: true,
-              backgroundColor: "#ffffff",
-              logging: false,
-              windowWidth: 850,
-              onclone: (clonedDoc) => {
-                const el = clonedDoc.getElementById(targetEl.id);
-                if (el) {
-                  el.style.width = "820px";
-                  el.style.maxWidth = "820px";
-                  el.style.minWidth = "820px";
-                  el.style.backgroundColor = "#ffffff";
-                  el.querySelectorAll(".overflow-x-auto").forEach((s) => {
-                    (s as HTMLElement).style.overflow = "visible";
-                  });
-                }
-              },
-            });
+      for (let i = 0; i < pageIds.length; i++) {
+        const targetEl = document.getElementById(pageIds[i]);
+        if (!targetEl) continue;
 
-            if (pageCanvas && pageCanvas.width > 0 && pageCanvas.height > 0) {
-              if (i > 0) {
-                pdf.addPage("a4", "portrait");
+        // Ensure all child images are complete
+        const imgs = targetEl.querySelectorAll("img");
+        imgs.forEach((img) => {
+          try {
+            if (img.src && !img.src.startsWith("data:") && img.complete && img.naturalWidth > 0) {
+              const c = document.createElement("canvas");
+              c.width = img.naturalWidth;
+              c.height = img.naturalHeight;
+              const cx = c.getContext("2d");
+              if (cx) {
+                cx.drawImage(img, 0, 0);
+                img.src = c.toDataURL("image/png");
               }
-              const pageImgData = pageCanvas.toDataURL("image/jpeg", 0.95);
-              const imgWidth = 210;
-              const imgHeight = (pageCanvas.height * imgWidth) / pageCanvas.width;
-              pdf.addImage(
-                pageImgData,
-                "JPEG",
-                0,
-                0,
-                imgWidth,
-                Math.min(imgHeight, 297),
-                undefined,
-                "FAST"
-              );
             }
-          }
+          } catch {}
+        });
 
-          const rawDataUri = pdf.output("datauristring");
-          if (rawDataUri && rawDataUri.includes(",")) {
-            pdfBase64 = rawDataUri.split(",")[1];
+        const pageCanvas = await html2canvas(targetEl, {
+          scale: 2,
+          useCORS: true,
+          allowTaint: true,
+          backgroundColor: "#ffffff",
+          logging: false,
+          windowWidth: 850,
+          onclone: (clonedDoc) => {
+            const el = clonedDoc.getElementById(pageIds[i]);
+            if (el) {
+              el.style.width = "820px";
+              el.style.maxWidth = "820px";
+              el.style.minWidth = "820px";
+              el.style.border = "none";
+              el.style.borderBottom = "none";
+              el.style.borderRadius = "0";
+              el.style.padding = "32px 36px";
+              el.style.backgroundColor = "#ffffff";
+              el.querySelectorAll(".overflow-x-auto").forEach((s) => {
+                (s as HTMLElement).style.overflow = "visible";
+              });
+            }
+          },
+        });
+
+        if (pageCanvas && pageCanvas.width > 0 && pageCanvas.height > 0) {
+          if (i > 0) {
+            pdf.addPage("a4", "portrait");
           }
-        } catch (canvasErr) {
-          console.warn("[DOM PDF Capture failed, switching to vector engine]:", canvasErr);
+          const pageImgData = pageCanvas.toDataURL("image/jpeg", 0.95);
+          const imgWidth = 210;
+          const imgHeight = (pageCanvas.height * imgWidth) / pageCanvas.width;
+          pdf.addImage(
+            pageImgData,
+            "JPEG",
+            0,
+            0,
+            imgWidth,
+            Math.min(imgHeight, 297),
+            undefined,
+            "FAST"
+          );
         }
       }
 
-      // Engine 2 Fallback: Vector jsPDF Generator (Sanitized English / ASCII)
-      if (!pdfBase64) {
-        pdfBase64 = await generateVectorCloudContractPdf({
-          contractSerial,
-          contractHash,
-          signingDateStr: formatEngDate(signingDateIso),
-          selectedPlan: currentPlan,
-          chosenCpuOption: chosenCpu,
-          chosenMemoryOption: chosenMemory,
-          chosenStorageOption: chosenStorage,
-          chosenAiSubscription,
-          selectedAddons: activeAddons,
-          currency,
-          durationMonths,
-          monthlyServiceFee: effectiveMonthlyFee,
-          setupFee: effectiveSetupFee,
-          totalInitialPayment,
-          startDate: formatEngDate(startDate),
-          endDate: formatEngDate(endDate),
-          effectiveCustomerName,
-          effectiveSignatoryDisplay,
-          effectiveSignatoryTitle: signatoryTitle,
-          customerType,
-          customerIdNumber,
-          customerPhone,
-          customerEmail,
-          customerAddress,
-          logoDataUrl,
-          stampDataUrl,
-          signatureData,
-          idImage,
-          customAddonEnabled,
-          customAddonName,
-          customAddonPrice,
-          customAddonIsOneTime,
-        });
+      const rawDataUri = pdf.output("datauristring");
+      if (!rawDataUri || !rawDataUri.includes(",")) {
+        throw new Error("PDF data generation produced empty output");
       }
 
+      const pdfBase64 = rawDataUri.split(",")[1];
       const link = document.createElement("a");
       link.href = `data:application/pdf;base64,${pdfBase64}`;
-      const safeName = currentPlan ? currentPlan.id : "cmai_custom_contract";
-      link.download = `${contractSerial || "CMAI-CLOUD"}_${safeName}.pdf`;
+      const safePlanName = currentPlan ? currentPlan.id : "custom_contract";
+      link.download = `${contractSerial || "CMAI-CLOUD"}_${safePlanName}.pdf`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-    } catch (err) {
-      console.error("PDF generation failed:", err);
-      alert("PDF 生成遇到问题，您可直接使用浏览器的【打印合同】功能另存为高清晰 PDF。");
+    } catch (err: any) {
+      console.error("PDF generation error:", err);
+      alert("PDF 生成遇到问题，您可直接使用浏览器的【打印合同】功能（或按快捷键 Ctrl+P / Cmd+P）直接另存为高清晰中文版 PDF。");
     } finally {
       setIsExportingPdf(false);
     }
