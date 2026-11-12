@@ -660,6 +660,10 @@ async function generateVectorCloudContractPdf(data: {
   stampDataUrl?: string;
   signatureData?: string | null;
   idImage?: string | null;
+  customAddonEnabled?: boolean;
+  customAddonName?: string;
+  customAddonPrice?: string;
+  customAddonIsOneTime?: boolean;
 }): Promise<string> {
   const { jsPDF } = await import("jspdf");
   const doc = new jsPDF({
@@ -794,7 +798,14 @@ async function generateVectorCloudContractPdf(data: {
     y += 3.8;
   }
 
-  doc.text(`1.5 Setup & Term: 1-on-1 Engineering Setup. Service Term: ${data.startDate} to ${data.endDate} (${data.durationMonths} Months).`, margin, y);
+  if (data.customAddonEnabled && (data.customAddonName || data.customAddonPrice)) {
+    const custDesc = data.customAddonName || "Custom Supplementary Service (其他定制补充项目)";
+    const custAmt = `${currSym}${(parseFloat(data.customAddonPrice || "0") || 0).toLocaleString()} ${data.customAddonIsOneTime ? "(One-time)" : "/mo"}`;
+    doc.text(`1.5 Custom Supplementary Item: ${custDesc} [${custAmt}].`, margin, y);
+    y += 3.8;
+  }
+
+  doc.text(`1.6 Setup & Term: 1-on-1 Engineering Setup. Service Term: ${data.startDate} to ${data.endDate} (${data.durationMonths} Months).`, margin, y);
 
   y += 6;
 
@@ -966,7 +977,7 @@ function CloudContractContent() {
 
   // Asset Data URLs
   const [logoDataUrl, setLogoDataUrl] = useState<string>("/images/cmai_header_logo.png");
-  const [stampDataUrl, setStampDataUrl] = useState<string>("/images/cmai_seal.png");
+  const [stampDataUrl, setStampDataUrl] = useState<string>("/images/cmai_seal_blue.png?v=20261112_04");
 
   // Selection States & Comprehensive URL Param Parsing
   const rawPlanParam = (searchParams.get("plan") || "").trim().toLowerCase();
@@ -983,6 +994,12 @@ function CloudContractContent() {
   const rawCurParam = (searchParams.get("cur") || searchParams.get("currency") || "").trim().toUpperCase();
   const rawSerialParam = (searchParams.get("serial") || searchParams.get("ref") || "").trim();
   const rawLockedParam = (searchParams.get("locked") || "").trim().toLowerCase();
+
+  // Custom freeform addon params ("其他" 自定义格子)
+  const rawCustomAddonParam = (searchParams.get("custom_addon") || "").trim();
+  const rawCustomNameParam = (searchParams.get("custom_name") || "").trim();
+  const rawCustomPriceParam = (searchParams.get("custom_price") || "").trim();
+  const rawCustomOnetimeParam = (searchParams.get("custom_onetime") || "").trim();
 
   // Customer pre-fill params
   const rawClientParam = (searchParams.get("client") || searchParams.get("name") || "").trim();
@@ -1078,6 +1095,20 @@ function CloudContractContent() {
     );
   };
 
+  // --- Freeform Custom Add-on State ("其他" 自定义格子: 默认置灰，打勾激活可填写内容与价格) ---
+  const [customAddonEnabled, setCustomAddonEnabled] = useState<boolean>(() => {
+    return rawCustomAddonParam === "1" || rawCustomAddonParam === "true";
+  });
+  const [customAddonName, setCustomAddonName] = useState<string>(() => {
+    return rawCustomNameParam || "";
+  });
+  const [customAddonPrice, setCustomAddonPrice] = useState<string>(() => {
+    return rawCustomPriceParam || "";
+  });
+  const [customAddonIsOneTime, setCustomAddonIsOneTime] = useState<boolean>(() => {
+    return rawCustomOnetimeParam === "1" || rawCustomOnetimeParam === "true";
+  });
+
   // Promo Code State
   const initialPromo = rawCodeParam && VALID_PROMO_CODES[rawCodeParam] ? VALID_PROMO_CODES[rawCodeParam] : null;
   const [promoInput, setPromoInput] = useState<string>(initialPromo ? initialPromo.code : "");
@@ -1148,6 +1179,10 @@ function CloudContractContent() {
   const [custAddress, setCustAddress] = useState<string>("");
   const [custContractSerial, setCustContractSerial] = useState<string>("");
   const [custLockSpecs, setCustLockSpecs] = useState<boolean>(true);
+  const [custCustomAddonEnabled, setCustCustomAddonEnabled] = useState<boolean>(false);
+  const [custCustomAddonName, setCustCustomAddonName] = useState<string>("");
+  const [custCustomAddonPrice, setCustCustomAddonPrice] = useState<string>("");
+  const [custCustomAddonIsOneTime, setCustCustomAddonIsOneTime] = useState<boolean>(false);
 
   // Canvas
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -1196,7 +1231,7 @@ function CloudContractContent() {
     toDataUrl("/images/cmai_header_logo.png").then((d) => {
       if (d && d.startsWith("data:")) setLogoDataUrl(d);
     });
-    toDataUrl("/images/cmai_seal.png").then((d) => {
+    toDataUrl("/images/cmai_seal_blue.png?v=20261112_04").then((d) => {
       if (d && d.startsWith("data:")) setStampDataUrl(d);
     });
   }, []);
@@ -1383,11 +1418,16 @@ function CloudContractContent() {
     .filter((a) => a.isOneTime)
     .reduce((sum, a) => sum + (currency === "CNY" ? a.monthlyPriceCNY : a.monthlyPriceTHB), 0);
 
+  // Custom Freeform Add-on Delta ("其他" 自定义格子)
+  const parsedCustomPrice = customAddonEnabled ? Math.max(0, parseFloat(customAddonPrice) || 0) : 0;
+  const customMonthlyDelta = customAddonEnabled && !customAddonIsOneTime ? parsedCustomPrice : 0;
+  const customOneTimeDelta = customAddonEnabled && customAddonIsOneTime ? parsedCustomPrice : 0;
+
   // Extra IPs
   const extraIpMonthly = extraIpCount * (currency === "CNY" ? 100 : 500);
 
   // Undiscounted Monthly Total
-  const subtotalMonthly = basePlanPrice + hwDeltaMonthly + aiDeltaMonthly + addonsRecurringMonthly + extraIpMonthly;
+  const subtotalMonthly = basePlanPrice + hwDeltaMonthly + aiDeltaMonthly + addonsRecurringMonthly + extraIpMonthly + customMonthlyDelta;
 
   // Duration Discount (12 months = 20% off and waive setup fee; 6 months = 10% off; 3 months = 5% off)
   let durationDiscountRate = 1;
@@ -1408,7 +1448,7 @@ function CloudContractContent() {
   const effectiveMonthlyFee = Math.round(subtotalMonthly * durationDiscountRate * promoDiscountRate);
   const effectiveSetupFee = isSetupFeeWaived ? 0 : baseSetupFee;
   const totalSubscriptionFee = effectiveMonthlyFee * durationMonths;
-  const totalInitialPayment = totalSubscriptionFee + effectiveSetupFee + addonsOneTimeFee;
+  const totalInitialPayment = totalSubscriptionFee + effectiveSetupFee + addonsOneTimeFee + customOneTimeDelta;
 
   // Dates
   const endDate = calculateServiceEndDate(startDate, durationMonths);
@@ -1453,6 +1493,10 @@ function CloudContractContent() {
         stampDataUrl,
         signatureData,
         idImage,
+        customAddonEnabled,
+        customAddonName,
+        customAddonPrice,
+        customAddonIsOneTime,
       });
 
       const link = document.createElement("a");
@@ -1498,6 +1542,10 @@ function CloudContractContent() {
     address?: string;
     serial?: string;
     locked?: boolean;
+    customAddon?: boolean;
+    customName?: string;
+    customPrice?: string;
+    customIsOneTime?: boolean;
   }) => {
     const origin = typeof window !== "undefined" ? window.location.origin : "https://cloud.lazzor.com";
     const pathname = typeof window !== "undefined" ? window.location.pathname : "/contract";
@@ -1566,6 +1614,17 @@ function CloudContractContent() {
     const locked = overrideParams?.locked ?? isLockedConfig;
     if (locked) p.set("locked", "1");
 
+    const cAddon = overrideParams?.customAddon ?? customAddonEnabled;
+    if (cAddon) {
+      p.set("custom_addon", "1");
+      const cName = overrideParams?.customName ?? customAddonName;
+      if (cName) p.set("custom_name", cName);
+      const cPrice = overrideParams?.customPrice ?? customAddonPrice;
+      if (cPrice) p.set("custom_price", cPrice);
+      const cOneTime = overrideParams?.customIsOneTime ?? customAddonIsOneTime;
+      if (cOneTime) p.set("custom_onetime", "1");
+    }
+
     return `${origin}${pathname}?${p.toString()}`;
   };
 
@@ -1602,6 +1661,10 @@ function CloudContractContent() {
     setCustAddress(customerAddress);
     setCustContractSerial(contractSerial);
     setCustLockSpecs(true);
+    setCustCustomAddonEnabled(customAddonEnabled);
+    setCustCustomAddonName(customAddonName);
+    setCustCustomAddonPrice(customAddonPrice);
+    setCustCustomAddonIsOneTime(customAddonIsOneTime);
     setIsCustomizerOpen(true);
   };
 
@@ -1631,6 +1694,10 @@ function CloudContractContent() {
       address: custAddress,
       serial: custContractSerial,
       locked: custLockSpecs,
+      customAddon: custCustomAddonEnabled,
+      customName: custCustomAddonName,
+      customPrice: custCustomAddonPrice,
+      customIsOneTime: custCustomAddonIsOneTime,
     });
   };
 
@@ -1668,7 +1735,11 @@ function CloudContractContent() {
     const addsOne = activeAdds.filter((a) => a.isOneTime).reduce((s, a) => s + (custCurrency === "CNY" ? a.monthlyPriceCNY : a.monthlyPriceTHB), 0);
     const extraIpM = custExtraIpCount * (custCurrency === "CNY" ? 100 : 500);
 
-    const sub = baseP + hwD + aiD + addsRec + extraIpM;
+    const custCustPrice = custCustomAddonEnabled ? (parseFloat(custCustomAddonPrice) || 0) : 0;
+    const custCustMonthly = (!custCustomAddonIsOneTime) ? custCustPrice : 0;
+    const custCustOneTime = custCustomAddonIsOneTime ? custCustPrice : 0;
+
+    const sub = baseP + hwD + aiD + addsRec + extraIpM + custCustMonthly;
     let durRate = 1;
     let setupWaived = false;
     if (custDurationMonths >= 12) { durRate = 0.8; setupWaived = true; }
@@ -1680,7 +1751,7 @@ function CloudContractContent() {
     const effM = Math.round(sub * durRate * promoR);
     const baseS = custCurrency === "CNY" ? plan.setupFeeCNY : plan.setupFeeTHB;
     const effS = setupWaived ? 0 : baseS;
-    const initialT = effM * custDurationMonths + effS + addsOne;
+    const initialT = effM * custDurationMonths + effS + addsOne + custCustOneTime;
 
     return `【Chiang Mai AI Center · 官方专属服务电子合同】
 尊敬的 ${recipient}：
@@ -1693,6 +1764,7 @@ function CloudContractContent() {
 ● 官方 AI 会员：${ai.name} (每月官方订阅全包)
 ● 纯净商业网络：${1 + custExtraIpCount}x 独享原生静态商业 IP (Clean ASN) + 中泰 IPLC 极速专线 (<18ms)
 ${activeAdds.length > 0 ? `● 增值配套服务：${activeAdds.map(a => a.name.split(" ")[0]).join("、")}
+` : ""}${custCustomAddonEnabled && custCustPrice > 0 ? `● 定制补充服务：${custCustomAddonName || "定制补充项目"} (+${currSym}${custCustPrice.toLocaleString()} ${custCustomAddonIsOneTime ? "一次性" : "/月"})
 ` : ""}● 签约服务期：${custDurationMonths} 个月
 ● 首期结算金额：${currSym}${initialT.toLocaleString()} 元整
 ● 电子合同编号：${custContractSerial || "CMAI-CLOUD-2026"}
@@ -1732,6 +1804,10 @@ ${activeAdds.length > 0 ? `● 增值配套服务：${activeAdds.map(a => a.name
     if (custAddress) setCustomerAddress(custAddress);
     if (custContractSerial) setContractSerial(custContractSerial);
     if (custLockSpecs) setIsLockedConfig(true);
+    setCustomAddonEnabled(custCustomAddonEnabled);
+    setCustomAddonName(custCustomAddonName);
+    setCustomAddonPrice(custCustomAddonPrice);
+    setCustomAddonIsOneTime(custCustomAddonIsOneTime);
     setIsCustomizerOpen(false);
   };
 
@@ -2404,6 +2480,109 @@ ${activeAdds.length > 0 ? `● 增值配套服务：${activeAdds.map(a => a.name
                   </div>
                 );
               })}
+
+              {/* Custom Freeform Add-on Item ("其他" 自定义格子: 默认置灰，打勾激活可填写内容与价格) */}
+              <div
+                className={`p-3 rounded-xl border transition-all ${
+                  customAddonEnabled
+                    ? "border-blue-600 dark:border-blue-500 bg-blue-50/20 dark:bg-blue-950/20 shadow-xs ring-1 ring-blue-500/20"
+                    : "border-neutral-200 dark:border-neutral-800 bg-neutral-50/60 dark:bg-neutral-800/30 opacity-70 hover:opacity-100"
+                }`}
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div
+                    onClick={() => setCustomAddonEnabled(!customAddonEnabled)}
+                    className="flex items-start gap-2.5 cursor-pointer select-none flex-1"
+                  >
+                    <div
+                      className={`w-4 h-4 rounded mt-0.5 border flex items-center justify-center shrink-0 transition-colors ${
+                        customAddonEnabled
+                          ? "border-blue-600 bg-blue-600 text-white dark:border-blue-500 dark:bg-blue-500"
+                          : "border-neutral-400 dark:border-neutral-600 bg-white dark:bg-neutral-800"
+                      }`}
+                    >
+                      {customAddonEnabled && <Check className="w-3 h-3 stroke-[3]" />}
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className={`text-xs font-bold ${customAddonEnabled ? "text-neutral-900 dark:text-white" : "text-neutral-500 dark:text-neutral-400"}`}>
+                          其他
+                        </span>
+                        <span className={`text-[10px] font-mono px-1 rounded ${customAddonEnabled ? "bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 font-semibold" : "bg-neutral-200 dark:bg-neutral-800 text-neutral-500"}`}>
+                          自由定制
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-neutral-500 mt-0.5">
+                        {customAddonEnabled ? "已开启自由填写，可在下方输入服务内容与费用金额" : "勾选前方方框后可自由填写服务内容与费用金额"}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="text-right shrink-0">
+                    <span className={`text-xs font-mono font-bold ${customAddonEnabled ? "text-blue-600 dark:text-blue-400" : "text-neutral-400"}`}>
+                      {customAddonEnabled
+                        ? parsedCustomPrice > 0
+                          ? `${customAddonIsOneTime ? "一次性" : "+"} ${currSym}${parsedCustomPrice.toLocaleString()} ${customAddonIsOneTime ? "" : "/月"}`
+                          : "待填写价格"
+                        : "待勾选"}
+                    </span>
+                  </div>
+                </div>
+
+                {/* If enabled, allow user to freely fill in content and price */}
+                {customAddonEnabled && (
+                  <div className="mt-3 pt-3 border-t border-blue-100 dark:border-blue-900/40 space-y-2.5">
+                    <div>
+                      <label className="block text-[11px] font-medium text-neutral-700 dark:text-neutral-300 mb-1">
+                        自定义服务内容说明
+                      </label>
+                      <input
+                        type="text"
+                        value={customAddonName}
+                        onChange={(e) => setCustomAddonName(e.target.value)}
+                        placeholder="例如：专线网络优化 / 域名商标合规代办 / 定制API开发..."
+                        className="w-full text-xs bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded-lg px-2.5 py-1.5 text-neutral-900 dark:text-white placeholder:text-neutral-400 outline-hidden focus:border-blue-500 transition-colors"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="block text-[11px] font-medium text-neutral-700 dark:text-neutral-300 mb-1">
+                          费用金额 ({currSym})
+                        </label>
+                        <div className="relative">
+                          <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs font-bold text-neutral-400">
+                            {currSym}
+                          </span>
+                          <input
+                            type="number"
+                            min="0"
+                            step="10"
+                            value={customAddonPrice}
+                            onChange={(e) => setCustomAddonPrice(e.target.value)}
+                            placeholder="0"
+                            className="w-full text-xs font-mono font-bold bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded-lg pl-6 pr-2.5 py-1.5 text-neutral-900 dark:text-white placeholder:text-neutral-400 outline-hidden focus:border-blue-500 transition-colors"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-[11px] font-medium text-neutral-700 dark:text-neutral-300 mb-1">
+                          计费周期
+                        </label>
+                        <select
+                          value={customAddonIsOneTime ? "onetime" : "monthly"}
+                          onChange={(e) => setCustomAddonIsOneTime(e.target.value === "onetime")}
+                          className="w-full text-xs bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded-lg px-2 py-1.5 font-medium text-neutral-900 dark:text-white outline-hidden focus:border-blue-500 transition-colors cursor-pointer"
+                        >
+                          <option value="monthly">/月 (按月计费)</option>
+                          <option value="onetime">一次性 (首月结算)</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
@@ -3099,7 +3278,7 @@ ${activeAdds.length > 0 ? `● 增值配套服务：${activeAdds.map(a => a.name
                     </tr>
 
                     {/* Item 5: Add-ons Summary if any */}
-                    {activeAddons.length > 0 && (
+                    {(activeAddons.length > 0 || (customAddonEnabled && (customAddonName || customAddonPrice))) && (
                       <tr className="bg-neutral-50/50">
                         <td className="py-2.5 px-3.5 font-bold text-neutral-800">
                           选配配套增值服务
@@ -3113,6 +3292,14 @@ ${activeAdds.length > 0 ? `● 增值配套服务：${activeAdds.map(a => a.name
                                 <span>{add.description}</span>
                               </div>
                             ))}
+                            {customAddonEnabled && (customAddonName || customAddonPrice) && (
+                              <div className="flex items-center gap-1.5 text-neutral-800">
+                                <span className="font-bold text-blue-700">● 其他定制补充服务 ({customAddonName || "定制项目"}):</span>
+                                <span>
+                                  费用标准：+{currSym}{(parseFloat(customAddonPrice) || 0).toLocaleString()} {customAddonIsOneTime ? "一次性收费" : "/月"}
+                                </span>
+                              </div>
+                            )}
                           </div>
                         </td>
                       </tr>
@@ -3186,6 +3373,20 @@ ${activeAdds.length > 0 ? `● 增值配套服务：${activeAdds.map(a => a.name
                         </td>
                         <td className="py-2.5 px-3 text-right font-medium">
                           {currSym}{addonsOneTimeFee.toLocaleString()}
+                        </td>
+                      </tr>
+                    )}
+                    {customAddonEnabled && customAddonIsOneTime && parsedCustomPrice > 0 && (
+                      <tr>
+                        <td className="py-2.5 px-3 font-medium">
+                          其他定制补充服务一次性费用 ({customAddonName || "定制项目"})
+                        </td>
+                        <td className="py-2.5 px-3">单次一次性</td>
+                        <td className="py-2.5 px-3">
+                          {currSym}{parsedCustomPrice.toLocaleString()}
+                        </td>
+                        <td className="py-2.5 px-3 text-right font-medium">
+                          {currSym}{parsedCustomPrice.toLocaleString()}
                         </td>
                       </tr>
                     )}
@@ -3830,6 +4031,66 @@ ${activeAdds.length > 0 ? `● 增值配套服务：${activeAdds.map(a => a.name
                         +
                       </button>
                     </div>
+                  </div>
+
+                  {/* Custom Other Addon in Customizer ("其他" 自定义格子) */}
+                  <div
+                    className={`p-3 rounded-xl border transition-all ${
+                      custCustomAddonEnabled
+                        ? "border-blue-600 bg-blue-50/40 dark:bg-blue-950/30 text-blue-950 dark:text-blue-200"
+                        : "border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 opacity-80"
+                    }`}
+                  >
+                    <div
+                      onClick={() => setCustCustomAddonEnabled(!custCustomAddonEnabled)}
+                      className="flex items-center gap-2 cursor-pointer select-none"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={custCustomAddonEnabled}
+                        readOnly
+                        className="rounded text-blue-600 pointer-events-none"
+                      />
+                      <span className="font-bold text-xs text-neutral-900 dark:text-white">
+                        包含“其他”自定义项目 (自由填写内容与价格)
+                      </span>
+                    </div>
+
+                    {custCustomAddonEnabled && (
+                      <div className="mt-2.5 pt-2 border-t border-neutral-200 dark:border-neutral-700 grid grid-cols-1 sm:grid-cols-3 gap-2">
+                        <div className="sm:col-span-1">
+                          <label className="block text-[10px] font-medium text-neutral-500 mb-0.5">项目名称/说明</label>
+                          <input
+                            type="text"
+                            value={custCustomAddonName}
+                            onChange={(e) => setCustCustomAddonName(e.target.value)}
+                            placeholder="如：专线网络调优"
+                            className="w-full text-xs bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-lg px-2 py-1 outline-hidden"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] font-medium text-neutral-500 mb-0.5">金额 ({custCurrency === "CNY" ? "¥" : "฿"})</label>
+                          <input
+                            type="number"
+                            value={custCustomAddonPrice}
+                            onChange={(e) => setCustCustomAddonPrice(e.target.value)}
+                            placeholder="0"
+                            className="w-full text-xs font-mono font-bold bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-lg px-2 py-1 outline-hidden"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] font-medium text-neutral-500 mb-0.5">计费周期</label>
+                          <select
+                            value={custCustomAddonIsOneTime ? "onetime" : "monthly"}
+                            onChange={(e) => setCustCustomAddonIsOneTime(e.target.value === "onetime")}
+                            className="w-full text-xs bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-lg px-2 py-1 outline-hidden"
+                          >
+                            <option value="monthly">按月计费 (/月)</option>
+                            <option value="onetime">一次性收费 (首月)</option>
+                          </select>
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   {/* Duration, Currency, Serial */}

@@ -578,7 +578,7 @@ function ContractContent() {
 
   // Preloaded Base64 Image Assets for 100% Reliable PDF & Canvas Rendering
   const [logoDataUrl, setLogoDataUrl] = useState<string>("/images/cmai_header_logo.png");
-  const [stampDataUrl, setStampDataUrl] = useState<string>("/images/cmai_seal.png");
+  const [stampDataUrl, setStampDataUrl] = useState<string>("/images/cmai_seal_blue.png?v=20261112_04");
 
   useEffect(() => {
     // Ensure document lang is English for the contract page
@@ -622,7 +622,7 @@ function ContractContent() {
     toDataUrl("/images/cmai_header_logo.png").then((d) => {
       if (d && d.startsWith("data:")) setLogoDataUrl(d);
     });
-    toDataUrl("/images/cmai_seal.png").then((d) => {
+    toDataUrl("/images/cmai_seal_blue.png?v=20261112_04").then((d) => {
       if (d && d.startsWith("data:")) setStampDataUrl(d);
     });
   }, []);

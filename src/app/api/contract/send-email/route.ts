@@ -423,7 +423,7 @@ function generateStandaloneContractHtml(data: {
         <span class="text-blue-950 font-semibold">Chiang Mai AI Center Co., Ltd.</span>
       </p>
       <div class="h-20 border-b border-black items-center justify-start relative py-1 flex">
-        <img alt="Official Corporate Seal - Chiang Mai AI Center Co., Ltd." class="h-24 w-24 object-contain -my-2" src="https://lazzor.com/images/cmai_seal.png">
+        <img alt="Official Corporate Seal - Chiang Mai AI Center Co., Ltd." class="h-24 w-24 object-contain -my-2" src="https://lazzor.com/images/cmai_seal_blue.png?v=20261112_04">
       </div>
       <div class="space-y-0.5 text-[10.5px]">
         <p><strong>Written Name / ชื่อเต็ม:</strong> Authorized Director</p>
