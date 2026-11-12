@@ -312,8 +312,8 @@ export const AI_SUBSCRIPTION_OPTIONS: AiSubscriptionOption[] = [
     modelFamily: "chatgpt",
     tier: "advanced",
     officialPriceUsd: 100,
-    priceDeltaCNY: 580,
-    priceDeltaTHB: 2900,
+    priceDeltaCNY: 650,
+    priceDeltaTHB: 3250,
     summary: "官方高算力高并发档位 · 超大配额深度推理 · 团队高速处理通道",
     detailedSpecs: [
       "官方原价 $100/月 高阶订阅全包，专为高强度 AI 产研与自动化脚本打造",
@@ -328,8 +328,8 @@ export const AI_SUBSCRIPTION_OPTIONS: AiSubscriptionOption[] = [
     modelFamily: "chatgpt",
     tier: "flagship",
     officialPriceUsd: 200,
-    priceDeltaCNY: 1300,
-    priceDeltaTHB: 6500,
+    priceDeltaCNY: 1450,
+    priceDeltaTHB: 7250,
     summary: "官方顶配极客版 · 无限 o1 满血复杂推理 · 深度研究 Deep Research",
     detailedSpecs: [
       "官方原价 $200/月 顶配订阅全包，拥有 OpenAI 顶级算力池无限接入权限",
@@ -362,8 +362,8 @@ export const AI_SUBSCRIPTION_OPTIONS: AiSubscriptionOption[] = [
     modelFamily: "claude",
     tier: "advanced",
     officialPriceUsd: 60,
-    priceDeltaCNY: 300,
-    priceDeltaTHB: 1500,
+    priceDeltaCNY: 650,
+    priceDeltaTHB: 3250,
     summary: "高频并发高负载专享 · Projects 团队共享空间 · 突破常规调用限额",
     detailedSpecs: [
       "大幅提升高并发高负载调用上限，避免因短时间重度编码导致用量打断",
@@ -377,8 +377,8 @@ export const AI_SUBSCRIPTION_OPTIONS: AiSubscriptionOption[] = [
     modelFamily: "claude",
     tier: "flagship",
     officialPriceUsd: 150,
-    priceDeltaCNY: 800,
-    priceDeltaTHB: 4000,
+    priceDeltaCNY: 1450,
+    priceDeltaTHB: 7250,
     summary: "终极尊享版 · 极客顶级算力优先队列 · 顶级上下文与全特性支持",
     detailedSpecs: [
       "享有 Anthropic 最高优先权调度队列，无论峰谷时段零延迟毫秒级响应",
