@@ -776,7 +776,7 @@ async function generateVectorCloudContractPdf(data: {
   doc.setFont("helvetica", "bold");
   doc.setFontSize(8);
   doc.setTextColor(15, 23, 42);
-  doc.text("1. DELIVERABLES & HARDWARE SPECIFICATIONS (服务标的与硬件配置清单)", margin, y);
+  doc.text("1. DELIVERABLES & HARDWARE SPECIFICATIONS", margin, y);
   y += 4;
   doc.setFont("helvetica", "normal");
   doc.setFontSize(7);
@@ -786,13 +786,13 @@ async function generateVectorCloudContractPdf(data: {
     ? data.selectedPlan.id === "workstation_888"
       ? `1.1 Workstation Hardware: 1V1 Apple Silicon [CPU: ${data.chosenCpuOption?.name || "Apple M2"} | RAM: ${data.chosenMemoryOption?.size || "8GB"} | SSD: ${data.chosenStorageOption?.size || "256GB SSD"} | OS: Native macOS].`
       : `1.1 Workstation Hardware: Lightweight Cloud Computer (Micro PC) [4-8 vCPU / 8-16GB RAM / 120-240GB SSD / Sandbox].`
-    : `1.1 Workstation Hardware: None (未选配基础云主机硬件).`;
+    : `1.1 Workstation Hardware: None (Not Selected / Custom Mode).`;
   doc.text(hwLine, margin, y);
   y += 3.8;
 
   const aiLine = data.chosenAiSubscription
     ? `1.2 Official AI Subscription: ${data.chosenAiSubscription.name} ($${data.chosenAiSubscription.officialPriceUsd}/mo included with compliant card billing).`
-    : `1.2 Official AI Subscription: None (未选配官方 AI 会员账号).`;
+    : `1.2 Official AI Subscription: None (Not Selected).`;
   doc.text(aiLine, margin, y);
   y += 3.8;
   doc.text(`1.3 Network & IP: 1x Dedicated Native Static Commercial IP (Clean ASN, Fraud Score 0) + China-Thai IPLC (<18ms) + VPN.`, margin, y);
@@ -805,7 +805,8 @@ async function generateVectorCloudContractPdf(data: {
   }
 
   if (data.customAddonEnabled && (data.customAddonName || data.customAddonPrice)) {
-    const custDesc = data.customAddonName || "Custom Supplementary Service (其他定制补充项目)";
+    const cleanCustomName = (data.customAddonName || "").replace(/[^\x20-\x7E]/g, "").trim();
+    const custDesc = cleanCustomName ? `Custom Item: ${cleanCustomName}` : "Custom Supplementary Item";
     const custAmt = `${currSym}${(parseFloat(data.customAddonPrice || "0") || 0).toLocaleString()} ${data.customAddonIsOneTime ? "(One-time)" : "/mo"}`;
     doc.text(`1.5 Custom Supplementary Item: ${custDesc} [${custAmt}].`, margin, y);
     y += 3.8;
@@ -819,7 +820,7 @@ async function generateVectorCloudContractPdf(data: {
   doc.setFont("helvetica", "bold");
   doc.setFontSize(8);
   doc.setTextColor(15, 23, 42);
-  doc.text("2. FEES & PAYMENT SCHEDULE (费用明细与支付清单)", margin, y);
+  doc.text("2. FEES & PAYMENT SCHEDULE", margin, y);
   y += 4;
 
   doc.setFillColor(241, 245, 249);
@@ -834,14 +835,14 @@ async function generateVectorCloudContractPdf(data: {
   if (data.selectedPlan) {
     feeItems.push([`Monthly Cloud Service Fee (${data.selectedPlan.name} with Configured Specs)`, `${currSym}${data.monthlyServiceFee.toLocaleString()} / mo`]);
     feeItems.push([`Total Subscription Service Fee (${data.durationMonths} Months)`, `${currSym}${(data.monthlyServiceFee * data.durationMonths).toLocaleString()}`]);
-    feeItems.push([`One-time Setup / Initialization Fee (开机/开户技术服务费)`, data.setupFee === 0 ? "Waived (¥0 免收)" : `${currSym}${data.setupFee.toLocaleString()}`]);
+    feeItems.push([`One-time Setup / Initialization Fee`, data.setupFee === 0 ? "Waived (¥0 / Free)" : `${currSym}${data.setupFee.toLocaleString()}`]);
   } else if (data.monthlyServiceFee > 0) {
     feeItems.push([`Monthly Recurring Services Fee`, `${currSym}${data.monthlyServiceFee.toLocaleString()} / mo`]);
     feeItems.push([`Total Subscription Service Fee (${data.durationMonths} Months)`, `${currSym}${(data.monthlyServiceFee * data.durationMonths).toLocaleString()}`]);
   } else {
-    feeItems.push([`Monthly Recurring Services Fee (未选配按月基础产品)`, `${currSym}0 / mo`]);
+    feeItems.push([`Monthly Recurring Services Fee (None Selected)`, `${currSym}0 / mo`]);
   }
-  feeItems.push([`TOTAL INITIAL PAYMENT DUE UPON SIGNING (首期签约应付合计)`, `${currSym}${data.totalInitialPayment.toLocaleString()}`]);
+  feeItems.push([`TOTAL INITIAL PAYMENT DUE UPON SIGNING`, `${currSym}${data.totalInitialPayment.toLocaleString()}`]);
 
   feeItems.forEach(([desc, amt], idx) => {
     const isTotal = idx === feeItems.length - 1;
@@ -867,7 +868,7 @@ async function generateVectorCloudContractPdf(data: {
   doc.setFont("helvetica", "bold");
   doc.setFontSize(8);
   doc.setTextColor(15, 23, 42);
-  doc.text("3. KEY TERMS, SLA & LEGAL COMPLIANCE (核心保障、SLA 与合规约定)", margin, y);
+  doc.text("3. KEY TERMS, SLA & LEGAL COMPLIANCE", margin, y);
   y += 4;
   doc.setFont("helvetica", "normal");
   doc.setFontSize(6.8);
@@ -891,7 +892,7 @@ async function generateVectorCloudContractPdf(data: {
   doc.setFont("helvetica", "bold");
   doc.setFontSize(8);
   doc.setTextColor(15, 23, 42);
-  doc.text("SIGNATURES & COUNTERSIGNATURE (双方盖章与签署)", margin, y);
+  doc.text("SIGNATURES & COUNTERSIGNATURE", margin, y);
   y += 3.5;
 
   const sigBoxWidth = (contentWidth - 6) / 2;
@@ -904,7 +905,7 @@ async function generateVectorCloudContractPdf(data: {
   doc.setFontSize(7.5);
   doc.setFont("helvetica", "bold");
   doc.setTextColor(15, 23, 42);
-  doc.text("SERVICE PROVIDER / 服务提供方 (Party A):", margin + 4, y + 4.5);
+  doc.text("SERVICE PROVIDER (Party A):", margin + 4, y + 4.5);
   doc.setFontSize(6.8);
   doc.setFont("helvetica", "normal");
   doc.setTextColor(100, 116, 139);
@@ -919,7 +920,7 @@ async function generateVectorCloudContractPdf(data: {
 
   doc.setFontSize(6.5);
   doc.setTextColor(15, 23, 42);
-  doc.text("Authorized Representative (法定代表授权章)", margin + 4, y + 31);
+  doc.text("Authorized Representative", margin + 4, y + 31);
   doc.text(`Date: ${data.signingDateStr}`, margin + 4, y + 35);
 
   // Customer Box (Party B)
@@ -928,7 +929,7 @@ async function generateVectorCloudContractPdf(data: {
   doc.setFontSize(7.5);
   doc.setFont("helvetica", "bold");
   doc.setTextColor(15, 23, 42);
-  doc.text("CUSTOMER / 客户认购方 (Party B):", custX + 4, y + 4.5);
+  doc.text("CUSTOMER (Party B):", custX + 4, y + 4.5);
   doc.setFontSize(6.8);
   doc.setFont("helvetica", "normal");
   doc.setTextColor(100, 116, 139);
@@ -957,7 +958,7 @@ async function generateVectorCloudContractPdf(data: {
     doc.setFont("helvetica", "bold");
     doc.setFontSize(11);
     doc.setTextColor(15, 23, 42);
-    doc.text("ANNEX 1: CUSTOMER IDENTITY / BUSINESS LICENSE (附件一：身份及营业执照证明)", margin, 18);
+    doc.text("ANNEX 1: CUSTOMER IDENTITY / BUSINESS LICENSE", margin, 18);
 
     doc.setFont("helvetica", "normal");
     doc.setFontSize(7.5);
@@ -1474,54 +1475,136 @@ function CloudContractContent() {
   // Currency Symbols
   const currSym = currency === "CNY" ? "¥" : "฿";
 
-  // PDF Export
+  // High-Fidelity Multi-Page PDF Export with 100% CJK & System Font Support (Zero Mojibake)
   const handleDownloadPdf = async () => {
     try {
       setIsExportingPdf(true);
-      const pdfBase64 = await generateVectorCloudContractPdf({
-        contractSerial,
-        contractHash,
-        signingDateStr: formatEngDate(signingDateIso),
-        selectedPlan: currentPlan,
-        chosenCpuOption: chosenCpu,
-        chosenMemoryOption: chosenMemory,
-        chosenStorageOption: chosenStorage,
-        chosenAiSubscription,
-        selectedAddons: activeAddons,
-        currency,
-        durationMonths,
-        monthlyServiceFee: effectiveMonthlyFee,
-        setupFee: effectiveSetupFee,
-        totalInitialPayment,
-        startDate: formatEngDate(startDate),
-        endDate: formatEngDate(endDate),
-        effectiveCustomerName,
-        effectiveSignatoryDisplay,
-        effectiveSignatoryTitle: signatoryTitle,
-        customerType,
-        customerIdNumber,
-        customerPhone,
-        customerEmail,
-        customerAddress,
-        logoDataUrl,
-        stampDataUrl,
-        signatureData,
-        idImage,
-        customAddonEnabled,
-        customAddonName,
-        customAddonPrice,
-        customAddonIsOneTime,
-      });
+
+      const page1El = document.getElementById("cloud-contract-page-1");
+      const page2El = document.getElementById("cloud-contract-page-2");
+      const page3El = document.getElementById("cloud-contract-page-3");
+
+      let pdfBase64 = "";
+
+      // Attempt Engine 1: High-Resolution DOM Canvas Capture via html2canvas (Zero Garbled Characters)
+      if (page1El && page2El) {
+        try {
+          const { jsPDF } = await import("jspdf");
+          const html2canvasModule = await import("html2canvas");
+          const html2canvas = html2canvasModule.default || html2canvasModule;
+
+          const pdf = new jsPDF({
+            orientation: "portrait",
+            unit: "mm",
+            format: "a4",
+            compress: true,
+          });
+
+          const pagesToCapture = [page1El, page2El];
+          if (idImage && page3El) {
+            pagesToCapture.push(page3El);
+          }
+
+          for (let i = 0; i < pagesToCapture.length; i++) {
+            const targetEl = pagesToCapture[i];
+            const pageCanvas = await html2canvas(targetEl, {
+              scale: 2,
+              useCORS: true,
+              allowTaint: true,
+              backgroundColor: "#ffffff",
+              logging: false,
+              windowWidth: 850,
+              onclone: (clonedDoc) => {
+                const el = clonedDoc.getElementById(targetEl.id);
+                if (el) {
+                  el.style.width = "820px";
+                  el.style.maxWidth = "820px";
+                  el.style.minWidth = "820px";
+                  el.style.backgroundColor = "#ffffff";
+                  el.querySelectorAll(".overflow-x-auto").forEach((s) => {
+                    (s as HTMLElement).style.overflow = "visible";
+                  });
+                }
+              },
+            });
+
+            if (pageCanvas && pageCanvas.width > 0 && pageCanvas.height > 0) {
+              if (i > 0) {
+                pdf.addPage("a4", "portrait");
+              }
+              const pageImgData = pageCanvas.toDataURL("image/jpeg", 0.95);
+              const imgWidth = 210;
+              const imgHeight = (pageCanvas.height * imgWidth) / pageCanvas.width;
+              pdf.addImage(
+                pageImgData,
+                "JPEG",
+                0,
+                0,
+                imgWidth,
+                Math.min(imgHeight, 297),
+                undefined,
+                "FAST"
+              );
+            }
+          }
+
+          const rawDataUri = pdf.output("datauristring");
+          if (rawDataUri && rawDataUri.includes(",")) {
+            pdfBase64 = rawDataUri.split(",")[1];
+          }
+        } catch (canvasErr) {
+          console.warn("[DOM PDF Capture failed, switching to vector engine]:", canvasErr);
+        }
+      }
+
+      // Engine 2 Fallback: Vector jsPDF Generator (Sanitized English / ASCII)
+      if (!pdfBase64) {
+        pdfBase64 = await generateVectorCloudContractPdf({
+          contractSerial,
+          contractHash,
+          signingDateStr: formatEngDate(signingDateIso),
+          selectedPlan: currentPlan,
+          chosenCpuOption: chosenCpu,
+          chosenMemoryOption: chosenMemory,
+          chosenStorageOption: chosenStorage,
+          chosenAiSubscription,
+          selectedAddons: activeAddons,
+          currency,
+          durationMonths,
+          monthlyServiceFee: effectiveMonthlyFee,
+          setupFee: effectiveSetupFee,
+          totalInitialPayment,
+          startDate: formatEngDate(startDate),
+          endDate: formatEngDate(endDate),
+          effectiveCustomerName,
+          effectiveSignatoryDisplay,
+          effectiveSignatoryTitle: signatoryTitle,
+          customerType,
+          customerIdNumber,
+          customerPhone,
+          customerEmail,
+          customerAddress,
+          logoDataUrl,
+          stampDataUrl,
+          signatureData,
+          idImage,
+          customAddonEnabled,
+          customAddonName,
+          customAddonPrice,
+          customAddonIsOneTime,
+        });
+      }
 
       const link = document.createElement("a");
       link.href = `data:application/pdf;base64,${pdfBase64}`;
-      link.download = `${contractSerial}_${currentPlan ? currentPlan.name : "Custom_Contract"}.pdf`;
+      const safeName = currentPlan ? currentPlan.id : "cmai_custom_contract";
+      link.download = `${contractSerial || "CMAI-CLOUD"}_${safeName}.pdf`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
     } catch (err) {
       console.error("PDF generation failed:", err);
-      alert("PDF 生成失败，请直接使用浏览器的打印功能另存为 PDF。");
+      alert("PDF 生成遇到问题，您可直接使用浏览器的【打印合同】功能另存为高清晰 PDF。");
     } finally {
       setIsExportingPdf(false);
     }
@@ -1939,6 +2022,28 @@ ${activeAdds.length > 0 ? `● 增值配套服务：${activeAdds.map(a => a.name
           </div>
         </div>
       </header>
+
+      {/* Global Print & Page Break Styles */}
+      <style>{`
+        @media print {
+          body {
+            background: #ffffff !important;
+          }
+          .cloud-contract-page {
+            page-break-after: always !important;
+            break-after: page !important;
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+            margin: 0 !important;
+            padding: 24px 32px !important;
+            border: none !important;
+          }
+          .cloud-contract-page:last-child {
+            page-break-after: auto !important;
+            break-after: auto !important;
+          }
+        }
+      `}</style>
 
       {/* Main Container */}
       <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -3140,9 +3245,17 @@ ${activeAdds.length > 0 ? `● 增值配套服务：${activeAdds.map(a => a.name
 
         {/* Right Side: The Official Digital Contract Sheet */}
         <section className="lg:col-span-7 flex flex-col items-center">
-          <div className="w-full max-w-[820px] bg-white text-neutral-900 rounded-2xl p-4 sm:p-8 md:p-10 shadow-lg border border-neutral-200 print:border-none print:shadow-none print:p-0 print:m-0 print:max-w-none print:w-full print:rounded-none">
-            {/* Document Header */}
-            <div className="flex flex-col sm:flex-row items-start justify-between gap-4 pb-5 border-b-2 border-neutral-900">
+          <div
+            id="printable-contract"
+            className="w-full max-w-[820px] bg-white text-neutral-900 rounded-2xl shadow-lg border border-neutral-200 overflow-hidden print:border-none print:shadow-none print:p-0 print:m-0 print:max-w-none print:w-full print:rounded-none"
+          >
+            {/* PAGE 1: Header, Banner, Parties, Deliverables, Fees */}
+            <div
+              id="cloud-contract-page-1"
+              className="cloud-contract-page p-4 sm:p-8 md:p-10 border-b-2 border-dashed border-neutral-300 print:border-none print:p-8 bg-white"
+            >
+              {/* Document Header */}
+              <div className="flex flex-col sm:flex-row items-start justify-between gap-4 pb-5 border-b-2 border-neutral-900">
               <div className="flex items-center gap-3.5">
                 <div className="w-12 h-12 rounded-xl bg-neutral-950 flex items-center justify-center text-white shrink-0">
                   <Cpu className="w-6 h-6" />
@@ -3554,8 +3667,35 @@ ${activeAdds.length > 0 ? `● 增值配套服务：${activeAdds.map(a => a.name
               </div>
             </div>
 
+            {/* Page 1 Bottom Footer Indicator */}
+            <div className="mt-6 pt-3 border-t border-neutral-200 flex flex-col sm:flex-row justify-between items-center gap-1 text-[10px] text-neutral-400 font-mono">
+              <span>Chiang Mai AI Center Co., Ltd. · cloud.lazzor.com</span>
+              <span>第 1 页 (交付清单与费用核算) · 共 2 页</span>
+            </div>
+          </div>
+
+          {/* PAGE 2: Section 3 Legal Clauses, Signatures & Stamp */}
+          <div
+            id="cloud-contract-page-2"
+            className="cloud-contract-page p-4 sm:p-8 md:p-10 bg-white print:border-none print:p-8"
+          >
+            {/* Page 2 Top Header */}
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 pb-3 mb-6 border-b-2 border-neutral-900 font-mono text-[11px] text-neutral-600">
+              <div className="flex items-center gap-2">
+                <span className="font-black text-neutral-950 uppercase tracking-wide">
+                  CHIANG MAI AI CENTER · 核心服务条款与电子存证签署
+                </span>
+                <span className="px-1.5 py-0.2 rounded bg-neutral-100 text-neutral-700 text-[10px] font-bold">
+                  PAGE 2/2
+                </span>
+              </div>
+              <div className="text-neutral-500 text-[10px]">
+                REF: <strong className="text-neutral-900">{contractSerial || "CMAI-CLOUD"}</strong> · 签署日期: {signingDateIso}
+              </div>
+            </div>
+
             {/* Legal Clauses Section: Structured & Explicit */}
-            <div className="mt-6 space-y-3.5 text-[11px] text-neutral-600 leading-relaxed border-t border-neutral-200 pt-5">
+            <div className="space-y-3.5 text-[11px] text-neutral-600 leading-relaxed">
               <h3 className="text-xs font-bold text-neutral-900 uppercase tracking-wider mb-2">
                 3. TERMS & CONDITIONS (核心基础条款与服务保障细则)
               </h3>
@@ -3671,27 +3811,43 @@ ${activeAdds.length > 0 ? `● 增值配套服务：${activeAdds.map(a => a.name
               </div>
             </div>
 
-            {/* Annex Section: Attached ID Document Preview */}
-            {idImage && (
-              <div className="mt-8 pt-6 border-t border-neutral-200">
-                <div className="text-xs font-bold text-neutral-900 uppercase mb-2">
-                  ANNEX 1: CUSTOMER IDENTITY DOCUMENT (附件一：实名凭证)
-                </div>
-                <div className="max-w-md mx-auto rounded-xl overflow-hidden border border-neutral-200 shadow-xs">
-                  <img src={idImage} alt="Customer ID / License" className="w-full object-contain max-h-64" />
-                </div>
-                <p className="text-[10px] text-center text-neutral-400 mt-1.5">
-                  已做合规数字水印加密存储，仅用于本次服务开通与跨境支付实名备案
-                </p>
-              </div>
-            )}
-
             {/* Document Bottom Footer */}
-            <div className="mt-8 pt-4 border-t border-neutral-200 text-center text-[10px] text-neutral-400 font-mono">
-              Chiang Mai AI Center · Chiang Mai AI Center Co., Ltd. · cloud.lazzor.com · Official Digital Protocol · Serial: {contractSerial}
+            <div className="mt-8 pt-4 border-t border-neutral-200 flex flex-col sm:flex-row justify-between items-center gap-1 text-[10px] text-neutral-400 font-mono">
+              <span>Chiang Mai AI Center · Tax ID: 0505566006478 · cloud.lazzor.com</span>
+              <span>第 2 页 (条款细则与双方法律存证) · 具同等法律证明力</span>
             </div>
           </div>
-        </section>
+
+          {/* Annex Section: Attached ID Document Preview (Page 3) */}
+          {idImage && (
+            <div
+              id="cloud-contract-page-3"
+              className="cloud-contract-page p-4 sm:p-8 md:p-10 bg-white border-t-2 border-dashed border-neutral-300 print:border-none print:p-8"
+            >
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 pb-3 mb-6 border-b-2 border-neutral-900 font-mono text-[11px] text-neutral-600">
+                <div className="flex items-center gap-2">
+                  <span className="font-black text-neutral-950 uppercase tracking-wide">
+                    ANNEX 1: CUSTOMER IDENTITY / BUSINESS LICENSE (附件一：实名凭证)
+                  </span>
+                  <span className="px-1.5 py-0.2 rounded bg-neutral-100 text-neutral-700 text-[10px] font-bold">
+                    PAGE 3/3
+                  </span>
+                </div>
+                <div className="text-neutral-500 text-[10px]">
+                  REF: <strong className="text-neutral-900">{contractSerial || "CMAI-CLOUD"}</strong>
+                </div>
+              </div>
+
+              <div className="max-w-md mx-auto rounded-xl overflow-hidden border border-neutral-200 shadow-xs my-4">
+                <img src={idImage} alt="Customer ID / License" className="w-full object-contain max-h-72" />
+              </div>
+              <p className="text-[10px] text-center text-neutral-400 mt-2 font-mono">
+                已做合规数字水印加密存储，仅用于本次服务开通与跨境支付实名备案 · HASH: {contractHash}
+              </p>
+            </div>
+          )}
+        </div>
+      </section>
       </main>
 
       {/* --- Certificate of Digital Execution Modal --- */}
