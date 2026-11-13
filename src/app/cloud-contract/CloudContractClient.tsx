@@ -3283,7 +3283,7 @@ ${activeAdds.length > 0 ? `● 增值配套服务：${activeAdds.map(a => a.name
                 className="mt-0.5 rounded text-neutral-900 focus:ring-0 w-4 h-4 cursor-pointer"
               />
               <span className="text-xs text-neutral-600 dark:text-neutral-400 leading-snug">
-                我已仔细阅读并确认《企业级 AI 云工位与海外算力服务协议》所有细则及 SLA 交付标准，确认所选硬件参数（Apple {chosenCpu.name} / {chosenMemory.size} / {chosenStorage.size}）、AI 账号与增值配套服务规格无误，电子签名与时间戳哈希存证具有完全法律效力。
+                我已仔细阅读并确认《企业级 AI 云工位与海外算力服务协议》所有细则及 SLA 交付标准，确认所选服务方案{selectedPlanId === "workstation_888" ? `（1V1 物理独享 Apple Silicon · ${chosenCpu.name} / ${chosenMemory.size} / ${chosenStorage.size}）` : selectedPlanId === "ai_lazy_488" ? `（轻量云电脑微主机 · ${microPcTier === "pro" ? "增强型 8 vCPU / 16GB RAM" : "标准型 4 vCPU / 8GB RAM"}）` : currentPlan ? `（${currentPlan.name}）` : ""}、AI 会员与增值配套服务规格无误，电子签名与时间戳哈希存证具有完全法律效力。
               </span>
             </label>
 
@@ -3547,7 +3547,19 @@ ${activeAdds.length > 0 ? `● 增值配套服务：${activeAdds.map(a => a.name
                     {currentPlan ? (
                       <tr>
                         <td className="py-2.5 px-3 font-medium">
-                          {currentPlan.name} 服务费 (含 CPU: {chosenCpu.name} / 内存: {chosenMemory.size} / SSD: {chosenStorage.size} {chosenAiSubscription ? `/ AI: ${chosenAiSubscription.name}` : ""})
+                          {currentPlan.id === "workstation_888" ? (
+                            <span>
+                              {currentPlan.name} 服务费 (1V1 物理独享 Apple Silicon · {chosenCpu.name} / {chosenMemory.size} 内存 / {chosenStorage.size} SSD{chosenAiSubscription ? ` / AI: ${chosenAiSubscription.name}` : ""})
+                            </span>
+                          ) : currentPlan.id === "ai_lazy_488" ? (
+                            <span>
+                              {currentPlan.name} 服务费 (轻量云电脑微主机 · {microPcTier === "pro" ? "增强型 8 vCPU / 16GB RAM / 240GB NVMe" : "标准型 4 vCPU / 8GB RAM / 120GB NVMe"}{chosenAiSubscription ? ` / AI: ${chosenAiSubscription.name}` : ""})
+                            </span>
+                          ) : (
+                            <span>
+                              {currentPlan.name} 服务费 ({currentPlan.specs.hardware}{chosenAiSubscription ? ` / AI: ${chosenAiSubscription.name}` : ""})
+                            </span>
+                          )}
                         </td>
                         <td className="py-2.5 px-3">{durationMonths} 个月</td>
                         <td className="py-2.5 px-3">
@@ -4194,7 +4206,13 @@ ${activeAdds.length > 0 ? `● 增值配套服务：${activeAdds.map(a => a.name
               <div className="flex justify-between items-center">
                 <span className="text-neutral-500">签约交付标的:</span>
                 <span className="font-semibold text-neutral-900 dark:text-white">
-                  {currentPlan ? `${currentPlan.name} (含 ${chosenCpu.name} / ${chosenMemory.size} / ${chosenStorage.size})` : "纯定制/增值服务方案 (未选配基础主机)"}
+                  {currentPlan
+                    ? currentPlan.id === "workstation_888"
+                      ? `${currentPlan.name} (1V1 物理独享 Apple Silicon · ${chosenCpu.name} / ${chosenMemory.size} / ${chosenStorage.size})`
+                      : currentPlan.id === "ai_lazy_488"
+                      ? `${currentPlan.name} (轻量云电脑微主机 · ${microPcTier === "pro" ? "增强型 8 vCPU/16GB" : "标准型 4 vCPU/8GB"})`
+                      : `${currentPlan.name} (${currentPlan.specs.hardware})`
+                    : "纯定制/增值服务方案 (未选配基础主机)"}
                 </span>
               </div>
             </div>
