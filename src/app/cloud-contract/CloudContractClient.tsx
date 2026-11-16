@@ -300,11 +300,11 @@ export const AI_SUBSCRIPTION_OPTIONS: AiSubscriptionOption[] = [
     officialPriceUsd: 20,
     priceDeltaCNY: 0,
     priceDeltaTHB: 0,
-    summary: "官方每月 $20 订阅全包 · GPT-4o / o1 / Canvas / 语音模式 · 纯净静态IP直连",
+    summary: "官方每月 $20 订阅全包 · GPT-6 旗舰多模态 / o-系列满血深度推理 / Canvas 画布 / 高级语音 · 纯净静态IP直连",
     detailedSpecs: [
       "官方原价 $20/月 会员订阅费用全包，服务期内由服务商合规代充与续费",
-      "支持 GPT-4o、o1 推理模型、Canvas 协作画布及实时高级语音模式 (Advanced Voice)",
-      "含 DALL-E 3 高清画图与自定义专属 GPTs 构建，免异地跳 IP 封号降智",
+      "支持 GPT-6 最新旗舰多模态大模型、o-系列深度推理模型、Canvas 协作画布及实时高级语音模式 (Advanced Voice)",
+      "含旗舰高清多模态创作与企业专属 GPTs 构建，免异地跳 IP 封号降智",
       "海外正规银行合规外卡结算代充，全程提供 KYC 认证与风控拒付兜底保障",
     ],
   },
@@ -318,9 +318,9 @@ export const AI_SUBSCRIPTION_OPTIONS: AiSubscriptionOption[] = [
     priceDeltaTHB: 3250,
     summary: "官方高算力高并发档位 · 超大配额深度推理 · 团队高速处理通道",
     detailedSpecs: [
-      "官方原价 $100/月 高阶订阅全包，专为高强度 AI 产研与自动化脚本打造",
+      "官方原价 $100/月 专属高阶订阅，专为高强度 AI 产研与自动化脚本打造",
       "享有极高频次的高峰期调用配额与高速优先级响应队列",
-      "无限制访问复杂推理模型与最新多模态能力，免风控拒付",
+      "无限制访问 GPT-6 / 复杂推理模型与最新多模态能力，免风控拒付",
       "服务商全套商业外卡代缴代充与全流程防封禁运维保障",
     ],
   },
@@ -332,10 +332,10 @@ export const AI_SUBSCRIPTION_OPTIONS: AiSubscriptionOption[] = [
     officialPriceUsd: 200,
     priceDeltaCNY: 1450,
     priceDeltaTHB: 7250,
-    summary: "官方顶配极客版 · 无限 o1 满血复杂推理 · 深度研究 Deep Research",
+    summary: "官方顶配极客版 · 无限满血深度推理 · Deep Research 深度全网研究",
     detailedSpecs: [
-      "官方原价 $200/月 顶配订阅全包，拥有 OpenAI 顶级算力池无限接入权限",
-      "无限额度满血版 o1 与 Deep Research 深度全网分析研究助手",
+      "官方原价 $200/月 顶配极客订阅，拥有 OpenAI 顶级算力池无限接入权限",
+      "无限额度满血版深度推理与 Deep Research 深度全网分析研究助手",
       "极致并发与零排队最高优先级响应，适合高价值核心技术攻坚与大模型重度研发",
       "企业级合规卡代充扣费，提供全额合规凭据与全生命周期运维保障",
     ],
@@ -350,12 +350,12 @@ export const AI_SUBSCRIPTION_OPTIONS: AiSubscriptionOption[] = [
     officialPriceUsd: 20,
     priceDeltaCNY: 0,
     priceDeltaTHB: 0,
-    summary: "官方每月 $20 订阅全包 · Claude 3.5 / 3.7 Sonnet · Artifacts 交互沙箱",
+    summary: "官方每月 $20 订阅全包 · Claude 5.5 / 5.6 Sonnet & Opus · Artifacts 交互沙箱",
     detailedSpecs: [
-      "官方原价 $20/月 会员订阅全包，由服务商提供海外合规信用卡与手机号代充",
-      "完整支持顶尖代码模型 Claude 3.5 Sonnet、Claude 3.7 以及超大上下文 Opus",
-      "开箱即用 Artifacts 交互式沙箱（支持前端、SVG、交互组件即时调试预览）",
-      "相比免费账号享有 5 倍以上的高峰期调用配额与 Projects 知识库空间",
+      "官方原价 $20/月 会员订阅全包，由服务商提供海外合规商业外卡代充",
+      "完整支持顶尖代码与系统架构模型 Claude 5.5 / 5.6 Sonnet 及超大上下文 Opus",
+      "开箱即用 Artifacts 交互式沙箱（支持前端、SVG、交互数据流即时调试预览）",
+      "相比免费账号享有 5 倍以上的高峰期调用配额与 Projects 团队知识库空间",
     ],
   },
   {
@@ -366,7 +366,7 @@ export const AI_SUBSCRIPTION_OPTIONS: AiSubscriptionOption[] = [
     officialPriceUsd: 60,
     priceDeltaCNY: 650,
     priceDeltaTHB: 3250,
-    summary: "高频并发高负载专享 · Projects 团队共享空间 · 突破常规调用限额",
+    summary: "高频并发高负载专享 · Claude 5.6 顶级算力池 · Projects 团队共享空间 · 突破常规调用限额",
     detailedSpecs: [
       "大幅提升高并发高负载调用上限，避免因短时间重度编码导致用量打断",
       "多项目知识库与超长文档上下文隔离协同，深度支持全栈系统级工程重构",
@@ -381,7 +381,7 @@ export const AI_SUBSCRIPTION_OPTIONS: AiSubscriptionOption[] = [
     officialPriceUsd: 150,
     priceDeltaCNY: 1450,
     priceDeltaTHB: 7250,
-    summary: "终极尊享版 · 极客顶级算力优先队列 · 顶级上下文与全特性支持",
+    summary: "终极尊享版 · 极客顶级算力优先队列 · 满血超大上下文与全特性支持",
     detailedSpecs: [
       "享有 Anthropic 最高优先权调度队列，无论峰谷时段零延迟毫秒级响应",
       "顶配级超大上下文长度与多模态图像/大型工程架构代码一次性深度解析",
@@ -519,7 +519,7 @@ export const CLOUD_PLANS: CloudPlanItem[] = [
     priceTHB: 4440,
     originalPriceTHB: 5940,
     setupFeeTHB: 990,
-    description: "1V1 物理独享 Apple Silicon 算力、独立静态 IP、企业 VPN 与官方 AI 顶配会员全功能云工位。",
+    description: "1V1 物理独享 Apple Silicon 算力、独立静态 IP、企业 VPN 与官方 AI 会员全功能云工位。",
     tags: ["+Mac 1V1 独享", "+独立静态IP", "+VPN", "+ChatGPT、Claude账号", "+KYC代充"],
     features: [
       "1x Mac 专属云工作站 (1V1 物理独享 Apple Silicon 芯片，原生 macOS) + VPN",
@@ -534,7 +534,7 @@ export const CLOUD_PLANS: CloudPlanItem[] = [
       os: "原生 macOS 开发者工作站环境 (支持 Xcode、编译构建与原生开发工具链)",
       ip: "1x 独立海外原生静态商业 IP (专属物理绑定，支持 App Store 提审与外服部署)",
       network: "独占千兆对等带宽 + 国际专线直连 + 企业级 VPN 隧道 (开发编译零卡顿)",
-      aiAccount: "ChatGPT PLUS 或 Claude 官方顶配会员 2 选 1 (每月官方订阅全包)",
+      aiAccount: "ChatGPT PLUS 或 Claude 官方会员 2 选 1 (每月官方订阅全包，支持进阶升级)",
       support: "开机费含 1 对 1 专属技术工程师环境深度调优、专属节点初始化与直连客户端",
     },
   },
@@ -1779,16 +1779,28 @@ ${activeAdds.length > 0 ? `● 增值配套服务：${activeAdds.map(a => a.name
   }
 
   if (chosenAiSubscription) {
+    const aiDelta = currency === "CNY" ? chosenAiSubscription.priceDeltaCNY : chosenAiSubscription.priceDeltaTHB;
+    const isBaseIncluded = aiDelta === 0;
+
     deliverableItems.push({
-      title: "官方 AI 顶配会员规格",
+      title: "官方 AI 会员服务规格",
       enTitle: "Official AI Membership",
       content: (
         <div className="space-y-1">
-          <div className="font-bold text-neutral-900 flex items-center gap-2">
+          <div className="font-bold text-neutral-900 flex items-center gap-2 flex-wrap">
             <span>{chosenAiSubscription.name}</span>
-            <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800">
-              官方原价 ${chosenAiSubscription.officialPriceUsd}/月 费用全包
-            </span>
+            {isBaseIncluded ? (
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-semibold">
+                套餐标配包含 (官方 $20/月 费用全包)
+              </span>
+            ) : (
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 font-semibold">
+                {chosenAiSubscription.id.includes("ultra") || chosenAiSubscription.id.includes("pro200")
+                  ? "旗舰顶配升级"
+                  : "进阶高配升级"}{" "}
+                (+{currSym}{aiDelta.toLocaleString()}/月)
+              </span>
+            )}
           </div>
           <div className="text-neutral-600 text-[11px]">
             {chosenAiSubscription.summary}
@@ -1895,9 +1907,14 @@ ${activeAdds.length > 0 ? `● 增值配套服务：${activeAdds.map(a => a.name
   }
 
   if (chosenAiSubscription) {
+    const aiDelta = currency === "CNY" ? chosenAiSubscription.priceDeltaCNY : chosenAiSubscription.priceDeltaTHB;
     dynamicTerms.push({
       title: "官方 AI 会员服务及 KYC 合规代充条款：",
-      body: `甲方负责为乙方开通所选定的官方 AI 会员账号（${chosenAiSubscription.name}），每月官方订阅美金费用全额由甲方承担并由境外正规银行商业外卡代缴。甲方承诺代充渠道合法合规，免除普通虚拟卡封号拒付风险。在服务有效期内，若账号发生非因乙方违法使用造成的官方风控异常，甲方提供全流程免费运维及重置更换保障。`,
+      body: `甲方负责为乙方开通所选定的官方 AI 会员账号（${chosenAiSubscription.name}），${
+        aiDelta > 0
+          ? `其官方进阶订阅差额（+${currSym}${aiDelta.toLocaleString()}/月）已计入本合同月度服务费，全额由甲方通过境外正规商业外卡代充代缴。`
+          : `每月官方 $20 订阅美金费用已全额包含在基础套餐服务费中，由甲方通过境外正规商业外卡代充代缴。`
+      }甲方承诺代充渠道合法合规，免除普通虚拟卡封号拒付风险。在服务有效期内，若账号发生非因乙方违法使用造成的官方风控异常，甲方提供全流程免费运维及重置更换保障。`,
     });
   }
 
@@ -2588,7 +2605,7 @@ ${activeAdds.length > 0 ? `● 增值配套服务：${activeAdds.map(a => a.name
                   3
                 </span>
                 <h2 className="text-sm font-bold text-neutral-900 dark:text-white">
-                  官方 AI 顶配会员规格选定 (含每月订阅全包)
+                  官方 AI 会员服务规格选配 (标配全包 / 进阶可选)
                 </h2>
                 {selectedAiSubId ? (
                   <button
@@ -3549,15 +3566,15 @@ ${activeAdds.length > 0 ? `● 增值配套服务：${activeAdds.map(a => a.name
                         <td className="py-2.5 px-3 font-medium">
                           {currentPlan.id === "workstation_888" ? (
                             <span>
-                              {currentPlan.name} 服务费 (1V1 物理独享 Apple Silicon · {chosenCpu.name} / {chosenMemory.size} 内存 / {chosenStorage.size} SSD{chosenAiSubscription ? ` / AI: ${chosenAiSubscription.name}` : ""})
+                              {currentPlan.name} 服务费 (1V1 物理独享 Apple Silicon · {chosenCpu.name} / {chosenMemory.size} 内存 / {chosenStorage.size} SSD{chosenAiSubscription ? (aiDeltaMonthly > 0 ? ` / AI: ${chosenAiSubscription.name} [含升级+${currSym}${aiDeltaMonthly.toLocaleString()}/月]` : ` / AI: ${chosenAiSubscription.name}`) : ""})
                             </span>
                           ) : currentPlan.id === "ai_lazy_488" ? (
                             <span>
-                              {currentPlan.name} 服务费 (轻量云电脑微主机 · {microPcTier === "pro" ? "增强型 8 vCPU / 16GB RAM / 240GB NVMe" : "标准型 4 vCPU / 8GB RAM / 120GB NVMe"}{chosenAiSubscription ? ` / AI: ${chosenAiSubscription.name}` : ""})
+                              {currentPlan.name} 服务费 (轻量云电脑微主机 · {microPcTier === "pro" ? "增强型 8 vCPU / 16GB RAM / 240GB NVMe" : "标准型 4 vCPU / 8GB RAM / 120GB NVMe"}{chosenAiSubscription ? (aiDeltaMonthly > 0 ? ` / AI: ${chosenAiSubscription.name} [含升级+${currSym}${aiDeltaMonthly.toLocaleString()}/月]` : ` / AI: ${chosenAiSubscription.name}`) : ""})
                             </span>
                           ) : (
                             <span>
-                              {currentPlan.name} 服务费 ({currentPlan.specs.hardware}{chosenAiSubscription ? ` / AI: ${chosenAiSubscription.name}` : ""})
+                              {currentPlan.name} 服务费 ({currentPlan.specs.hardware}{chosenAiSubscription ? (aiDeltaMonthly > 0 ? ` / AI: ${chosenAiSubscription.name} [含升级+${currSym}${aiDeltaMonthly.toLocaleString()}/月]` : ` / AI: ${chosenAiSubscription.name}`) : ""})
                             </span>
                           )}
                         </td>
