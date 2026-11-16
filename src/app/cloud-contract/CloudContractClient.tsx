@@ -310,7 +310,7 @@ export const AI_SUBSCRIPTION_OPTIONS: AiSubscriptionOption[] = [
   },
   {
     id: "chatgpt_pro100",
-    name: "ChatGPT Pro 100 官方高阶会员 ($100/月)",
+    name: "ChatGPT Pro 100 官方高阶会员",
     modelFamily: "chatgpt",
     tier: "advanced",
     officialPriceUsd: 100,
@@ -318,7 +318,7 @@ export const AI_SUBSCRIPTION_OPTIONS: AiSubscriptionOption[] = [
     priceDeltaTHB: 3250,
     summary: "官方高算力高并发档位 · 超大配额深度推理 · 团队高速处理通道",
     detailedSpecs: [
-      "官方原价 $100/月 专属高阶订阅，专为高强度 AI 产研与自动化脚本打造",
+      "官方高阶算力专享订阅，专为高强度 AI 产研与自动化脚本打造",
       "享有极高频次的高峰期调用配额与高速优先级响应队列",
       "无限制访问 GPT-6 / 复杂推理模型与最新多模态能力，免风控拒付",
       "服务商全套商业外卡代缴代充与全流程防封禁运维保障",
@@ -326,7 +326,7 @@ export const AI_SUBSCRIPTION_OPTIONS: AiSubscriptionOption[] = [
   },
   {
     id: "chatgpt_pro200",
-    name: "ChatGPT Pro 200 官方顶配会员 ($200/月)",
+    name: "ChatGPT Pro 200 官方顶配会员",
     modelFamily: "chatgpt",
     tier: "flagship",
     officialPriceUsd: 200,
@@ -334,7 +334,7 @@ export const AI_SUBSCRIPTION_OPTIONS: AiSubscriptionOption[] = [
     priceDeltaTHB: 7250,
     summary: "官方顶配极客版 · 无限满血深度推理 · Deep Research 深度全网研究",
     detailedSpecs: [
-      "官方原价 $200/月 顶配极客订阅，拥有 OpenAI 顶级算力池无限接入权限",
+      "官方顶配极客专属订阅，拥有 OpenAI 顶级算力池无限接入权限",
       "无限额度满血版深度推理与 Deep Research 深度全网分析研究助手",
       "极致并发与零排队最高优先级响应，适合高价值核心技术攻坚与大模型重度研发",
       "企业级合规卡代充扣费，提供全额合规凭据与全生命周期运维保障",
