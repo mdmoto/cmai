@@ -2722,7 +2722,7 @@ function ContractContent() {
                 <p><strong>Written Name / ชื่อเต็ม:</strong> <span id="landlord-signatory-text">Authorized Director (To be countersigned upon payment)</span></p>
                 <p><strong>Title / ตำแหน่ง:</strong> Managing Director (ผู้มีอำนาจลงนามและประทับตราสำคัญ)</p>
                 <p><strong>Date / วันที่:</strong> <span id="landlord-date-text">____________________ (Upon Payment / หลังชำระเงิน)</span></p>
-                <p><strong>Phone / เบอร์โทร:</strong> +66 62 345 8238</p>
+                <p><strong>Phone / เบอร์โทร:</strong> +66 927-688255</p>
               </div>
             </div>
 

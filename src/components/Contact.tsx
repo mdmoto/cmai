@@ -70,8 +70,8 @@ export default function Contact() {
     },
     {
       name: "WhatsApp",
-      val: "+66 62 345 8238",
-      href: "https://wa.me/66623458238",
+      val: "+66 927-688255",
+      href: "https://wa.me/66927688255",
       icon: <Phone className="w-4 h-4 text-neutral-400 group-hover:text-black dark:group-hover:text-white" />,
     },
     {

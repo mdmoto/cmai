@@ -548,7 +548,7 @@ function generateStandaloneContractHtml(data: {
         <p><strong>Written Name / ชื่อเต็ม:</strong> Authorized Director</p>
         <p><strong>Title / ตำแหน่ง:</strong> Managing Director (Colasola Co., Ltd.)</p>
         <p><strong>Date / วันที่:</strong> ${data.signedAt ? data.signedAt.slice(0, 10) : "14 September 2026"}</p>
-        <p><strong>Phone / เบอร์โทร:</strong> +66 62 345 8238</p>
+        <p><strong>Phone / เบอร์โทร:</strong> +66 927-688255</p>
       </div>
     </div>
 
@@ -719,7 +719,7 @@ export async function onRequestPost(context: { request: Request; env: Env }) {
 
           <div style="background-color: #fffbeb; border: 1px solid #fef3c7; border-radius: 8px; padding: 14px; margin: 16px 0; font-size: 12px; color: #92400e;">
             <strong>⚠️ Next Steps & Payment Verification:</strong><br/>
-            Please retain this confirmation and your Application Reference (<strong>${contractSerial}</strong>) for your tenancy records. Once your payment transfer is verified by our administration, the officially countersigned lease agreement will be emailed to you. For any move-in assistance or billing inquiries, feel free to reply directly to this email or reach us at <strong>+66 62 345 8238</strong>.
+            Please retain this confirmation and your Application Reference (<strong>${contractSerial}</strong>) for your tenancy records. Once your payment transfer is verified by our administration, the officially countersigned lease agreement will be emailed to you. For any move-in assistance or billing inquiries, feel free to reply directly to this email or reach us at <strong>+66 927-688255</strong>.
           </div>
           
           <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid #e2e8f0; font-size: 11px; color: #94a3b8; text-align: center;">
