@@ -194,7 +194,7 @@ export default function Workspace() {
             {t("workspaceSectionTitle")} · ออฟฟิศให้เช่า เชียงใหม่
           </span>
           <h2 className="text-3xl sm:text-4xl font-light text-[#1d1d1f] dark:text-white tracking-tight mb-6">
-            Offices for Rent in Chiang Mai <span className="font-semibold block sm:inline text-neutral-900 dark:text-white">· 40+ Private Suites (2F–5F)</span>
+            Offices for Rent in Chiang Mai <span className="font-semibold block sm:inline text-neutral-900 dark:text-white">· 5 Floors &amp; Private Suites</span>
           </h2>
           <p className="text-base text-[#515154] dark:text-[#86868b] font-light leading-relaxed">
             {t("workspaceDesc")}
@@ -254,45 +254,9 @@ export default function Workspace() {
 
           {/* Directory table (replacing blocky dashboard cards) */}
           <div className="lg:col-span-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-[12px] font-sans tracking-[0.2em] text-[#86868b] uppercase font-semibold">
-                {activeFloor === 1
-                  ? (language === "zh" ? "1 楼公共共享设施清单" : language === "th" ? "รายการสิ่งอำนวยความสะดวกชั้น 1" : language === "ja" ? "1階共用アメニティ一覧" : "Floor 1 Shared Amenities")
-                  : t("workspaceDetails")}
-              </h3>
-              {activeFloor === 1 && (
-                <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 font-medium">
-                  {language === "zh" ? "全楼免费共享 · 不对外招租" : "Shared Amenity · Not for Lease"}
-                </span>
-              )}
-            </div>
-
-            {/* Clear Floor 1 Shared Space Notice */}
-            {activeFloor === 1 && (
-              <div className="mb-6 p-4 rounded-xl bg-blue-50/70 dark:bg-blue-950/20 border border-blue-200/80 dark:border-blue-900/40 text-blue-950 dark:text-blue-200 text-xs leading-relaxed flex items-start gap-3">
-                <span className="text-base shrink-0 mt-0.5">🏛️</span>
-                <div>
-                  <div className="font-semibold mb-1">
-                    {language === "zh"
-                      ? "一楼为整栋楼宇公共共享空间 · 不对外招租"
-                      : language === "th"
-                      ? "ชั้น 1 เป็นพื้นที่ส่วนกลางและสิ่งอำนวยความสะดวก (ไม่เปิดให้เช่าแยก)"
-                      : language === "ja"
-                      ? "1階は全館共用コミュニティエリアです（個別賃貸対象外）"
-                      : "Floor 1 is a dedicated shared community amenity area (not for separate lease)"}
-                  </div>
-                  <p className="text-blue-700 dark:text-blue-300/90 font-light">
-                    {language === "zh"
-                      ? "所有入驻企业及访客均可免费享用前台接待、共享会议室、社区茶水吧与休闲休息区。独立办公室租赁请切换至 2 楼至 5 楼查看。"
-                      : language === "th"
-                      ? "ผู้เช่าและผู้มาเยือนสามารถใช้แผนกต้อนรับ ห้องประชุม และพื้นที่พักผ่อนได้ฟรี ออฟฟิศให้เช่าโปรดเลือกชั้น 2 ถึง 5"
-                      : language === "ja"
-                      ? "入居企業および来訪者は、総合受付、共用会議室、パントリー、ラウンジを無料で利用可能。賃貸オフィスは2階〜5階をご覧ください。"
-                      : "All resident teams and guests enjoy complimentary access to front reception, meeting rooms, pantry lounge, and visitor areas. For private offices, please explore Floors 2 through 5."}
-                  </p>
-                </div>
-              </div>
-            )}
+            <h3 className="text-[12px] font-sans tracking-[0.2em] text-[#86868b] uppercase font-semibold mb-6">
+              {t("workspaceDetails")}
+            </h3>
 
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
@@ -302,7 +266,7 @@ export default function Workspace() {
                     <th className="py-3 font-semibold">{t("workspaceFeatures") || "Features"}</th>
                     <th className="py-3 font-semibold">{t("workspaceDesks") || "Desks"}</th>
                     <th className="py-3 font-semibold">
-                      {activeFloor === 1 ? (language === "zh" ? "使用权限" : "Access") : t("workspacePricing")}
+                      {activeFloor === 1 ? (language === "zh" ? "使用权限 (租户免费共享)" : "Access (Included)") : t("workspacePricing")}
                     </th>
                     <th className="py-3 font-semibold text-right">
                       {activeFloor === 1 ? (language === "zh" ? "开放状态" : "Availability") : t("workspaceStatus")}
