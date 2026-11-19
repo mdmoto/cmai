@@ -1220,8 +1220,14 @@ function CloudContractContent() {
   // Effective Monthly Fee after Discounts
   const effectiveMonthlyFee = Math.round(subtotalMonthly * durationDiscountRate * promoDiscountRate);
   const effectiveSetupFee = (isSetupFeeWaived || !currentPlan) ? 0 : baseSetupFee;
+
+  // Additional One-time OS Setup Fee (Debian 12 lightweight GUI requires extra initial environment deployment: +100 CNY / +500 THB, one-time)
+  const osOneTimeFee = (selectedPlanId === "ai_lazy_488" && microPcOs === "debian")
+    ? (currency === "CNY" ? 100 : 500)
+    : 0;
+
   const totalSubscriptionFee = effectiveMonthlyFee * durationMonths;
-  const totalInitialPayment = totalSubscriptionFee + effectiveSetupFee + addonsOneTimeFee + customOneTimeDelta;
+  const totalInitialPayment = totalSubscriptionFee + effectiveSetupFee + osOneTimeFee + addonsOneTimeFee + customOneTimeDelta;
 
   // Dates
   const endDate = calculateServiceEndDate(startDate, durationMonths);
@@ -1493,7 +1499,7 @@ function CloudContractContent() {
       if (currentPlan.id === "workstation_888") {
         specsList.push(`1V1独享工作站: ${chosenCpu.name} / ${chosenMemory.size}内存 / ${chosenStorage.size}SSD`);
       } else if (currentPlan.id === "ai_lazy_488") {
-        specsList.push(`${currentPlan.name} (${microPcTier === "pro" ? "增强型 4核8G/120G" : "标准型 2核4G/60G"})`);
+        specsList.push(`${currentPlan.name} (${microPcTier === "pro" ? "增强型 4核8G/120G" : "标准型 2核4G/60G"}${microPcOs === "debian" ? ` · Debian视窗[+${currSym}${osOneTimeFee}]` : " · Ubuntu终端"})`);
       } else {
         specsList.push(`${currentPlan.name} (${currentPlan.specs.hardware})`);
       }
@@ -1664,7 +1670,8 @@ ${link}
     const effM = Math.round(sub * durRate * promoR);
     const baseS = plan ? (custCurrency === "CNY" ? plan.setupFeeCNY : plan.setupFeeTHB) : 0;
     const effS = (setupWaived || !plan) ? 0 : baseS;
-    const initialT = effM * custDurationMonths + effS + addsOne + custCustOneTime;
+    const custOsOne = (custPlanId === "ai_lazy_488" && custMicroOs === "debian") ? (custCurrency === "CNY" ? 100 : 500) : 0;
+    const initialT = effM * custDurationMonths + effS + custOsOne + addsOne + custCustOneTime;
 
     return `【Chiang Mai AI Center · 官方专属服务电子合同】
 尊敬的 ${recipient}：
@@ -1673,7 +1680,7 @@ ${link}
 
 📋 定制方案配置：
 ● 签约方案：${plan ? plan.name : "纯定制增值服务 (未选配基础云主机)"}
-● 硬件规格：${plan ? (custPlanId === "workstation_888" ? `${cpu.name} · ${mem.size} 统一内存 · ${ssd.size} 存储 (原生 macOS)` : "轻量高可用微主机 (防指纹浏览器日常值守环境)") : "未配置硬件主机"}
+● 硬件规格：${plan ? (custPlanId === "workstation_888" ? `${cpu.name} · ${mem.size} 统一内存 · ${ssd.size} 存储 (原生 macOS)` : `轻量微主机 (${custMicroTier === "pro" ? "4核8G / 120GB" : "2核4G / 60GB"} · ${custMicroOs === "debian" ? `Debian轻量视窗 [+${currSym}${custOsOne}首次服务费]` : "Ubuntu纯净终端"})`) : "未配置硬件主机"}
 ● 官方 AI 会员：${ai ? `${ai.name} (每月官方订阅全包)` : "未选配 AI 会员"}
 ● 纯净商业网络：${(plan ? 1 : 0) + custExtraIpCount}x 独享原生静态商业 IP (Clean ASN) + 中泰 IPLC 极速专线 (<18ms)
 ${activeAdds.length > 0 ? `● 增值配套服务：${activeAdds.map(a => a.name.split(" ")[0]).join("、")}
@@ -1768,7 +1775,7 @@ ${activeAdds.length > 0 ? `● 增值配套服务：${activeAdds.map(a => a.name
             轻量共享型云电脑 (微主机) - {microPcTier === "pro" ? "增强型 4 vCPU / 8GB RAM / 120GB NVMe" : "标准型 2 vCPU / 4GB RAM / 60GB NVMe"}
           </div>
           <div className="text-neutral-600">
-            运行环境: {microPcOs === "ubuntu" ? "Ubuntu 24.04 LTS (极速纯净终端 · 专线 SSH 直连)" : "Debian 12 (轻量视窗运行环境)"}
+            运行环境: {microPcOs === "ubuntu" ? "Ubuntu 24.04 LTS (极速纯净终端 · 专线 SSH 直连)" : `Debian 12 (轻量视窗扩展环境 · 含首次环境初始化配置 +${currSym}${osOneTimeFee})`}
           </div>
           <div className="text-[11px] text-emerald-700 font-medium">
             ✓ 预装防关联安全环境与 7×24h 自动化值守守护进程
@@ -1902,7 +1909,7 @@ ${activeAdds.length > 0 ? `● 增值配套服务：${activeAdds.map(a => a.name
         selectedPlanId === "workstation_888"
           ? `Apple Silicon 物理机（包含指定 CPU 芯片型号 ${chosenCpu.name}、统一内存 ${chosenMemory.size} 及 ${chosenStorage.size} SSD 空间）`
           : selectedPlanId === "ai_lazy_488"
-          ? `轻量微主机算力（${microPcTier === "pro" ? "增强型 4 vCPU / 8GB RAM / 120GB NVMe" : "标准型 2 vCPU / 4GB RAM / 60GB NVMe"}）`
+          ? `轻量微主机算力（${microPcTier === "pro" ? "增强型 4 vCPU / 8GB RAM / 120GB NVMe" : "标准型 2 vCPU / 4GB RAM / 60GB NVMe"}${microPcOs === "debian" ? `，含 Debian 12 轻量视窗首次专属初始化调优部署服务 [${currSym}${osOneTimeFee} 一次性]` : ""}）`
           : "基础云主机算力"
       }，并在乙方完成首付款项后 24 小时内完成初始化调优并交付使用凭证。`,
     });
@@ -2577,7 +2584,7 @@ ${activeAdds.length > 0 ? `● 增值配套服务：${activeAdds.map(a => a.name
                     >
                       <div className="flex justify-between items-center text-xs">
                         <span>Ubuntu 24.04 LTS (极速纯净终端)</span>
-                        <span className="text-[10px] text-emerald-600 font-mono">官方推荐</span>
+                        <span className="text-[10px] text-emerald-600 font-mono">标配 · 推荐</span>
                       </div>
                       <span className="text-[10px] text-neutral-500 mt-1 block">
                         原生纯净 CLI 命令行 · 专线 SSH 极速直连 · 零冗余资源占用更流畅
@@ -2594,10 +2601,12 @@ ${activeAdds.length > 0 ? `● 增值配套服务：${activeAdds.map(a => a.name
                     >
                       <div className="flex justify-between items-center text-xs">
                         <span>Debian 12 (轻量视窗扩展环境)</span>
-                        <span className="text-[10px] text-neutral-400 font-mono">基础视窗</span>
+                        <span className="text-[10px] text-amber-700 dark:text-amber-400 font-mono font-semibold">
+                          首次服务费 +{currSym}{currency === "CNY" ? 100 : 500} (一次性)
+                        </span>
                       </div>
                       <span className="text-[10px] text-neutral-500 mt-1 block">
-                        含轻量基础视窗组件 · 支持基础交互 · 视窗运行占用部分系统内存
+                        含轻量基础视窗组件 · 视窗运行占用部分系统内存 · 首次环境初始化调优 (+{currSym}{currency === "CNY" ? 100 : 500} 一次性服务费)
                       </span>
                     </div>
                   </div>
@@ -3624,6 +3633,20 @@ ${activeAdds.length > 0 ? `● 增值配套服务：${activeAdds.map(a => a.name
                         </td>
                         <td className="py-2.5 px-3 text-right font-medium">
                           {effectiveSetupFee === 0 ? "¥0 (年付特惠全免)" : `${currSym}${effectiveSetupFee.toLocaleString()}`}
+                        </td>
+                      </tr>
+                    )}
+                    {osOneTimeFee > 0 && (
+                      <tr>
+                        <td className="py-2.5 px-3 font-medium">
+                          Debian 12 轻量视窗运行环境专属初始化部署与技术配置服务费
+                        </td>
+                        <td className="py-2.5 px-3">首次一次性</td>
+                        <td className="py-2.5 px-3">
+                          {currSym}{osOneTimeFee.toLocaleString()}
+                        </td>
+                        <td className="py-2.5 px-3 text-right font-medium">
+                          {currSym}{osOneTimeFee.toLocaleString()}
                         </td>
                       </tr>
                     )}
