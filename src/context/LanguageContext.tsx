@@ -10,6 +10,7 @@ const translations: Record<Language, TranslationDict> = {
   en: {
     // Navbar
     navHome: "Home",
+    navHomePortal: "Back to Home",
     navExploreWorkspace: "Explore Workspace",
     navWorkspace: "Offices",
     navCloudDesk: "AI Cloud Desk",
@@ -331,6 +332,7 @@ const translations: Record<Language, TranslationDict> = {
   zh: {
     // Navbar
     navHome: "首页",
+    navHomePortal: "返回官网主页",
     navExploreWorkspace: "探索办公空间",
     navWorkspace: "办公空间",
     navCloudDesk: "AI 云工位",
@@ -652,6 +654,7 @@ const translations: Record<Language, TranslationDict> = {
   th: {
     // Navbar
     navHome: "หน้าแรก",
+    navHomePortal: "กลับสู่หน้าหลัก",
     navExploreWorkspace: "สำรวจพื้นที่ทำงาน",
     navWorkspace: "พื้นที่ทำงาน",
     navCloudDesk: "AI คลาวด์เดสก์",
@@ -973,6 +976,7 @@ const translations: Record<Language, TranslationDict> = {
   ja: {
     // Navbar
     navHome: "ホーム",
+    navHomePortal: "公式サイトトップへ",
     navExploreWorkspace: "ワークスペース探索",
     navWorkspace: "オフィス",
     navCloudDesk: "AI クラウドデスク",

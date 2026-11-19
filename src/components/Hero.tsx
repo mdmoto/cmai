@@ -1,8 +1,10 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
 import { useTranslation } from "@/context/LanguageContext";
 import { motion, AnimatePresence } from "framer-motion";
+import { Sparkles, ArrowDown, ArrowUpRight } from "lucide-react";
 
 interface HeroProps {
   onOpenSandbox?: () => void;
@@ -108,33 +110,67 @@ export default function Hero({ onOpenSandbox, onPreheat }: HeroProps) {
             {t("heroSubtitle")}
           </motion.p>
 
-          {/* Actions */}
+          {/* Actions - Unified Ecosystem Portal Links */}
           <motion.div
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.3 }}
-            className="flex flex-wrap items-center gap-4"
+            className="flex flex-wrap items-center gap-3.5"
           >
+            {/* 1. Explore Physical Workspace */}
             <button
               onClick={(e) => handleScrollTo(e, "#workspace")}
-              className="px-6 py-3 bg-[#f5f5f7] hover:bg-white text-[#1d1d1f] text-[13px] font-medium rounded-full transition-colors shadow-sm cursor-pointer"
+              className="px-6 py-3 bg-[#f5f5f7] hover:bg-white text-[#1d1d1f] text-[13px] font-medium rounded-full transition-all shadow-sm cursor-pointer flex items-center gap-1.5"
             >
-              {t("heroCTAExplore")}
+              <span>{t("heroCTAExplore")}</span>
+              <ArrowDown className="w-3.5 h-3.5" />
             </button>
 
-            {/* AI Decision Sandbox Frosted Glass Capsule Button */}
+            {/* 2. Return to Main Portal Homepage */}
+            <Link
+              href="/"
+              className="px-6 py-3 bg-transparent hover:bg-white/5 border border-white/20 hover:border-white/40 text-neutral-200 text-[13px] font-medium rounded-full transition-colors cursor-pointer flex items-center gap-1.5"
+            >
+              <span>{t("navHomePortal")}</span>
+            </Link>
+
+            {/* 3. AI Decision Sandbox Frosted Glass Capsule Button */}
             <button
               onClick={handleSandboxClick}
               onMouseEnter={onPreheat}
               onTouchStart={onPreheat}
-              className="px-6 py-3 bg-white/[0.08] hover:bg-white/[0.16] border border-white/20 text-neutral-100 backdrop-blur-md rounded-full text-[13px] font-medium transition-all cursor-pointer shadow-sm hover:scale-105 active:scale-95"
+              className="px-6 py-3 bg-white/[0.08] hover:bg-white/[0.16] border border-white/20 text-neutral-100 backdrop-blur-md rounded-full text-[13px] font-medium transition-all cursor-pointer shadow-sm hover:scale-105 active:scale-95 flex items-center gap-1.5"
             >
-              AI 商业决策沙盘
+              <Sparkles className="w-3.5 h-3.5 opacity-80" />
+              <span>{t("navAiSandbox")}</span>
             </button>
 
+            {/* 4. Enterprise Cloud Desk */}
+            <a
+              href="https://cloud.lazzor.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-6 py-3 bg-transparent hover:bg-white/5 border border-white/20 hover:border-white/40 text-neutral-200 text-[13px] font-medium rounded-full transition-colors cursor-pointer flex items-center gap-1.5"
+            >
+              <span>{t("navCloudDesk")}</span>
+              <ArrowUpRight className="w-3 h-3 text-neutral-400" />
+            </a>
+
+            {/* 5. Clean Energy / ColaSola */}
+            <a
+              href="https://colasola.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-6 py-3 bg-transparent hover:bg-white/5 border border-white/20 hover:border-white/40 text-neutral-200 text-[13px] font-medium rounded-full transition-colors cursor-pointer flex items-center gap-1.5"
+            >
+              <span>{t("navSolarSystem")}</span>
+              <ArrowUpRight className="w-3 h-3 text-neutral-400" />
+            </a>
+
+            {/* 6. Book a Visit */}
             <button
               onClick={(e) => handleScrollTo(e, "#contact")}
-              className="px-6 py-3 bg-transparent hover:bg-white/5 border border-white/20 hover:border-white/40 text-white text-[13px] font-medium rounded-full transition-colors cursor-pointer"
+              className="px-6 py-3 bg-transparent hover:bg-white/5 border border-white/20 hover:border-white/40 text-neutral-200 text-[13px] font-medium rounded-full transition-colors cursor-pointer"
             >
               {t("heroCTABook")}
             </button>
