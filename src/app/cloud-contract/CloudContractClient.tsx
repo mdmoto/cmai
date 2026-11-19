@@ -554,7 +554,7 @@ export const CLOUD_PLANS: CloudPlanItem[] = [
     description: "专为个人与团队出海打造的海外 AI 与研发软硬件全套免运维基座。",
     tags: ["+微主机", "+独立商业IP", "+VPN", "+ChatGPT、Claude账号", "+KYC代充"],
     features: [
-      "1x 轻量共享型云电脑 (微主机，预装防关联指纹浏览器与日常值守环境) + VPN",
+      "1x 轻量共享型云电脑 (微主机 2-4核 / 4-8G，支持极速纯净 SSH 终端与轻量视窗) + VPN",
       "ChatGPT PLUS 或 Claude 会员 2 选 1 (已含每月官方会员订阅权益，专享纯净环境无惧封号降智，开箱即用)",
       "1x 独立海外原生静态商业 IP (100% 独享 Clean ASN, Fraud Score 0)",
       "海外账号专属 KYC 代充服务 (专享合规海外卡与手机号充值，免风控拒付)",
@@ -562,8 +562,8 @@ export const CLOUD_PLANS: CloudPlanItem[] = [
       "开户费 ¥98 含 1 对 1 专属技术支持协助调优、环境部署与客户端配置",
     ],
     specs: {
-      hardware: "微主机 (轻量共享型云电脑，4-8 vCPU / 8-16GB RAM / NVMe 高速盘)",
-      os: "Linux / Windows 安全沙箱环境 · 预装防关联指纹浏览器",
+      hardware: "微主机 (轻量共享型云电脑，2-4 vCPU / 4-8GB RAM / NVMe 高速盘)",
+      os: "Ubuntu 24.04 极速纯净终端 / Debian 12 轻量视窗运行环境",
       ip: "1x 独立海外原生静态商业 IP (100% 独享 Clean ASN，欺诈分 0)",
       network: "中泰 IPLC / 国际专线直连 (&lt;18ms 极低延迟) + 企业级 VPN 安全隧道",
       aiAccount: "ChatGPT PLUS 或 Claude 官方订阅会员 2 选 1 (每月订阅费用全包)",
@@ -829,8 +829,8 @@ function CloudContractContent() {
   const [microPcTier, setMicroPcTier] = useState<"std" | "pro">(
     rawTierParam === "pro" ? "pro" : "std"
   );
-  const [microPcOs, setMicroPcOs] = useState<"ubuntu" | "windows">(
-    rawOsParam === "windows" ? "windows" : "ubuntu"
+  const [microPcOs, setMicroPcOs] = useState<"ubuntu" | "debian">(
+    rawOsParam === "debian" || rawOsParam === "windows" ? "debian" : "ubuntu"
   );
 
   // --- AI Subscription Specification State ---
@@ -934,7 +934,7 @@ function CloudContractContent() {
   const [custMemoryId, setCustMemoryId] = useState<string>("8");
   const [custStorageId, setCustStorageId] = useState<string>("256");
   const [custMicroTier, setCustMicroTier] = useState<"std" | "pro">("std");
-  const [custMicroOs, setCustMicroOs] = useState<"ubuntu" | "windows">("ubuntu");
+  const [custMicroOs, setCustMicroOs] = useState<"ubuntu" | "debian">("ubuntu");
   const [custAiSubId, setCustAiSubId] = useState<string>("chatgpt_plus");
   const [custAddonIds, setCustAddonIds] = useState<string[]>([]);
   const [custExtraIpCount, setCustExtraIpCount] = useState<number>(0);
@@ -1492,8 +1492,10 @@ function CloudContractContent() {
     if (currentPlan) {
       if (currentPlan.id === "workstation_888") {
         specsList.push(`1V1独享工作站: ${chosenCpu.name} / ${chosenMemory.size}内存 / ${chosenStorage.size}SSD`);
+      } else if (currentPlan.id === "ai_lazy_488") {
+        specsList.push(`${currentPlan.name} (${microPcTier === "pro" ? "增强型 4核8G/120G" : "标准型 2核4G/60G"})`);
       } else {
-        specsList.push(`${currentPlan.name} (${microPcTier === "pro" ? "增强型" : "标准型"})`);
+        specsList.push(`${currentPlan.name} (${currentPlan.specs.hardware})`);
       }
     }
     if (chosenAiSubscription) {
@@ -1763,13 +1765,13 @@ ${activeAdds.length > 0 ? `● 增值配套服务：${activeAdds.map(a => a.name
       ) : selectedPlanId === "ai_lazy_488" ? (
         <div className="space-y-1">
           <div className="font-bold text-neutral-900">
-            轻量共享型云电脑 (微主机) - {microPcTier === "pro" ? "增强型 8 vCPU / 16GB RAM / 240GB NVMe" : "标准型 4 vCPU / 8GB RAM / 120GB NVMe"}
+            轻量共享型云电脑 (微主机) - {microPcTier === "pro" ? "增强型 4 vCPU / 8GB RAM / 120GB NVMe" : "标准型 2 vCPU / 4GB RAM / 60GB NVMe"}
           </div>
           <div className="text-neutral-600">
-            运行环境: {microPcOs === "ubuntu" ? "Ubuntu 24.04 LTS (预装防关联指纹浏览器环境)" : "Windows Server 安全隔离开发沙箱"}
+            运行环境: {microPcOs === "ubuntu" ? "Ubuntu 24.04 LTS (极速纯净终端 · 专线 SSH 直连)" : "Debian 12 (轻量视窗运行环境)"}
           </div>
           <div className="text-[11px] text-emerald-700 font-medium">
-            ✓ 预装反指纹伪装与 7×24h 自动化值守守护进程
+            ✓ 预装防关联安全环境与 7×24h 自动化值守守护进程
           </div>
         </div>
       ) : currentPlan ? (
@@ -1900,7 +1902,7 @@ ${activeAdds.length > 0 ? `● 增值配套服务：${activeAdds.map(a => a.name
         selectedPlanId === "workstation_888"
           ? `Apple Silicon 物理机（包含指定 CPU 芯片型号 ${chosenCpu.name}、统一内存 ${chosenMemory.size} 及 ${chosenStorage.size} SSD 空间）`
           : selectedPlanId === "ai_lazy_488"
-          ? `轻量微主机算力（${microPcTier === "pro" ? "增强型 8 vCPU / 16GB RAM / 240GB NVMe" : "标准型 4 vCPU / 8GB RAM / 120GB NVMe"}）`
+          ? `轻量微主机算力（${microPcTier === "pro" ? "增强型 4 vCPU / 8GB RAM / 120GB NVMe" : "标准型 2 vCPU / 4GB RAM / 60GB NVMe"}）`
           : "基础云主机算力"
       }，并在乙方完成首付款项后 24 小时内完成初始化调优并交付使用凭证。`,
     });
@@ -2537,10 +2539,10 @@ ${activeAdds.length > 0 ? `● 增值配套服务：${activeAdds.map(a => a.name
                       }`}
                     >
                       <div className="flex justify-between items-center text-xs">
-                        <span>标准型 (4 vCPU / 8GB)</span>
+                        <span>标准型 (2 vCPU / 4GB)</span>
                         <span className="text-[10px] text-emerald-600">标配 ¥0</span>
                       </div>
-                      <span className="text-[10px] text-neutral-500 mt-1 block">120GB NVMe 独立系统盘 · 满足日常挂机</span>
+                      <span className="text-[10px] text-neutral-500 mt-1 block">60GB NVMe 独立系统盘 · 满足日常挂机与运行</span>
                     </div>
 
                     <div
@@ -2552,10 +2554,10 @@ ${activeAdds.length > 0 ? `● 增值配套服务：${activeAdds.map(a => a.name
                       }`}
                     >
                       <div className="flex justify-between items-center text-xs">
-                        <span>增强型 (8 vCPU / 16GB)</span>
+                        <span>增强型 (4 vCPU / 8GB)</span>
                         <span className="text-[10px] text-emerald-600 font-mono">+{currSym}{currency === "CNY" ? 80 : 400}/月</span>
                       </div>
-                      <span className="text-[10px] text-neutral-500 mt-1 block">240GB NVMe 高速盘 · 支撑多店铺多任务</span>
+                      <span className="text-[10px] text-neutral-500 mt-1 block">120GB NVMe 高速盘 · 支撑多任务与进阶运行</span>
                     </div>
                   </div>
                 </div>
@@ -2565,28 +2567,39 @@ ${activeAdds.length > 0 ? `● 增值配套服务：${activeAdds.map(a => a.name
                     预装系统沙箱环境：
                   </label>
                   <div className="grid grid-cols-2 gap-2">
-                    <button
-                      type="button"
+                    <div
                       onClick={() => setMicroPcOs("ubuntu")}
-                      className={`p-2.5 rounded-xl border text-left text-xs transition-all cursor-pointer ${
+                      className={`p-3 rounded-xl border cursor-pointer transition-all ${
                         microPcOs === "ubuntu"
                           ? "border-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/30 font-bold"
-                          : "border-neutral-200 dark:border-neutral-800 text-neutral-600"
+                          : "border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50"
                       }`}
                     >
-                      Ubuntu 24.04 (预装防关联指纹浏览器)
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setMicroPcOs("windows")}
-                      className={`p-2.5 rounded-xl border text-left text-xs transition-all cursor-pointer ${
-                        microPcOs === "windows"
+                      <div className="flex justify-between items-center text-xs">
+                        <span>Ubuntu 24.04 LTS (极速纯净终端)</span>
+                        <span className="text-[10px] text-emerald-600 font-mono">官方推荐</span>
+                      </div>
+                      <span className="text-[10px] text-neutral-500 mt-1 block">
+                        原生纯净 CLI 命令行 · 专线 SSH 极速直连 · 零冗余资源占用更流畅
+                      </span>
+                    </div>
+
+                    <div
+                      onClick={() => setMicroPcOs("debian")}
+                      className={`p-3 rounded-xl border cursor-pointer transition-all ${
+                        microPcOs === "debian"
                           ? "border-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/30 font-bold"
-                          : "border-neutral-200 dark:border-neutral-800 text-neutral-600"
+                          : "border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50"
                       }`}
                     >
-                      Windows Server 隔离开发沙箱
-                    </button>
+                      <div className="flex justify-between items-center text-xs">
+                        <span>Debian 12 (轻量视窗扩展环境)</span>
+                        <span className="text-[10px] text-neutral-400 font-mono">基础视窗</span>
+                      </div>
+                      <span className="text-[10px] text-neutral-500 mt-1 block">
+                        含轻量基础视窗组件 · 支持基础交互 · 视窗运行占用部分系统内存
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -3300,7 +3313,7 @@ ${activeAdds.length > 0 ? `● 增值配套服务：${activeAdds.map(a => a.name
                 className="mt-0.5 rounded text-neutral-900 focus:ring-0 w-4 h-4 cursor-pointer"
               />
               <span className="text-xs text-neutral-600 dark:text-neutral-400 leading-snug">
-                我已仔细阅读并确认《企业级 AI 云工位与海外算力服务协议》所有细则及 SLA 交付标准，确认所选服务方案{selectedPlanId === "workstation_888" ? `（1V1 物理独享 Apple Silicon · ${chosenCpu.name} / ${chosenMemory.size} / ${chosenStorage.size}）` : selectedPlanId === "ai_lazy_488" ? `（轻量云电脑微主机 · ${microPcTier === "pro" ? "增强型 8 vCPU / 16GB RAM" : "标准型 4 vCPU / 8GB RAM"}）` : currentPlan ? `（${currentPlan.name}）` : ""}、AI 会员与增值配套服务规格无误，电子签名与时间戳哈希存证具有完全法律效力。
+                我已仔细阅读并确认《企业级 AI 云工位与海外算力服务协议》所有细则及 SLA 交付标准，确认所选服务方案{selectedPlanId === "workstation_888" ? `（1V1 物理独享 Apple Silicon · ${chosenCpu.name} / ${chosenMemory.size} / ${chosenStorage.size}）` : selectedPlanId === "ai_lazy_488" ? `（轻量云电脑微主机 · ${microPcTier === "pro" ? "增强型 4 vCPU / 8GB RAM" : "标准型 2 vCPU / 4GB RAM"}）` : currentPlan ? `（${currentPlan.name}）` : ""}、AI 会员与增值配套服务规格无误，电子签名与时间戳哈希存证具有完全法律效力。
               </span>
             </label>
 
@@ -3570,7 +3583,7 @@ ${activeAdds.length > 0 ? `● 增值配套服务：${activeAdds.map(a => a.name
                             </span>
                           ) : currentPlan.id === "ai_lazy_488" ? (
                             <span>
-                              {currentPlan.name} 服务费 (轻量云电脑微主机 · {microPcTier === "pro" ? "增强型 8 vCPU / 16GB RAM / 240GB NVMe" : "标准型 4 vCPU / 8GB RAM / 120GB NVMe"}{chosenAiSubscription ? (aiDeltaMonthly > 0 ? ` / AI: ${chosenAiSubscription.name} [含升级+${currSym}${aiDeltaMonthly.toLocaleString()}/月]` : ` / AI: ${chosenAiSubscription.name}`) : ""})
+                              {currentPlan.name} 服务费 (轻量云电脑微主机 · {microPcTier === "pro" ? "增强型 4 vCPU / 8GB RAM / 120GB NVMe" : "标准型 2 vCPU / 4GB RAM / 60GB NVMe"}{chosenAiSubscription ? (aiDeltaMonthly > 0 ? ` / AI: ${chosenAiSubscription.name} [含升级+${currSym}${aiDeltaMonthly.toLocaleString()}/月]` : ` / AI: ${chosenAiSubscription.name}`) : ""})
                             </span>
                           ) : (
                             <span>
@@ -4227,7 +4240,7 @@ ${activeAdds.length > 0 ? `● 增值配套服务：${activeAdds.map(a => a.name
                     ? currentPlan.id === "workstation_888"
                       ? `${currentPlan.name} (1V1 物理独享 Apple Silicon · ${chosenCpu.name} / ${chosenMemory.size} / ${chosenStorage.size})`
                       : currentPlan.id === "ai_lazy_488"
-                      ? `${currentPlan.name} (轻量云电脑微主机 · ${microPcTier === "pro" ? "增强型 8 vCPU/16GB" : "标准型 4 vCPU/8GB"})`
+                      ? `${currentPlan.name} (轻量云电脑微主机 · ${microPcTier === "pro" ? "增强型 4 vCPU/8GB" : "标准型 2 vCPU/4GB"})`
                       : `${currentPlan.name} (${currentPlan.specs.hardware})`
                     : "纯定制/增值服务方案 (未选配基础主机)"}
                 </span>
