@@ -226,6 +226,13 @@ export default function HomeClient() {
                   >
                     {t("navSolarSystem")}
                   </a>
+
+                  <a
+                    href="#contact"
+                    className="px-6 py-3 bg-transparent hover:bg-white/5 border border-white/20 hover:border-white/40 text-neutral-200 text-[13px] font-medium rounded-full transition-colors cursor-pointer"
+                  >
+                    {t("heroCTABook")}
+                  </a>
                 </motion.div>
               </div>
             </div>
