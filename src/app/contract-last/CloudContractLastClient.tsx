@@ -1,0 +1,4939 @@
+"use client";
+
+import React, { useState, useEffect, useRef, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
+import Link from "next/link";
+import {
+  FileText,
+  CheckCircle2,
+  Printer,
+  ArrowLeft,
+  Upload,
+  Camera,
+  Trash2,
+  PenTool,
+  RotateCcw,
+  Building2,
+  ShieldCheck,
+  Calendar,
+  AlertCircle,
+  Lock,
+  Download,
+  Check,
+  Send,
+  Loader2,
+  Type,
+  ExternalLink,
+  Tag,
+  Cpu,
+  Server,
+  Globe2,
+  Layers,
+  Sparkles,
+  Zap,
+  HelpCircle,
+  Clock,
+  Laptop,
+  HardDrive,
+  Sliders,
+  CheckSquare,
+  ShieldAlert,
+  Smartphone,
+  Coins,
+  Bot,
+  Plus,
+  Minus,
+  QrCode,
+  Copy,
+  Share2,
+  Award,
+  X,
+  Unlock,
+  Eye,
+  Settings
+} from "lucide-react";
+
+// --- Number to Words Utilities ---
+function numberToChineseRMB(num: number): string {
+  if (num <= 0) return "零元整";
+  const fraction = ["角", "分"];
+  const digit = ["零", "壹", "贰", "叁", "肆", "伍", "陆", "柒", "捌", "玖"];
+  const unit = [
+    ["元", "万", "亿"],
+    ["", "拾", "佰", "仟"],
+  ];
+
+  let head = num < 0 ? "欠" : "";
+  num = Math.abs(num);
+
+  let s = "";
+  for (let i = 0; i < fraction.length; i++) {
+    s += (digit[Math.floor(num * 10 * Math.pow(10, i)) % 10] + fraction[i]).replace(/零./, "");
+  }
+  s = s || "整";
+  num = Math.floor(num);
+
+  for (let i = 0; i < unit[0].length && num > 0; i++) {
+    let p = "";
+    for (let j = 0; j < unit[1].length && num > 0; j++) {
+      p = digit[num % 10] + unit[1][j] + p;
+      num = Math.floor(num / 10);
+    }
+    s = p.replace(/(零.)*零$/, "").replace(/^$/, "零") + unit[0][i] + s;
+  }
+  return head + s.replace(/(零.)*零元/, "元").replace(/(零.)+/g, "零").replace(/^整$/, "零元整");
+}
+
+function numberToEnglishWords(num: number, currency: "CNY" | "THB" = "CNY"): string {
+  if (num <= 0) return `Zero ${currency === "CNY" ? "Chinese Yuan" : "Thai Baht"} Only`;
+  const ones = ["", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten",
+    "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen"];
+  const tens = ["", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"];
+
+  function convertChunk(n: number): string {
+    let str = "";
+    if (n >= 100) {
+      str += ones[Math.floor(n / 100)] + " Hundred ";
+      n %= 100;
+    }
+    if (n >= 20) {
+      str += tens[Math.floor(n / 10)] + " ";
+      n %= 10;
+    }
+    if (n > 0) {
+      str += ones[n] + " ";
+    }
+    return str.trim();
+  }
+
+  let words = "";
+  if (num >= 1000000) {
+    words += convertChunk(Math.floor(num / 1000000)) + " Million ";
+    num %= 1000000;
+  }
+  if (num >= 1000) {
+    words += convertChunk(Math.floor(num / 1000)) + " Thousand ";
+    num %= 1000;
+  }
+  if (num > 0) {
+    words += convertChunk(num);
+  }
+
+  const currencyUnit = currency === "CNY" ? "Chinese Yuan Only" : "Thai Baht Only";
+  return words.trim() + " " + currencyUnit;
+}
+
+// Calculate Service End Date
+function calculateServiceEndDate(startStr: string, durationMonths: number): string {
+  if (!startStr) return "";
+  try {
+    const parts = startStr.split("-").map(Number);
+    if (parts.length !== 3) return "";
+    const [y, m, d] = parts;
+
+    const targetMonthIdx = (m - 1) + durationMonths;
+    const targetYear = y + Math.floor(targetMonthIdx / 12);
+    const targetMonth = targetMonthIdx % 12;
+
+    const daysInTargetMonth = new Date(targetYear, targetMonth + 1, 0).getDate();
+    const clampedDay = Math.min(d, daysInTargetMonth);
+
+    const endDateObj = new Date(targetYear, targetMonth, clampedDay);
+    endDateObj.setDate(endDateObj.getDate() - 1);
+
+    const ey = endDateObj.getFullYear();
+    const em = String(endDateObj.getMonth() + 1).padStart(2, "0");
+    const ed = String(endDateObj.getDate()).padStart(2, "0");
+    return `${ey}-${em}-${ed}`;
+  } catch {
+    return "";
+  }
+}
+
+function getTomorrowDateString(): string {
+  const d = new Date();
+  d.setDate(d.getDate() + 1);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+function formatEngDate(isoStr: string): string {
+  if (!isoStr) return "______________";
+  try {
+    const [y, m, d] = isoStr.split("-").map(Number);
+    const dateObj = new Date(y, m - 1, d);
+    const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    return `${d} ${months[dateObj.getMonth()]} ${y}`;
+  } catch {
+    return isoStr;
+  }
+}
+
+// --- Promo Code Definitions ---
+export interface PromoCodeInfo {
+  code: string;
+  rate: number;
+  percentOff: number;
+  name: string;
+  tagZh: string;
+  tagEng: string;
+}
+
+export const VALID_PROMO_CODES: Record<string, PromoCodeInfo> = {
+  cmai2026: {
+    code: "cmai2026",
+    rate: 0.95,
+    percentOff: 5,
+    name: "CMAI 会员特惠 (95折 / 5% OFF)",
+    tagZh: "95折特惠",
+    tagEng: "5% OFF",
+  },
+  cmai_vip2026: {
+    code: "cmai_vip2026",
+    rate: 0.90,
+    percentOff: 10,
+    name: "Chiang Mai AI Center 商业伙伴专享 (9折 / 10% OFF)",
+    tagZh: "9折特惠",
+    tagEng: "10% OFF",
+  },
+  newcome2026: {
+    code: "newcome2026",
+    rate: 0.80,
+    percentOff: 20,
+    name: "出海首秀迎新礼 (8折 / 20% OFF)",
+    tagZh: "8折迎新",
+    tagEng: "20% OFF",
+  },
+  festival2026: {
+    code: "festival2026",
+    rate: 0.85,
+    percentOff: 15,
+    name: "节日限时特惠 (85折 / 15% OFF)",
+    tagZh: "85折特惠",
+    tagEng: "15% OFF",
+  },
+};
+
+// --- Configurable Hardware Options (M2, M4, M6 / RAM: 8, 16, 24, 32 / SSD: 256, 512, 1TB) ---
+export interface MacCpuOption {
+  id: string;
+  name: string;
+  specs: string;
+  priceDeltaCNY: number;
+  priceDeltaTHB: number;
+}
+
+export const MAC_CPU_OPTIONS: MacCpuOption[] = [
+  {
+    id: "m2",
+    name: "Apple M2",
+    specs: "8核 CPU · 8核 GPU · 16核神经网络引擎",
+    priceDeltaCNY: 0,
+    priceDeltaTHB: 0,
+  },
+  {
+    id: "m4",
+    name: "Apple M4",
+    specs: "10核 CPU · 10核 GPU · 16核神经网络引擎 · 第二代 3nm 工艺",
+    priceDeltaCNY: 150,
+    priceDeltaTHB: 750,
+  },
+  {
+    id: "m6",
+    name: "Apple M6",
+    specs: "下一代极致算力芯片 · 2nm 极客架构 · 超高并发持续吞吐",
+    priceDeltaCNY: 300,
+    priceDeltaTHB: 1500,
+  },
+];
+
+export interface MemoryOption {
+  id: string;
+  size: string;
+  priceDeltaCNY: number;
+  priceDeltaTHB: number;
+  description: string;
+}
+
+export const MAC_MEMORY_OPTIONS: MemoryOption[] = [
+  { id: "8", size: "8GB", priceDeltaCNY: 0, priceDeltaTHB: 0, description: "基础入门 · 适合日常轻量挂机与浏览" },
+  { id: "16", size: "16GB", priceDeltaCNY: 50, priceDeltaTHB: 250, description: "标准推荐 · 畅快多任务与工程编译" },
+  { id: "24", size: "24GB", priceDeltaCNY: 100, priceDeltaTHB: 500, description: "进阶高负载 · 适合大型容器与代码构建" },
+  { id: "32", size: "32GB", priceDeltaCNY: 160, priceDeltaTHB: 800, description: "专业极客 · 本地多大模型推理与重度研发" },
+];
+
+export interface StorageOption {
+  id: string;
+  size: string;
+  priceDeltaCNY: number;
+  priceDeltaTHB: number;
+}
+
+export const MAC_STORAGE_OPTIONS: StorageOption[] = [
+  { id: "256", size: "256GB SSD", priceDeltaCNY: 0, priceDeltaTHB: 0 },
+  { id: "512", size: "512GB SSD", priceDeltaCNY: 40, priceDeltaTHB: 200 },
+  { id: "1tb", size: "1TB SSD", priceDeltaCNY: 80, priceDeltaTHB: 400 },
+];
+
+// --- Configurable AI Subscription Options (ChatGPT & Claude) ---
+export interface AiSubscriptionOption {
+  id: string;
+  name: string;
+  modelFamily: "chatgpt" | "claude";
+  tier: "standard" | "advanced" | "flagship";
+  officialPriceUsd: number;
+  priceDeltaCNY: number;
+  priceDeltaTHB: number;
+  summary: string;
+  detailedSpecs: string[];
+}
+
+export const AI_SUBSCRIPTION_OPTIONS: AiSubscriptionOption[] = [
+  // --- ChatGPT Family: chatgpt plus, pro100, pro200 ---
+  {
+    id: "chatgpt_plus",
+    name: "ChatGPT Plus 官方会员 (已包含)",
+    modelFamily: "chatgpt",
+    tier: "standard",
+    officialPriceUsd: 20,
+    priceDeltaCNY: 0,
+    priceDeltaTHB: 0,
+    summary: "官方每月 $20 订阅全包 · GPT-6 旗舰多模态 / o-系列满血深度推理 / Canvas 画布 / 高级语音 · 纯净静态IP直连",
+    detailedSpecs: [
+      "官方原价 $20/月 会员订阅费用全包，服务期内由服务商合规代充与续费",
+      "支持 GPT-6 最新旗舰多模态大模型、o-系列深度推理模型、Canvas 协作画布及实时高级语音模式 (Advanced Voice)",
+      "含旗舰高清多模态创作与企业专属 GPTs 构建，免异地跳 IP 封号降智",
+      "海外正规银行合规外卡结算代充，全程提供 KYC 认证与风控拒付兜底保障",
+    ],
+  },
+  {
+    id: "chatgpt_pro100",
+    name: "ChatGPT Pro 100 官方高阶会员",
+    modelFamily: "chatgpt",
+    tier: "advanced",
+    officialPriceUsd: 100,
+    priceDeltaCNY: 650,
+    priceDeltaTHB: 3250,
+    summary: "官方高算力高并发档位 · 超大配额深度推理 · 团队高速处理通道",
+    detailedSpecs: [
+      "官方高阶算力专享订阅，专为高强度 AI 产研与自动化脚本打造",
+      "享有极高频次的高峰期调用配额与高速优先级响应队列",
+      "无限制访问 GPT-6 / 复杂推理模型与最新多模态能力，免风控拒付",
+      "服务商全套商业外卡代缴代充与全流程防封禁运维保障",
+    ],
+  },
+  {
+    id: "chatgpt_pro200",
+    name: "ChatGPT Pro 200 官方顶配会员",
+    modelFamily: "chatgpt",
+    tier: "flagship",
+    officialPriceUsd: 200,
+    priceDeltaCNY: 1450,
+    priceDeltaTHB: 7250,
+    summary: "官方顶配极客版 · 无限满血深度推理 · Deep Research 深度全网研究",
+    detailedSpecs: [
+      "官方顶配极客专属订阅，拥有 OpenAI 顶级算力池无限接入权限",
+      "无限额度满血版深度推理与 Deep Research 深度全网分析研究助手",
+      "极致并发与零排队最高优先级响应，适合高价值核心技术攻坚与大模型重度研发",
+      "企业级合规卡代充扣费，提供全额合规凭据与全生命周期运维保障",
+    ],
+  },
+
+  // --- Claude Family: pro, max, ultra ---
+  {
+    id: "claude_pro",
+    name: "Claude Pro 官方会员 (已包含)",
+    modelFamily: "claude",
+    tier: "standard",
+    officialPriceUsd: 20,
+    priceDeltaCNY: 0,
+    priceDeltaTHB: 0,
+    summary: "官方每月 $20 订阅全包 · Claude 5.5 / 5.6 Sonnet & Opus · Artifacts 交互沙箱",
+    detailedSpecs: [
+      "官方原价 $20/月 会员订阅全包，由服务商提供海外合规商业外卡代充",
+      "完整支持顶尖代码与系统架构模型 Claude 5.5 / 5.6 Sonnet 及超大上下文 Opus",
+      "开箱即用 Artifacts 交互式沙箱（支持前端、SVG、交互数据流即时调试预览）",
+      "相比免费账号享有 5 倍以上的高峰期调用配额与 Projects 团队知识库空间",
+    ],
+  },
+  {
+    id: "claude_max",
+    name: "Claude Max 进阶高配会员",
+    modelFamily: "claude",
+    tier: "advanced",
+    officialPriceUsd: 60,
+    priceDeltaCNY: 650,
+    priceDeltaTHB: 3250,
+    summary: "高频并发高负载专享 · Claude 5.6 顶级算力池 · Projects 团队共享空间 · 突破常规调用限额",
+    detailedSpecs: [
+      "大幅提升高并发高负载调用上限，避免因短时间重度编码导致用量打断",
+      "多项目知识库与超长文档上下文隔离协同，深度支持全栈系统级工程重构",
+      "独享纯净商业出口 IP，保障海外账号全天候在线稳定免封号",
+    ],
+  },
+  {
+    id: "claude_ultra",
+    name: "Claude Ultra 旗舰终极顶配",
+    modelFamily: "claude",
+    tier: "flagship",
+    officialPriceUsd: 150,
+    priceDeltaCNY: 1450,
+    priceDeltaTHB: 7250,
+    summary: "终极尊享版 · 极客顶级算力优先队列 · 满血超大上下文与全特性支持",
+    detailedSpecs: [
+      "享有 Anthropic 最高优先权调度队列，无论峰谷时段零延迟毫秒级响应",
+      "顶配级超大上下文长度与多模态图像/大型工程架构代码一次性深度解析",
+      "服务商提供专属合规代缴运维与 7×24h 应急保障服务",
+    ],
+  },
+];
+
+// --- Miscellaneous Cloud Services / Add-ons Matrix (From cloud.lazzor.com) ---
+export interface AddonService {
+  id: string;
+  name: string;
+  iconName: string;
+  badge: string;
+  monthlyPriceCNY: number;
+  monthlyPriceTHB: number;
+  isOneTime?: boolean;
+  description: string;
+  highlights: string[];
+}
+
+export const CLOUD_ADDON_SERVICES: AddonService[] = [
+  {
+    id: "thai_sim",
+    name: "泰国原生真实实体 SIM 卡长期保号 (Thai SMS / OTP)",
+    iconName: "Smartphone",
+    badge: "本地实名",
+    monthlyPriceCNY: 80,
+    monthlyPriceTHB: 399,
+    description: "100% 真实泰国物理 SIM 卡池，专属号码长期持有，接收本地银行网银、TikTok 本土店、Shopee、PromptPay 验证码。",
+    highlights: ["非虚拟接码平台，支持长期防风控抽查", "即时 Web 接收面板 / 消息直达推送"],
+  },
+  {
+    id: "extra_ip",
+    name: "加购独立海外原生静态商业 IP (Clean ASN, Fraud Score 0)",
+    iconName: "Globe2",
+    badge: "纯净网络",
+    monthlyPriceCNY: 100,
+    monthlyPriceTHB: 500,
+    description: "一人一 IP 专线物理绑定，欺诈分恒为 0，用于跨境多店铺防关联、开发者提审及多环境隔离 (套餐已含 1 个，此项为加配)。",
+    highlights: ["中泰 IPLC 直连优化出口", "绝非公共代理池，杜绝连带风控封号"],
+  },
+  {
+    id: "api_relay",
+    name: "全球大模型 API 聚合网关月度高速额度包 (฿500额度)",
+    iconName: "Bot",
+    badge: "API 中转",
+    monthlyPriceCNY: 100,
+    monthlyPriceTHB: 500,
+    description: "内置每月 ฿500 高速 API Token 额度，全面支持 GPT-6、Claude 5.5/5.6、DeepSeek，免梯直连。",
+    highlights: ["兼容 OpenAI / Anthropic 官方标准接口", "企业级高并发 QPS 保障，Token 消耗清晰透明"],
+  },
+  {
+    id: "offline_desk",
+    name: "清迈 AI 中心独栋 5 层实体大楼线下共享工位通票",
+    iconName: "Building2",
+    badge: "云地双栖",
+    monthlyPriceCNY: 200,
+    monthlyPriceTHB: 1000,
+    description: "清迈独栋 5 层 AI 中心实体大厦线下工位通行权，挑高空间、万兆光纤、免费现磨咖啡与会议室使用权益。",
+    highlights: ["大楼内网千兆直通云端机房", "线上 24h 云工位 + 线下大厦办公一站式"],
+  },
+  {
+    id: "colocation",
+    name: "物理设备/主机机房托管服务 (Hardware Colocation)",
+    iconName: "HardDrive",
+    badge: "机房托管",
+    monthlyPriceCNY: 300,
+    monthlyPriceTHB: 1500,
+    description: "自带或采购主机入驻清迈自建机房，专属机架位，双路千兆光纤、清洁太阳能光伏绿电与 APC 在线式 UPS 零秒倒闸保障。",
+    highlights: ["24 小时恒温恒湿监控与专人现场硬重启/插拔运维", "PUE 仅 1.15，享有绿色微电网长期成本优势"],
+  },
+  {
+    id: "micro_topup",
+    name: "海外 SaaS 订阅与泰国本地小额代充代缴通道",
+    iconName: "Coins",
+    badge: "外币代充",
+    monthlyPriceCNY: 60,
+    monthlyPriceTHB: 300,
+    description: "提供合规海外商业银行卡与手机实名充值通道，支持批量员工 SaaS 代付、PromptPay 扫码即时代付。",
+    highlights: ["15% 专属代充费率通道 (最低 ฿300/最高 ฿1,000 封顶)", "无需繁琐换汇，人民币/USDT 快速结算"],
+  },
+  {
+    id: "enterprise_dbd",
+    name: "出海企业合规商业落地包 (DBD公司注册 + 对公银行账户)",
+    iconName: "Building2",
+    badge: "商业合规",
+    monthlyPriceCNY: 7000,
+    monthlyPriceTHB: 35000,
+    isOneTime: true,
+    description: "泰国 DBD 商业发展局全套公司合规注册 (享7折 ฿21,000) + 商业银行对公账户开设及网银 (享7折 ฿14,000) + 大厦商业地址。",
+    highlights: ["中泰资深法务财税专家全程代办", "清迈 AI 中心独栋五层办公空间商业地址官方授权"],
+  },
+];
+
+// --- Cloud Packages Definitions ---
+export interface CloudPlanItem {
+  id: string;
+  name: string;
+  enName: string;
+  category: string;
+  badge: string;
+  highlight?: boolean;
+  devChoice?: boolean;
+  priceCNY: number;
+  originalPriceCNY: number;
+  setupFeeCNY: number;
+  priceTHB: number;
+  originalPriceTHB: number;
+  setupFeeTHB: number;
+  description: string;
+  tags: string[];
+  features: string[];
+  specs: {
+    hardware: string;
+    os: string;
+    ip: string;
+    network: string;
+    aiAccount: string;
+    support: string;
+  };
+}
+
+export const CLOUD_PLANS: CloudPlanItem[] = [
+  {
+    id: "workstation_888",
+    name: "云工位全服务包 (888套餐)",
+    enName: "Cloud Workstation Full-Service Flagship",
+    category: "FLAGSHIP · 极客旗舰首选",
+    badge: "DEV CHOICE",
+    devChoice: true,
+    priceCNY: 888,
+    originalPriceCNY: 1188,
+    setupFeeCNY: 198,
+    priceTHB: 4440,
+    originalPriceTHB: 5940,
+    setupFeeTHB: 990,
+    description: "1V1 物理独享 Apple Silicon 算力、独立静态 IP、企业 VPN 与官方 AI 会员全功能云工位。",
+    tags: ["+Mac 1V1 独享", "+独立静态IP", "+VPN", "+ChatGPT、Claude账号", "+KYC代充"],
+    features: [
+      "1x Mac 专属云工作站 (1V1 物理独享 Apple Silicon 芯片，原生 macOS) + VPN",
+      "ChatGPT PLUS 或 Claude 会员 2 选 1 (已含每月官方会员订阅权益，专享纯净环境无惧封号降智，开箱即用)",
+      "1x 独立海外原生静态商业 IP (专属绑定 Mac，支持海外开发者后台与 App Store 提审)",
+      "海外大模型/开发者账号专属 KYC 代充服务 (专享合规海外卡与手机号充值，免风控拒付)",
+      "独占千兆对等带宽与国际专线直连，原生 macOS 物理机直通，开发编译零卡顿",
+      "开机费 ¥198 含 1 对 1 专属技术支持环境调优、专属节点初始化与客户端一键直连",
+    ],
+    specs: {
+      hardware: "1V1 物理独享 Apple Silicon 芯片工作站 (物理机硬件级独占)",
+      os: "原生 macOS 开发者工作站环境 (支持 Xcode、编译构建与原生开发工具链)",
+      ip: "1x 独立海外原生静态商业 IP (专属物理绑定，支持 App Store 提审与外服部署)",
+      network: "独占千兆对等带宽 + 国际专线直连 + 企业级 VPN 隧道 (开发编译零卡顿)",
+      aiAccount: "ChatGPT PLUS 或 Claude 官方会员 2 选 1 (每月官方订阅全包，支持进阶升级)",
+      support: "开机费含 1 对 1 专属技术工程师环境深度调优、专属节点初始化与直连客户端",
+    },
+  },
+  {
+    id: "ai_lazy_488",
+    name: "海外AI无忧懒人包 (488套餐)",
+    enName: "Overseas AI All-in-One Carefree Pack",
+    category: "MOST POPULAR · 全包爆款",
+    badge: "RECOMMENDED",
+    highlight: true,
+    priceCNY: 488,
+    originalPriceCNY: 688,
+    setupFeeCNY: 98,
+    priceTHB: 2440,
+    originalPriceTHB: 3440,
+    setupFeeTHB: 490,
+    description: "专为个人与团队出海打造的海外 AI 与研发软硬件全套免运维基座。",
+    tags: ["+微主机", "+独立商业IP", "+VPN", "+ChatGPT、Claude账号", "+KYC代充"],
+    features: [
+      "1x 轻量共享型云电脑 (微主机，预装防关联指纹浏览器与日常值守环境) + VPN",
+      "ChatGPT PLUS 或 Claude 会员 2 选 1 (已含每月官方会员订阅权益，专享纯净环境无惧封号降智，开箱即用)",
+      "1x 独立海外原生静态商业 IP (100% 独享 Clean ASN, Fraud Score 0)",
+      "海外账号专属 KYC 代充服务 (专享合规海外卡与手机号充值，免风控拒付)",
+      "中泰 IPLC / 国际专线直达 (&lt;18ms), 全天候稳定挂机防关联与防封禁",
+      "开户费 ¥98 含 1 对 1 专属技术支持协助调优、环境部署与客户端配置",
+    ],
+    specs: {
+      hardware: "微主机 (轻量共享型云电脑，4-8 vCPU / 8-16GB RAM / NVMe 高速盘)",
+      os: "Linux / Windows 安全沙箱环境 · 预装防关联指纹浏览器",
+      ip: "1x 独立海外原生静态商业 IP (100% 独享 Clean ASN，欺诈分 0)",
+      network: "中泰 IPLC / 国际专线直连 (&lt;18ms 极低延迟) + 企业级 VPN 安全隧道",
+      aiAccount: "ChatGPT PLUS 或 Claude 官方订阅会员 2 选 1 (每月订阅费用全包)",
+      support: "开户费含 1 对 1 专属工程师环境调优、客户端一键部署与日常代运维",
+    },
+  },
+  {
+    id: "ecommerce_pack",
+    name: "泰国电商本土店抗风控开店包",
+    enName: "Thai Local E-Commerce Anti-Risk Suite",
+    category: "CROSS-BORDER · 跨境电商",
+    badge: "E-COMMERCE",
+    priceCNY: 240,
+    originalPriceCNY: 280,
+    setupFeeCNY: 98,
+    priceTHB: 1199,
+    originalPriceTHB: 1398,
+    setupFeeTHB: 490,
+    description: "专为 TikTok Shop 泰国本土店、Shopee、Lazada 打造的软硬件全流程抗风控基座。",
+    tags: ["+微主机", "+独立商业IP", "+实体卡保号", "+代充通道"],
+    features: [
+      "1x 轻量共享型云电脑 (微主机，预装防关联指纹浏览器与日常值守环境)",
+      "1x 独立海外原生静态商业 IP (100% 独享 Clean ASN，Fraud Score 0)",
+      "1x 泰国原生真实实体 SIM 卡长期保号 (接收银行、本土电商关键 OTP 验证码)",
+      "赠送：泰国本地 PromptPay / 话费小额代充优先秒级处理通道",
+      "中泰 IPLC 专线直达 (&lt;18ms)，全天候稳定挂机防关联",
+    ],
+    specs: {
+      hardware: "轻量微主机 · 预装反指纹浏览器防关联环境",
+      os: "多环境隔离沙箱 · 硬件指纹防风控伪装",
+      ip: "1x 泰国本地原生商业 IP (Clean ASN, 零风控历史)",
+      network: "中泰 IPLC 直连低延迟专线",
+      aiAccount: "可选配 API 中转通道或电商自动化脚本助手",
+      support: "协助本土店网络环境验收与防关联指导",
+    },
+  },
+  {
+    id: "vision_creator_pack",
+    name: "AI 视觉与数字人创作者包 (RTX 4090)",
+    enName: "AI Vision & Digital Avatar Creator Suite",
+    category: "CREATOR · 视觉渲染神器",
+    badge: "GPU 4090",
+    priceCNY: 920,
+    originalPriceCNY: 1160,
+    setupFeeCNY: 198,
+    priceTHB: 4599,
+    originalPriceTHB: 5800,
+    setupFeeTHB: 990,
+    description: "为电商模特换装、短视频数字人生成、FLUX.1 与 ComfyUI 打造的专属高性能算力工位。",
+    tags: ["+RTX 4090 独享", "+ComfyUI/FLUX.1 预装", "+1TB 独立盘", "+独立商业IP"],
+    features: [
+      "1x NVIDIA RTX 4090 独享 GPU 算力云主机 (24GB 顶级显存，秒级渲染出图)",
+      "开箱预装完整 ComfyUI + FLUX.1 + SDXL 常用热门商用 LoRA & ControlNet",
+      "1x 独立海外原生静态商业 IP (直连 Civitai、HuggingFace、Midjourney 极速无阻)",
+      "1TB NVMe 超高速独立素材盘 + 自动每日镜像快照备份",
+      "赠送：每月 ฿500 多模态视觉 API 额度 (支持 Prompt 图像反推与自动化脚本)",
+    ],
+    specs: {
+      hardware: "NVIDIA RTX 4090 24GB 独享 GPU + 64GB 内存 + 1TB NVMe 高速盘",
+      os: "Ubuntu 24.04 LTS / Windows · 预装 CUDA 12.4 与 PyTorch",
+      ip: "1x 独立海外商业原生 IP",
+      network: "高速海外专线直连 AI 生态镜像站",
+      aiAccount: "每月 ฿500 视觉 API 额度 + 预置 FLUX.1 / SDXL 商业节点",
+      support: "ComfyUI 工作流调优与模型加载专属协助",
+    },
+  },
+];
+
+// Chiang Mai AI Center Official Royal Blue Seal Component (Authentic Colasola Circular Seal Style, Pure English)
+export function CmaiOfficialSeal({ className = "w-28 h-28" }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 600 600"
+      className={className}
+      xmlns="http://www.w3.org/2000/svg"
+      style={{ userSelect: "none" }}
+    >
+      <defs>
+        <path id="sealArcTop" d="M 80,300 A 220,220 0 0,1 520,300" fill="none" />
+        <path id="sealArcBottom" d="M 520,300 A 220,220 0 0,1 80,300" fill="none" />
+      </defs>
+      <g stroke="#1d4ed8" fill="#1d4ed8" transform="rotate(-12 300 300)">
+        {/* Double Outer Rings */}
+        <circle cx="300" cy="300" r="280" fill="none" stroke="#1d4ed8" strokeWidth="8" />
+        <circle cx="300" cy="300" r="268" fill="none" stroke="#1d4ed8" strokeWidth="2.5" />
+
+        {/* Double Inner Rings */}
+        <circle cx="300" cy="300" r="185" fill="none" stroke="#1d4ed8" strokeWidth="3.5" />
+        <circle cx="300" cy="300" r="176" fill="none" stroke="#1d4ed8" strokeWidth="1.5" strokeDasharray="6,4" />
+
+        {/* Top Arc Text: Pure English Chiang Mai AI Center */}
+        <text
+          fontFamily="Arial, Helvetica, sans-serif"
+          fontSize="29"
+          fontWeight="900"
+          letterSpacing="4.5px"
+          fill="#1d4ed8"
+          stroke="none"
+        >
+          <textPath href="#sealArcTop" startOffset="50%" textAnchor="middle">
+            CHIANG MAI AI CENTER CO., LTD.
+          </textPath>
+        </text>
+
+        {/* Bottom Arc Text: Official Seal & Thailand */}
+        <text
+          fontFamily="Arial, Helvetica, sans-serif"
+          fontSize="24"
+          fontWeight="800"
+          letterSpacing="6px"
+          fill="#1d4ed8"
+          stroke="none"
+        >
+          <textPath href="#sealArcBottom" startOffset="50%" textAnchor="middle">
+            ★ OFFICIAL CONTRACT SEAL ★
+          </textPath>
+        </text>
+
+        {/* Left & Right Separator Dots */}
+        <circle cx="80" cy="300" r="6" fill="#1d4ed8" stroke="none" />
+        <circle cx="520" cy="300" r="6" fill="#1d4ed8" stroke="none" />
+
+        {/* Center Text: Pure English */}
+        <text
+          x="300"
+          y="272"
+          fontFamily="Arial, Helvetica, sans-serif"
+          fontSize="34"
+          fontWeight="900"
+          letterSpacing="3.5px"
+          textAnchor="middle"
+          fill="#1d4ed8"
+          stroke="none"
+        >
+          CHIANG MAI
+        </text>
+        <text
+          x="300"
+          y="318"
+          fontFamily="Arial, Helvetica, sans-serif"
+          fontSize="34"
+          fontWeight="900"
+          letterSpacing="3.5px"
+          textAnchor="middle"
+          fill="#1d4ed8"
+          stroke="none"
+        >
+          AI CENTER
+        </text>
+        <text
+          x="300"
+          y="355"
+          fontFamily="Arial, Helvetica, sans-serif"
+          fontSize="15"
+          fontWeight="700"
+          letterSpacing="6px"
+          textAnchor="middle"
+          fill="#1d4ed8"
+          stroke="none"
+        >
+          THAILAND
+        </text>
+      </g>
+    </svg>
+  );
+}
+
+export interface CloudContractLastClientProps {
+  initialPlan?: string;
+  initialTier?: "std" | "pro";
+  initialLocked?: boolean;
+  initialSign?: boolean;
+  priceOverride?: number;
+}
+
+// Inner Contract Component using useSearchParams
+function CloudContractContent(props: CloudContractLastClientProps = {}) {
+  const searchParams = useSearchParams();
+
+  // Basic Contract Meta
+  const [contractSerial, setContractSerial] = useState<string>("");
+  const [contractHash, setContractHash] = useState<string>("");
+  const [signingDateIso, setSigningDateIso] = useState<string>("");
+
+  // Asset Data URLs
+  const [logoDataUrl, setLogoDataUrl] = useState<string>("/images/cmai_header_logo.png");
+  const [stampDataUrl, setStampDataUrl] = useState<string>("/images/cmai_seal_blue.png?v=20261112_04");
+
+  // Selection States & Comprehensive URL Param Parsing
+  const rawPlanParam = (searchParams.get("plan") || "").trim().toLowerCase();
+  const rawCodeParam = (searchParams.get("code") || "").trim().toLowerCase();
+  const rawCpuParam = (searchParams.get("cpu") || "").trim().toLowerCase();
+  const rawRamParam = (searchParams.get("ram") || "").trim().toLowerCase();
+  const rawSsdParam = (searchParams.get("ssd") || "").trim().toLowerCase();
+  const rawAiParam = (searchParams.get("ai") || "").trim().toLowerCase();
+  const rawAddonsParam = (searchParams.get("addons") || "").trim();
+  const rawExtraIpParam = (searchParams.get("extra_ip") || "").trim();
+  const rawTierParam = (searchParams.get("tier") || "").trim().toLowerCase();
+  const rawOsParam = (searchParams.get("os") || "").trim().toLowerCase();
+  const rawMonthsParam = (searchParams.get("months") || searchParams.get("duration") || "").trim();
+  const rawCurParam = (searchParams.get("cur") || searchParams.get("currency") || "").trim().toUpperCase();
+  const rawSerialParam = (searchParams.get("serial") || searchParams.get("ref") || "").trim();
+  const rawPriceParam = (searchParams.get("price") || searchParams.get("fee") || searchParams.get("monthly") || "").trim();
+  const parsedPriceParam = rawPriceParam ? parseFloat(rawPriceParam) : undefined;
+  const customPriceOverride = props.priceOverride !== undefined ? props.priceOverride : (parsedPriceParam && !isNaN(parsedPriceParam) ? parsedPriceParam : undefined);
+
+  const rawLockedParam = (searchParams.get("locked") || "").trim().toLowerCase();
+  const rawSignParam = (searchParams.get("sign") || searchParams.get("mode") || searchParams.get("view") || "").trim().toLowerCase();
+  const isCustomerSignInitial = rawSignParam === "admin"
+    ? false
+    : (rawSignParam === "1" || rawSignParam === "client" || rawSignParam === "customer" || rawSignParam === "sign" || rawLockedParam === "1" || (props.initialSign ?? false));
+
+  // Custom freeform addon params ("其他" 自定义格子)
+  const rawCustomAddonParam = (searchParams.get("custom_addon") || "").trim();
+  const rawCustomNameParam = (searchParams.get("custom_name") || "").trim();
+  const rawCustomPriceParam = (searchParams.get("custom_price") || "").trim();
+  const rawCustomOnetimeParam = (searchParams.get("custom_onetime") || "").trim();
+
+  // Customer pre-fill params
+  const rawClientParam = (searchParams.get("client") || searchParams.get("name") || "").trim();
+  const rawCompanyParam = (searchParams.get("company") || "").trim();
+  const rawTypeParam = (searchParams.get("type") || "").trim().toLowerCase();
+  const rawSignatoryParam = (searchParams.get("signatory") || "").trim();
+  const rawTitleParam = (searchParams.get("title") || "").trim();
+  const rawIdNoParam = (searchParams.get("id_no") || searchParams.get("tax_id") || "").trim();
+  const rawPhoneParam = (searchParams.get("phone") || "").trim();
+  const rawEmailParam = (searchParams.get("email") || "").trim();
+  const rawAddressParam = (searchParams.get("address") || "").trim();
+  const rawStartParam = (searchParams.get("start") || "").trim();
+
+  // Match initial plan
+  const matchedPlan = CLOUD_PLANS.find(
+    (p) =>
+      p.id.toLowerCase() === rawPlanParam ||
+      (rawPlanParam === "488" && p.id === "ai_lazy_488") ||
+      (rawPlanParam === "ai_lazy" && p.id === "ai_lazy_488") ||
+      (rawPlanParam === "888" && p.id === "workstation_888") ||
+      (rawPlanParam === "88" && p.id === "workstation_888") ||
+      (rawPlanParam === "workstation" && p.id === "workstation_888") ||
+      (rawPlanParam === "cloud_workstation" && p.id === "workstation_888") ||
+      (rawPlanParam === "ecommerce" && p.id === "ecommerce_pack") ||
+      (rawPlanParam === "4090" && p.id === "vision_creator_pack")
+  );
+
+  const [selectedPlanId, setSelectedPlanId] = useState<string>(() => {
+    if (rawPlanParam === "none" || rawPlanParam === "0" || rawPlanParam === "empty" || rawPlanParam === "null") return "";
+    if (matchedPlan) return matchedPlan.id;
+    if (props.initialPlan) {
+      const p = CLOUD_PLANS.find((x) => x.id === props.initialPlan);
+      if (p) return p.id;
+    }
+    return "workstation_888";
+  });
+  const [currency, setCurrency] = useState<"CNY" | "THB">(
+    rawCurParam === "THB" ? "THB" : "CNY"
+  );
+  const [durationMonths, setDurationMonths] = useState<number>(() => {
+    const m = parseInt(rawMonthsParam, 10);
+    return [1, 3, 6, 12].includes(m) ? m : 1;
+  });
+
+  // --- Requested Hardware Specifications: CPU: M2, M4, M6 | RAM: 8, 16, 24, 32 | SSD: 256, 512, 1TB ---
+  const [selectedCpuId, setSelectedCpuId] = useState<string>(() => {
+    if (["m2", "m4", "m6"].includes(rawCpuParam)) return rawCpuParam;
+    return "m2";
+  });
+  const [selectedMemoryId, setSelectedMemoryId] = useState<string>(() => {
+    if (["m4", "m6"].includes(rawCpuParam)) {
+      if (["16", "24", "32"].includes(rawRamParam)) return rawRamParam;
+      return "16"; // M4/M6 start at 16GB, no 8GB
+    }
+    if (["8", "16", "24", "32"].includes(rawRamParam)) return rawRamParam;
+    return "8";
+  });
+  const [selectedStorageId, setSelectedStorageId] = useState<string>(() => {
+    if (["256", "512", "1tb"].includes(rawSsdParam)) return rawSsdParam;
+    if (rawSsdParam === "1" || rawSsdParam === "1000" || rawSsdParam === "1t") return "1tb";
+    return "256";
+  });
+
+  // --- Hardware Configuration States for 488 Micro PC ---
+  const [microPcTier, setMicroPcTier] = useState<"std" | "pro">(() => {
+    if (rawTierParam === "pro" || rawTierParam === "8v" || rawTierParam === "8v16g" || rawTierParam === "16g" || rawTierParam === "max") return "pro";
+    if (rawTierParam === "std" || rawTierParam === "4v" || rawTierParam === "4v8g") return "std";
+    return props.initialTier ?? "std";
+  });
+  const [microPcOs, setMicroPcOs] = useState<"ubuntu" | "windows">(
+    rawOsParam === "windows" ? "windows" : "ubuntu"
+  );
+
+  // --- AI Subscription Specification State ---
+  const [selectedAiSubId, setSelectedAiSubId] = useState<string>(() => {
+    if (rawAiParam === "none" || rawAiParam === "0" || rawAiParam === "empty" || rawAiParam === "null") return "";
+    const found = AI_SUBSCRIPTION_OPTIONS.find((a) => a.id.toLowerCase() === rawAiParam);
+    if (found) return found.id;
+    if (rawAiParam === "pro100" || rawAiParam.includes("pro100")) return "chatgpt_pro100";
+    if (rawAiParam === "pro200" || rawAiParam.includes("pro200")) return "chatgpt_pro200";
+    if (rawAiParam === "plus" || rawAiParam.includes("plus")) return "chatgpt_plus";
+    if (rawAiParam === "ultra" || rawAiParam.includes("ultra")) return "claude_ultra";
+    if (rawAiParam === "max" || rawAiParam.includes("max")) return "claude_max";
+    if (rawAiParam === "pro" || rawAiParam.includes("claude")) return "claude_pro";
+    return "chatgpt_plus";
+  });
+
+  // --- Add-on Services State (Miscellaneous from cloud.lazzor.com) ---
+  const [selectedAddonIds, setSelectedAddonIds] = useState<string[]>(() => {
+    if (!rawAddonsParam) return [];
+    const valid = CLOUD_ADDON_SERVICES.map((a) => a.id);
+    return rawAddonsParam.split(",").map((s) => s.trim()).filter((id) => valid.includes(id));
+  });
+  const [extraIpCount, setExtraIpCount] = useState<number>(() => {
+    const n = parseInt(rawExtraIpParam, 10);
+    return isNaN(n) ? 0 : Math.max(0, Math.min(10, n));
+  });
+
+  const toggleAddon = (addonId: string) => {
+    setSelectedAddonIds((prev) =>
+      prev.includes(addonId) ? prev.filter((id) => id !== addonId) : [...prev, addonId]
+    );
+  };
+
+  // --- Freeform Custom Add-on State ("其他" 自定义格子: 默认置灰，打勾激活可填写内容与价格) ---
+  const [customAddonEnabled, setCustomAddonEnabled] = useState<boolean>(() => {
+    return rawCustomAddonParam === "1" || rawCustomAddonParam === "true";
+  });
+  const [customAddonName, setCustomAddonName] = useState<string>(() => {
+    return rawCustomNameParam || "";
+  });
+  const [customAddonPrice, setCustomAddonPrice] = useState<string>(() => {
+    return rawCustomPriceParam || "";
+  });
+  const [customAddonIsOneTime, setCustomAddonIsOneTime] = useState<boolean>(() => {
+    return rawCustomOnetimeParam === "1" || rawCustomOnetimeParam === "true";
+  });
+
+  // Promo Code State
+  const initialPromo = rawCodeParam && VALID_PROMO_CODES[rawCodeParam] ? VALID_PROMO_CODES[rawCodeParam] : null;
+  const [promoInput, setPromoInput] = useState<string>(initialPromo ? initialPromo.code : "");
+  const [appliedPromo, setAppliedPromo] = useState<PromoCodeInfo | null>(initialPromo);
+  const [promoMessage, setPromoMessage] = useState<{ type: "success" | "error"; text: string } | null>(
+    initialPromo ? { type: "success", text: `优惠码 "${initialPromo.code}" 验证成功！已减免 ${initialPromo.percentOff}%。` } : null
+  );
+
+  // Customer Profile
+  const [customerType, setCustomerType] = useState<"individual" | "company">(
+    rawTypeParam === "company" || !!rawCompanyParam ? "company" : "individual"
+  );
+  const [customerName, setCustomerName] = useState<string>(rawClientParam);
+  const [companyName, setCompanyName] = useState<string>(rawCompanyParam);
+  const [signatoryName, setSignatoryName] = useState<string>(rawSignatoryParam);
+  const [signatoryTitle, setSignatoryTitle] = useState<string>(rawTitleParam || "创始人 / 法定代表人");
+  const [customerIdNumber, setCustomerIdNumber] = useState<string>(rawIdNoParam);
+  const [customerPhone, setCustomerPhone] = useState<string>(rawPhoneParam);
+  const [customerEmail, setCustomerEmail] = useState<string>(rawEmailParam);
+  const [customerAddress, setCustomerAddress] = useState<string>(rawAddressParam);
+
+  // Dates
+  const [startDate, setStartDate] = useState<string>(rawStartParam || getTomorrowDateString());
+
+  // Attachments
+  const [idImage, setIdImage] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Digital Signature
+  const [sigMode, setSigMode] = useState<"draw" | "type">("draw");
+  const [typedSigText, setTypedSigText] = useState<string>("");
+  const [signatureData, setSignatureData] = useState<string | null>(null);
+  const [hasDrawn, setHasDrawn] = useState<boolean>(false);
+  const [termsAgreed, setTermsAgreed] = useState<boolean>(false);
+
+  // --- E-Contract Execution & Customizer Modal States ---
+  const isLockedConfigInitial = props.initialLocked ?? (rawLockedParam === "1" || rawLockedParam === "true" || rawLockedParam === "yes");
+  const [isLockedConfig, setIsLockedConfig] = useState<boolean>(isLockedConfigInitial);
+  const [viewMode, setViewMode] = useState<"admin" | "customer">(isCustomerSignInitial ? "customer" : "admin");
+  const [isShareModalOpen, setIsShareModalOpen] = useState<boolean>(false);
+  const [copiedShareModalLink, setCopiedShareModalLink] = useState<boolean>(false);
+  const [copiedShareModalText, setCopiedShareModalText] = useState<boolean>(false);
+  const [isSigned, setIsSigned] = useState<boolean>(false);
+  const [signedTimestamp, setSignedTimestamp] = useState<string | null>(null);
+  const [isCustomizerOpen, setIsCustomizerOpen] = useState<boolean>(false);
+  const [isCertificateOpen, setIsCertificateOpen] = useState<boolean>(false);
+  const [copiedInvitation, setCopiedInvitation] = useState<boolean>(false);
+  const [copiedShareUrl, setCopiedShareUrl] = useState<boolean>(false);
+
+  // Customizer Inner Working Form States
+  const [custPlanId, setCustPlanId] = useState<string>("workstation_888");
+  const [custCpuId, setCustCpuId] = useState<string>("m2");
+  const [custMemoryId, setCustMemoryId] = useState<string>("8");
+  const [custStorageId, setCustStorageId] = useState<string>("256");
+  const [custMicroTier, setCustMicroTier] = useState<"std" | "pro">("std");
+  const [custMicroOs, setCustMicroOs] = useState<"ubuntu" | "windows">("ubuntu");
+  const [custAiSubId, setCustAiSubId] = useState<string>("chatgpt_plus");
+  const [custAddonIds, setCustAddonIds] = useState<string[]>([]);
+  const [custExtraIpCount, setCustExtraIpCount] = useState<number>(0);
+  const [custDurationMonths, setCustDurationMonths] = useState<number>(1);
+  const [custCurrency, setCustCurrency] = useState<"CNY" | "THB">("CNY");
+  const [custPromoCode, setCustPromoCode] = useState<string>("");
+  const [custCustomerType, setCustCustomerType] = useState<"individual" | "company">("individual");
+  const [custCustomerName, setCustCustomerName] = useState<string>("");
+  const [custCompanyName, setCustCompanyName] = useState<string>("");
+  const [custPhone, setCustPhone] = useState<string>("");
+  const [custEmail, setCustEmail] = useState<string>("");
+  const [custCustomerIdNumber, setCustCustomerIdNumber] = useState<string>("");
+  const [custSignatoryName, setCustSignatoryName] = useState<string>("");
+  const [custSignatoryTitle, setCustSignatoryTitle] = useState<string>("创始人 / 法定代表人");
+  const [custAddress, setCustAddress] = useState<string>("");
+  const [custContractSerial, setCustContractSerial] = useState<string>("");
+  const [custLockSpecs, setCustLockSpecs] = useState<boolean>(true);
+  const [custCustomAddonEnabled, setCustCustomAddonEnabled] = useState<boolean>(false);
+  const [custCustomAddonName, setCustCustomAddonName] = useState<string>("");
+  const [custCustomAddonPrice, setCustCustomAddonPrice] = useState<string>("");
+  const [custCustomAddonIsOneTime, setCustCustomAddonIsOneTime] = useState<boolean>(false);
+
+  // Canvas
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const isDrawing = useRef<boolean>(false);
+
+  // Loading States
+  const [isExportingPdf, setIsExportingPdf] = useState<boolean>(false);
+  const [copiedLink, setCopiedLink] = useState<boolean>(false);
+
+  // Preload and Initialize Contract Numbers
+  useEffect(() => {
+    const today = new Date();
+    const yStr = today.getFullYear().toString();
+    const mStr = String(today.getMonth() + 1).padStart(2, "0");
+    const dStr = String(today.getDate()).padStart(2, "0");
+    setSigningDateIso(`${yStr}-${mStr}-${dStr}`);
+
+    const randomSuffix = Math.random().toString(36).substring(2, 7).toUpperCase();
+    const serial = rawSerialParam || `CMAI-CLOUD-${yStr}${mStr}${dStr}-${randomSuffix}`;
+    setContractSerial(serial);
+
+    const rawData = `${serial}-${Date.now()}`;
+    let hash = 0;
+    for (let i = 0; i < rawData.length; i++) {
+      hash = (hash << 5) - hash + rawData.charCodeAt(i);
+      hash |= 0;
+    }
+    setContractHash(Math.abs(hash).toString(16).padStart(8, "0").toUpperCase());
+
+    // Convert Assets to Data URLs
+    const toDataUrl = async (url: string): Promise<string> => {
+      try {
+        const res = await fetch(url);
+        const blob = await res.blob();
+        return new Promise<string>((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result as string);
+          reader.onerror = () => resolve(url);
+          reader.readAsDataURL(blob);
+        });
+      } catch {
+        return url;
+      }
+    };
+
+    toDataUrl("/images/cmai_header_logo.png").then((d) => {
+      if (d && d.startsWith("data:")) setLogoDataUrl(d);
+    });
+    toDataUrl("/images/cmai_seal_blue.png?v=20261112_04").then((d) => {
+      if (d && d.startsWith("data:")) setStampDataUrl(d);
+    });
+  }, []);
+
+  // Canvas Event Handlers
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const ratio = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width * ratio;
+    canvas.height = rect.height * ratio;
+    ctx.scale(ratio, ratio);
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    ctx.lineWidth = 2.5;
+    ctx.strokeStyle = "#0f172a";
+  }, [sigMode]);
+
+  const startDrawing = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+    isDrawing.current = true;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;
+    const clientY = "touches" in e ? e.touches[0].clientY : e.clientY;
+
+    ctx.beginPath();
+    ctx.moveTo(clientX - rect.left, clientY - rect.top);
+  };
+
+  const draw = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+    if (!isDrawing.current) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;
+    const clientY = "touches" in e ? e.touches[0].clientY : e.clientY;
+
+    ctx.lineTo(clientX - rect.left, clientY - rect.top);
+    ctx.stroke();
+    setHasDrawn(true);
+  };
+
+  const stopDrawing = () => {
+    if (!isDrawing.current) return;
+    isDrawing.current = false;
+    const canvas = canvasRef.current;
+    if (canvas) {
+      setSignatureData(canvas.toDataURL("image/png"));
+    }
+  };
+
+  const clearCanvas = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    setSignatureData(null);
+    setHasDrawn(false);
+  };
+
+  const handleTypedSignature = (text: string) => {
+    setTypedSigText(text);
+    if (!text.trim()) {
+      setSignatureData(null);
+      return;
+    }
+    const offCanvas = document.createElement("canvas");
+    offCanvas.width = 400;
+    offCanvas.height = 120;
+    const ctx = offCanvas.getContext("2d");
+    if (!ctx) return;
+
+    ctx.clearRect(0, 0, 400, 120);
+    ctx.font = "italic bold 32px 'Brush Script MT', 'Dancing Script', 'Caveat', cursive, serif";
+    ctx.fillStyle = "#0f172a";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(text, 200, 60);
+
+    setSignatureData(offCanvas.toDataURL("image/png"));
+  };
+
+  const handleVerifyPromo = () => {
+    const clean = promoInput.trim().toLowerCase();
+    if (!clean) {
+      setPromoMessage({ type: "error", text: "请输入有效的优惠码。" });
+      setAppliedPromo(null);
+      return;
+    }
+    const found = VALID_PROMO_CODES[clean];
+    if (found) {
+      setAppliedPromo(found);
+      setPromoMessage({
+        type: "success",
+        text: `优惠码 "${found.code}" 验证成功！已享受 ${found.percentOff}% 折扣 (${found.name})。`,
+      });
+    } else {
+      setAppliedPromo(null);
+      setPromoMessage({
+        type: "error",
+        text: `优惠码 "${promoInput}" 无效或已过期。`,
+      });
+    }
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      alert("请上传有效的图片文件 (PNG, JPG, WEBP)");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      setIdImage(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // Currently Selected Base Plan
+  const currentPlan = CLOUD_PLANS.find((p) => p.id === selectedPlanId) || null;
+
+  // Configured Specs for Mac Workstation
+  const chosenCpu = MAC_CPU_OPTIONS.find((c) => c.id === selectedCpuId) || MAC_CPU_OPTIONS[0];
+  const chosenMemory = (() => {
+    if ((selectedCpuId === "m4" || selectedCpuId === "m6") && selectedMemoryId === "8") {
+      return MAC_MEMORY_OPTIONS.find((m) => m.id === "16") || MAC_MEMORY_OPTIONS[1];
+    }
+    return MAC_MEMORY_OPTIONS.find((m) => m.id === selectedMemoryId) || MAC_MEMORY_OPTIONS[0];
+  })();
+  const chosenStorage = MAC_STORAGE_OPTIONS.find((s) => s.id === selectedStorageId) || MAC_STORAGE_OPTIONS[0];
+  const chosenAiSubscription = AI_SUBSCRIPTION_OPTIONS.find((a) => a.id === selectedAiSubId) || null;
+
+  // Base Plan Price
+  const basePlanPrice = currentPlan ? (currency === "CNY" ? currentPlan.priceCNY : currentPlan.priceTHB) : 0;
+  const baseSetupFee = currentPlan ? (currency === "CNY" ? currentPlan.setupFeeCNY : currentPlan.setupFeeTHB) : 0;
+
+  // Additional Hardware Delta (Applicable to 888 Mac Plan or 488 Micro PC)
+  let hwDeltaMonthly = 0;
+  if (selectedPlanId === "workstation_888") {
+    hwDeltaMonthly += currency === "CNY" ? chosenCpu.priceDeltaCNY : chosenCpu.priceDeltaTHB;
+    // For M4 and M6, 16GB is the starting base memory (起步 16GB, 无 8GB)
+    if (selectedCpuId === "m4" || selectedCpuId === "m6") {
+      if (selectedMemoryId === "24") {
+        hwDeltaMonthly += currency === "CNY" ? 50 : 250;
+      } else if (selectedMemoryId === "32") {
+        hwDeltaMonthly += currency === "CNY" ? 110 : 550;
+      }
+    } else {
+      // M2
+      hwDeltaMonthly += currency === "CNY" ? chosenMemory.priceDeltaCNY : chosenMemory.priceDeltaTHB;
+    }
+    hwDeltaMonthly += currency === "CNY" ? chosenStorage.priceDeltaCNY : chosenStorage.priceDeltaTHB;
+  } else if (selectedPlanId === "ai_lazy_488") {
+    if (microPcTier === "pro") {
+      hwDeltaMonthly += currency === "CNY" ? 80 : 400;
+    }
+  }
+
+  // Additional AI Subscription Delta
+  const aiDeltaMonthly = chosenAiSubscription ? (currency === "CNY" ? chosenAiSubscription.priceDeltaCNY : chosenAiSubscription.priceDeltaTHB) : 0;
+
+  // Additional Add-on Services Delta
+  const activeAddons = CLOUD_ADDON_SERVICES.filter((a) => selectedAddonIds.includes(a.id));
+  const addonsRecurringMonthly = activeAddons
+    .filter((a) => !a.isOneTime)
+    .reduce((sum, a) => sum + (currency === "CNY" ? a.monthlyPriceCNY : a.monthlyPriceTHB), 0);
+
+  const addonsOneTimeFee = activeAddons
+    .filter((a) => a.isOneTime)
+    .reduce((sum, a) => sum + (currency === "CNY" ? a.monthlyPriceCNY : a.monthlyPriceTHB), 0);
+
+  // Custom Freeform Add-on Delta ("其他" 自定义格子)
+  const parsedCustomPrice = customAddonEnabled ? Math.max(0, parseFloat(customAddonPrice) || 0) : 0;
+  const customMonthlyDelta = customAddonEnabled && !customAddonIsOneTime ? parsedCustomPrice : 0;
+  const customOneTimeDelta = customAddonEnabled && customAddonIsOneTime ? parsedCustomPrice : 0;
+
+  // Extra IPs
+  const extraIpMonthly = extraIpCount * (currency === "CNY" ? 100 : 500);
+
+  // Undiscounted Monthly Total
+  const subtotalMonthly = basePlanPrice + hwDeltaMonthly + aiDeltaMonthly + addonsRecurringMonthly + extraIpMonthly + customMonthlyDelta;
+
+  // Duration Discount (12 months = 20% off and waive setup fee; 6 months = 10% off; 3 months = 5% off)
+  let durationDiscountRate = 1;
+  let isSetupFeeWaived = false;
+  if (durationMonths >= 12) {
+    durationDiscountRate = 0.8;
+    isSetupFeeWaived = true;
+  } else if (durationMonths >= 6) {
+    durationDiscountRate = 0.9;
+  } else if (durationMonths >= 3) {
+    durationDiscountRate = 0.95;
+  }
+
+  // Promo Discount Rate
+  const promoDiscountRate = appliedPromo ? appliedPromo.rate : 1;
+
+  // Effective Monthly Fee after Discounts
+  const calculatedMonthly = Math.round(subtotalMonthly * durationDiscountRate * promoDiscountRate);
+  const effectiveMonthlyFee = customPriceOverride !== undefined ? customPriceOverride : calculatedMonthly;
+  const effectiveSetupFee = (isSetupFeeWaived || !currentPlan) ? 0 : baseSetupFee;
+  const totalSubscriptionFee = effectiveMonthlyFee * durationMonths;
+  const totalInitialPayment = totalSubscriptionFee + effectiveSetupFee + addonsOneTimeFee + customOneTimeDelta;
+
+  // Dates
+  const endDate = calculateServiceEndDate(startDate, durationMonths);
+
+  // Effective Customer Info
+  const effectiveCustomerName = customerType === "company" ? (companyName || "企业客户全称") : (customerName || "客户姓名");
+  const effectiveSignatoryDisplay = customerType === "company" ? (signatoryName || "法定代表人") : (customerName || "签署人");
+
+  // Currency Symbols
+  const currSym = currency === "CNY" ? "¥" : "฿";
+
+  // High-Fidelity Multi-Page Chinese & English Official Contract PDF Export (Exact Match with On-Screen Chinese Layout)
+  const handleDownloadPdf = async () => {
+    try {
+      setIsExportingPdf(true);
+
+      const page1El = document.getElementById("cloud-contract-page-1");
+      const page2El = document.getElementById("cloud-contract-page-2");
+      const page3El = document.getElementById("cloud-contract-page-3");
+
+      if (!page1El || !page2El) {
+        throw new Error("Contract DOM pages not found");
+      }
+
+      const { jsPDF } = await import("jspdf");
+      const html2canvasModule = await import("html2canvas-pro");
+      const html2canvas = html2canvasModule.default || html2canvasModule;
+
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4",
+        compress: true,
+      });
+
+      const pageIds = ["cloud-contract-page-1", "cloud-contract-page-2"];
+      if (idImage && page3El) {
+        pageIds.push("cloud-contract-page-3");
+      }
+
+      for (let i = 0; i < pageIds.length; i++) {
+        const targetEl = document.getElementById(pageIds[i]);
+        if (!targetEl) continue;
+
+        // Ensure all child images are complete
+        const imgs = targetEl.querySelectorAll("img");
+        imgs.forEach((img) => {
+          try {
+            if (img.src && !img.src.startsWith("data:") && img.complete && img.naturalWidth > 0) {
+              const c = document.createElement("canvas");
+              c.width = img.naturalWidth;
+              c.height = img.naturalHeight;
+              const cx = c.getContext("2d");
+              if (cx) {
+                cx.drawImage(img, 0, 0);
+                img.src = c.toDataURL("image/png");
+              }
+            }
+          } catch {}
+        });
+
+        const pageCanvas = await html2canvas(targetEl, {
+          scale: 2,
+          useCORS: true,
+          allowTaint: true,
+          backgroundColor: "#ffffff",
+          logging: false,
+          windowWidth: 850,
+          onclone: (clonedDoc) => {
+            clonedDoc.body.style.width = "850px";
+            clonedDoc.body.style.minWidth = "850px";
+            clonedDoc.body.style.margin = "0";
+            clonedDoc.body.style.padding = "0";
+            const el = clonedDoc.getElementById(pageIds[i]);
+            if (el) {
+              el.style.width = "820px";
+              el.style.maxWidth = "820px";
+              el.style.minWidth = "820px";
+              el.style.border = "none";
+              el.style.borderBottom = "none";
+              el.style.borderRadius = "0";
+              el.style.padding = "32px 36px";
+              el.style.backgroundColor = "#ffffff";
+              el.querySelectorAll(".overflow-x-auto").forEach((s) => {
+                (s as HTMLElement).style.overflow = "visible";
+              });
+            }
+          },
+        });
+
+        if (pageCanvas && pageCanvas.width > 0 && pageCanvas.height > 0) {
+          if (i > 0) {
+            pdf.addPage("a4", "portrait");
+          }
+          const pageImgData = pageCanvas.toDataURL("image/jpeg", 0.95);
+          const imgWidth = 210;
+          const imgHeight = (pageCanvas.height * imgWidth) / pageCanvas.width;
+          pdf.addImage(
+            pageImgData,
+            "JPEG",
+            0,
+            0,
+            imgWidth,
+            Math.min(imgHeight, 297),
+            undefined,
+            "FAST"
+          );
+        }
+      }
+
+      const pdfBlob = pdf.output("blob");
+      const blobUrl = URL.createObjectURL(pdfBlob);
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      const safePlanName = currentPlan ? currentPlan.id : "custom_contract";
+      link.download = `${contractSerial || "CMAI-CLOUD"}_${safePlanName}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      setTimeout(() => {
+        document.body.removeChild(link);
+        URL.revokeObjectURL(blobUrl);
+      }, 2500);
+    } catch (err: any) {
+      console.error("PDF generation error:", err);
+      alert("PDF 生成遇到问题，您可直接使用浏览器的【打印合同】功能（或按快捷键 Ctrl+P / Cmd+P）直接另存为高清晰中文版 PDF。");
+    } finally {
+      setIsExportingPdf(false);
+    }
+  };
+
+  const handleNativePrint = () => {
+    window.print();
+  };
+
+  // --- Contract URL & Invitation Building Functions ---
+  const getShareableUrl = (overrideParams?: {
+    plan?: string;
+    cpu?: string;
+    ram?: string;
+    ssd?: string;
+    tier?: string;
+    os?: string;
+    ai?: string;
+    addons?: string[];
+    extraIp?: number;
+    months?: number;
+    cur?: "CNY" | "THB";
+    code?: string;
+    client?: string;
+    company?: string;
+    type?: "individual" | "company";
+    phone?: string;
+    email?: string;
+    idNo?: string;
+    signatory?: string;
+    title?: string;
+    address?: string;
+    serial?: string;
+    locked?: boolean;
+    sign?: boolean;
+    customAddon?: boolean;
+    customName?: string;
+    customPrice?: string;
+    customIsOneTime?: boolean;
+  }) => {
+    const origin = typeof window !== "undefined" ? window.location.origin : "https://lazzor.com";
+    const pathname = typeof window !== "undefined" ? window.location.pathname : "/contract-last";
+    const p = new URLSearchParams();
+
+    const plan = overrideParams?.plan !== undefined ? overrideParams.plan : selectedPlanId;
+    if (plan) {
+      p.set("plan", plan);
+      if (plan === "workstation_888") {
+        p.set("cpu", overrideParams?.cpu ?? selectedCpuId);
+        p.set("ram", overrideParams?.ram ?? selectedMemoryId);
+        p.set("ssd", overrideParams?.ssd ?? selectedStorageId);
+      } else if (plan === "ai_lazy_488") {
+        p.set("tier", overrideParams?.tier ?? microPcTier);
+        p.set("os", overrideParams?.os ?? microPcOs);
+      }
+    } else {
+      p.set("plan", "none");
+    }
+
+    const ai = overrideParams?.ai !== undefined ? overrideParams.ai : selectedAiSubId;
+    if (ai) {
+      p.set("ai", ai);
+    } else {
+      p.set("ai", "none");
+    }
+
+    const addons = overrideParams?.addons ?? selectedAddonIds;
+    if (addons.length > 0) p.set("addons", addons.join(","));
+
+    const extraIp = overrideParams?.extraIp ?? extraIpCount;
+    if (extraIp > 0) p.set("extra_ip", String(extraIp));
+
+    const months = overrideParams?.months ?? durationMonths;
+    if (months > 1) p.set("months", String(months));
+
+    const cur = overrideParams?.cur ?? currency;
+    if (cur !== "CNY") p.set("cur", cur);
+
+    const promo = overrideParams?.code ?? (appliedPromo ? appliedPromo.code : "");
+    if (promo) p.set("code", promo);
+
+    const client = overrideParams?.client ?? customerName;
+    if (client) p.set("client", client);
+
+    const company = overrideParams?.company ?? companyName;
+    if (company) p.set("company", company);
+
+    const type = overrideParams?.type ?? customerType;
+    if (type === "company") p.set("type", "company");
+
+    const phone = overrideParams?.phone ?? customerPhone;
+    if (phone) p.set("phone", phone);
+
+    const email = overrideParams?.email ?? customerEmail;
+    if (email) p.set("email", email);
+
+    const idNo = overrideParams?.idNo ?? customerIdNumber;
+    if (idNo) p.set("id_no", idNo);
+
+    const signatory = overrideParams?.signatory ?? signatoryName;
+    if (signatory) p.set("signatory", signatory);
+
+    const title = overrideParams?.title ?? signatoryTitle;
+    if (title) p.set("title", title);
+
+    const address = overrideParams?.address ?? customerAddress;
+    if (address) p.set("address", address);
+
+    const serial = overrideParams?.serial ?? contractSerial;
+    if (serial) p.set("serial", serial);
+
+    const locked = overrideParams?.locked ?? isLockedConfig;
+    if (locked) p.set("locked", "1");
+
+    const sign = overrideParams?.sign;
+    if (sign) p.set("sign", "1");
+
+    const cAddon = overrideParams?.customAddon ?? customAddonEnabled;
+    if (cAddon) {
+      p.set("custom_addon", "1");
+      const cName = overrideParams?.customName ?? customAddonName;
+      if (cName) p.set("custom_name", cName);
+      const cPrice = overrideParams?.customPrice ?? customAddonPrice;
+      if (cPrice) p.set("custom_price", cPrice);
+      const cOneTime = overrideParams?.customIsOneTime ?? customAddonIsOneTime;
+      if (cOneTime) p.set("custom_onetime", "1");
+    }
+
+    return `${origin}${pathname}?${p.toString()}`;
+  };
+
+  const getCustomerSignUrl = () => {
+    return getShareableUrl({
+      locked: true,
+      sign: true,
+    });
+  };
+
+  const generateCustomerInvitationText = () => {
+    const link = getCustomerSignUrl();
+    const recipient = customerName || companyName || "客户";
+    const specsList: string[] = [];
+    if (currentPlan) {
+      if (currentPlan.id === "workstation_888") {
+        specsList.push(`1V1独享工作站: ${chosenCpu.name} / ${chosenMemory.size}内存 / ${chosenStorage.size}SSD`);
+      } else {
+        specsList.push(`${currentPlan.name} (${microPcTier === "pro" ? "增强型 8核16G/240G" : "标准型 4核8G/120G"})`);
+      }
+    }
+    if (chosenAiSubscription) {
+      specsList.push(`官方AI会员: ${chosenAiSubscription.name}`);
+    }
+    if (extraIpCount > 0 || currentPlan) {
+      specsList.push(`独立静态商业IP: ${1 + extraIpCount}个`);
+    }
+    activeAddons.forEach((a) => {
+      specsList.push(`增值服务: ${a.name.split(" ")[0]}`);
+    });
+    if (customAddonEnabled && (customAddonName || customAddonPrice)) {
+      specsList.push(`定制补充项: ${customAddonName || "其他定制"} [${currSym}${customAddonPrice}]`);
+    }
+
+    const planSummary = specsList.length > 0 ? specsList.join(" · ") : "专属自由定制采购方案";
+    const totalWords = currency === "CNY" ? numberToChineseRMB(totalInitialPayment) : numberToEnglishWords(totalInitialPayment, "THB");
+
+    return `【Chiang Mai AI Center · 专属电子协议签署通知】
+尊敬的 ${recipient}：
+您好！为您专属定制的「企业级 AI 云工位与海外算力服务协议」已生成就绪。
+📋 定制交付标的：${planSummary}
+💰 签约首期应付总计：${currSym}${totalInitialPayment.toLocaleString()} (${totalWords})
+🔗 专属在线签署链接：
+${link}
+
+📱 手机微信或相机扫码即可直接查阅并完成原笔迹签署。协议经双方实名签署与存证上链后立即生效，感谢您的信任与合作！`;
+  };
+
+  const handleCopyLink = () => {
+    const url = getShareableUrl({ locked: isLockedConfig });
+    navigator.clipboard.writeText(url).then(() => {
+      setCopiedLink(true);
+      setTimeout(() => setCopiedLink(false), 2500);
+    });
+  };
+
+  const handleCopyShareModalLink = () => {
+    const link = getCustomerSignUrl();
+    navigator.clipboard.writeText(link).then(() => {
+      setCopiedShareModalLink(true);
+      setTimeout(() => setCopiedShareModalLink(false), 2500);
+    });
+  };
+
+  const handleCopyShareModalText = () => {
+    const text = generateCustomerInvitationText();
+    navigator.clipboard.writeText(text).then(() => {
+      setCopiedShareModalText(true);
+      setTimeout(() => setCopiedShareModalText(false), 2500);
+    });
+  };
+
+  // Customizer: Open and prefill from current page state
+  const handleOpenCustomizer = () => {
+    setCustPlanId(selectedPlanId);
+    setCustCpuId(selectedCpuId);
+    setCustMemoryId(selectedMemoryId);
+    setCustStorageId(selectedStorageId);
+    setCustMicroTier(microPcTier);
+    setCustMicroOs(microPcOs);
+    setCustAiSubId(selectedAiSubId);
+    setCustAddonIds([...selectedAddonIds]);
+    setCustExtraIpCount(extraIpCount);
+    setCustDurationMonths(durationMonths);
+    setCustCurrency(currency);
+    setCustPromoCode(appliedPromo ? appliedPromo.code : promoInput);
+    setCustCustomerType(customerType);
+    setCustCustomerName(customerName);
+    setCustCompanyName(companyName);
+    setCustPhone(customerPhone);
+    setCustEmail(customerEmail);
+    setCustCustomerIdNumber(customerIdNumber);
+    setCustSignatoryName(signatoryName);
+    setCustSignatoryTitle(signatoryTitle);
+    setCustAddress(customerAddress);
+    setCustContractSerial(contractSerial);
+    setCustLockSpecs(true);
+    setCustCustomAddonEnabled(customAddonEnabled);
+    setCustCustomAddonName(customAddonName);
+    setCustCustomAddonPrice(customAddonPrice);
+    setCustCustomAddonIsOneTime(customAddonIsOneTime);
+    setIsCustomizerOpen(true);
+  };
+
+  // Customizer: Compute URL on the fly
+  const computeCustomizerUrl = () => {
+    return getShareableUrl({
+      plan: custPlanId,
+      cpu: custCpuId,
+      ram: custMemoryId,
+      ssd: custStorageId,
+      tier: custMicroTier,
+      os: custMicroOs,
+      ai: custAiSubId,
+      addons: custAddonIds,
+      extraIp: custExtraIpCount,
+      months: custDurationMonths,
+      cur: custCurrency,
+      code: custPromoCode,
+      client: custCustomerName,
+      company: custCompanyName,
+      type: custCustomerType,
+      phone: custPhone,
+      email: custEmail,
+      idNo: custCustomerIdNumber,
+      signatory: custSignatoryName,
+      title: custSignatoryTitle,
+      address: custAddress,
+      serial: custContractSerial,
+      locked: custLockSpecs,
+      customAddon: custCustomAddonEnabled,
+      customName: custCustomAddonName,
+      customPrice: custCustomAddonPrice,
+      customIsOneTime: custCustomAddonIsOneTime,
+    });
+  };
+
+  // Customizer: Compute invitation letter
+  const computeInvitationText = (url: string) => {
+    const plan = CLOUD_PLANS.find((p) => p.id === custPlanId) || null;
+    const cpu = MAC_CPU_OPTIONS.find((c) => c.id === custCpuId) || MAC_CPU_OPTIONS[0];
+    const mem = (() => {
+      if ((custCpuId === "m4" || custCpuId === "m6") && custMemoryId === "8") {
+        return MAC_MEMORY_OPTIONS.find((m) => m.id === "16") || MAC_MEMORY_OPTIONS[1];
+      }
+      return MAC_MEMORY_OPTIONS.find((m) => m.id === custMemoryId) || MAC_MEMORY_OPTIONS[0];
+    })();
+    const ssd = MAC_STORAGE_OPTIONS.find((s) => s.id === custStorageId) || MAC_STORAGE_OPTIONS[0];
+    const ai = AI_SUBSCRIPTION_OPTIONS.find((a) => a.id === custAiSubId) || null;
+
+    const recipient = custCustomerType === "company" ? (custCompanyName || custCustomerName || "贵司") : (custCustomerName || "尊敬的客户");
+    const currSym = custCurrency === "CNY" ? "¥" : "฿";
+
+    // Dynamic cost calculation
+    const baseP = plan ? (custCurrency === "CNY" ? plan.priceCNY : plan.priceTHB) : 0;
+    let hwD = 0;
+    if (custPlanId === "workstation_888") {
+      let memD = custCurrency === "CNY" ? mem.priceDeltaCNY : mem.priceDeltaTHB;
+      if (custCpuId === "m4" || custCpuId === "m6") {
+        if (custMemoryId === "16") memD = 0;
+        else if (custMemoryId === "24") memD = custCurrency === "CNY" ? 50 : 250;
+        else if (custMemoryId === "32") memD = custCurrency === "CNY" ? 110 : 550;
+      }
+      hwD += (custCurrency === "CNY" ? cpu.priceDeltaCNY : cpu.priceDeltaTHB) + memD + (custCurrency === "CNY" ? ssd.priceDeltaCNY : ssd.priceDeltaTHB);
+    }
+    const aiD = ai ? (custCurrency === "CNY" ? ai.priceDeltaCNY : ai.priceDeltaTHB) : 0;
+    const activeAdds = CLOUD_ADDON_SERVICES.filter((a) => custAddonIds.includes(a.id));
+    const addsRec = activeAdds.filter((a) => !a.isOneTime).reduce((s, a) => s + (custCurrency === "CNY" ? a.monthlyPriceCNY : a.monthlyPriceTHB), 0);
+    const addsOne = activeAdds.filter((a) => a.isOneTime).reduce((s, a) => s + (custCurrency === "CNY" ? a.monthlyPriceCNY : a.monthlyPriceTHB), 0);
+    const extraIpM = custExtraIpCount * (custCurrency === "CNY" ? 100 : 500);
+
+    const custCustPrice = custCustomAddonEnabled ? (parseFloat(custCustomAddonPrice) || 0) : 0;
+    const custCustMonthly = (!custCustomAddonIsOneTime) ? custCustPrice : 0;
+    const custCustOneTime = custCustomAddonIsOneTime ? custCustPrice : 0;
+
+    const sub = baseP + hwD + aiD + addsRec + extraIpM + custCustMonthly;
+    let durRate = 1;
+    let setupWaived = false;
+    if (custDurationMonths >= 12) { durRate = 0.8; setupWaived = true; }
+    else if (custDurationMonths >= 6) durRate = 0.9;
+    else if (custDurationMonths >= 3) durRate = 0.95;
+
+    const promoFound = custPromoCode && VALID_PROMO_CODES[custPromoCode.toLowerCase()] ? VALID_PROMO_CODES[custPromoCode.toLowerCase()] : null;
+    const promoR = promoFound ? promoFound.rate : 1;
+    const effM = Math.round(sub * durRate * promoR);
+    const baseS = plan ? (custCurrency === "CNY" ? plan.setupFeeCNY : plan.setupFeeTHB) : 0;
+    const effS = (setupWaived || !plan) ? 0 : baseS;
+    const initialT = effM * custDurationMonths + effS + addsOne + custCustOneTime;
+
+    return `【Chiang Mai AI Center · 官方专属服务电子合同】
+尊敬的 ${recipient}：
+
+您好！为您专属定制的「Chiang Mai AI Center 企业级云工位与海外算力服务协议」已生成就绪。
+
+📋 定制方案配置：
+● 签约方案：${plan ? plan.name : "纯定制增值服务 (未选配基础云主机)"}
+● 硬件规格：${plan ? (custPlanId === "workstation_888" ? `${cpu.name} · ${mem.size} 统一内存 · ${ssd.size} 存储 (原生 macOS)` : `轻量微主机 (${custMicroTier === "pro" ? "增强型 8核16G / 240GB" : "标准型 4核8G / 120GB"})`) : "未配置硬件主机"}
+● 官方 AI 会员：${ai ? `${ai.name} (每月官方订阅全包)` : "未选配 AI 会员"}
+● 纯净商业网络：${(plan ? 1 : 0) + custExtraIpCount}x 独享原生静态商业 IP (Clean ASN) + 中泰 IPLC 极速专线 (<18ms)
+${activeAdds.length > 0 ? `● 增值配套服务：${activeAdds.map(a => a.name.split(" ")[0]).join("、")}
+` : ""}${custCustomAddonEnabled && custCustPrice > 0 ? `● 定制补充服务：${custCustomAddonName || "定制补充项目"} (+${currSym}${custCustPrice.toLocaleString()} ${custCustomAddonIsOneTime ? "一次性" : "/月"})
+` : ""}● 签约服务期：${custDurationMonths} 个月
+● 首期结算金额：${currSym}${initialT.toLocaleString()} 元整
+● 电子合同编号：${custContractSerial || "CMAI-CLOUD-2026"}
+
+✍️ 请点击专属安全链接查阅 SLA 条款并在手机或电脑上完成原笔迹电子签署：
+👉 ${url}
+
+（本合同通过 Chiang Mai AI Center 官方电子存证系统签署，加盖 Chiang Mai AI Center Co., Ltd. 官方公章与防伪时间戳，具备完整中泰法律效力）`;
+  };
+
+  // Customizer: Apply to live page
+  const handleApplyCustomizerToLive = () => {
+    setSelectedPlanId(custPlanId);
+    setSelectedCpuId(custCpuId);
+    setSelectedMemoryId(custMemoryId);
+    setSelectedStorageId(custStorageId);
+    setMicroPcTier(custMicroTier);
+    setMicroPcOs(custMicroOs);
+    setSelectedAiSubId(custAiSubId);
+    setSelectedAddonIds([...custAddonIds]);
+    setExtraIpCount(custExtraIpCount);
+    setDurationMonths(custDurationMonths);
+    setCurrency(custCurrency);
+    if (custPromoCode) {
+      setPromoInput(custPromoCode);
+      const found = VALID_PROMO_CODES[custPromoCode.toLowerCase()];
+      if (found) setAppliedPromo(found);
+    }
+    setCustomerType(custCustomerType);
+    if (custCustomerName) setCustomerName(custCustomerName);
+    if (custCompanyName) setCompanyName(custCompanyName);
+    if (custPhone) setCustomerPhone(custPhone);
+    if (custEmail) setCustomerEmail(custEmail);
+    if (custCustomerIdNumber) setCustomerIdNumber(custCustomerIdNumber);
+    if (custSignatoryName) setSignatoryName(custSignatoryName);
+    if (custSignatoryTitle) setSignatoryTitle(custSignatoryTitle);
+    if (custAddress) setCustomerAddress(custAddress);
+    if (custContractSerial) setContractSerial(custContractSerial);
+    if (custLockSpecs) setIsLockedConfig(true);
+    setCustomAddonEnabled(custCustomAddonEnabled);
+    setCustomAddonName(custCustomAddonName);
+    setCustomAddonPrice(custCustomAddonPrice);
+    setCustomAddonIsOneTime(custCustomAddonIsOneTime);
+    setIsCustomizerOpen(false);
+  };
+
+  // Execute E-Contract Signing
+  const handleExecuteContract = () => {
+    if (!signatureData) {
+      alert("请先在电子签名画板上手写签名，或在键盘输入框中输入您的法定姓名。");
+      return;
+    }
+    if (!termsAgreed) {
+      alert("请勾选并确认《企业级 AI 云工位与海外算力服务协议》所有细则及 SLA 交付标准承诺。");
+      return;
+    }
+
+    const now = new Date();
+    const formatted = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")} ${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}:${String(now.getSeconds()).padStart(2, "0")} (UTC+7)`;
+    setSignedTimestamp(formatted);
+    setIsSigned(true);
+    setIsCertificateOpen(true);
+  };
+
+  // --- Dynamic Deliverables & Clauses for Strict Zero-Noise Display ---
+  // Only configured/selected items appear; unselected items NEVER appear in the contract!
+  const deliverableItems: { title: string; enTitle: string; content: React.ReactNode }[] = [];
+
+  if (selectedPlanId) {
+    deliverableItems.push({
+      title: "算力硬件规格",
+      enTitle: "Hardware / CPU / RAM",
+      content: selectedPlanId === "workstation_888" ? (
+        <div className="space-y-1">
+          <div className="font-bold text-neutral-900 flex items-center gap-2">
+            <span>1V1 物理独享工作站：{chosenCpu.name} ({chosenCpu.specs})</span>
+          </div>
+          <div className="text-neutral-600">
+            统一内存: <strong>{chosenMemory.size}</strong> · 存储空间: <strong>{chosenStorage.size}</strong> · 操作系统: 原生 macOS (Sonoma/Sequoia)
+          </div>
+          <div className="text-[11px] text-emerald-700 font-medium">
+            ✓ 物理机完全独占 · 支持 App Store 提审与原生 Xcode 编译开发零卡顿
+          </div>
+        </div>
+      ) : selectedPlanId === "ai_lazy_488" ? (
+        <div className="space-y-1">
+          <div className="font-bold text-neutral-900">
+            轻量共享型云电脑 (微主机) - {microPcTier === "pro" ? "增强型 8 vCPU / 16GB RAM / 240GB NVMe" : "标准型 4 vCPU / 8GB RAM / 120GB NVMe"}
+          </div>
+          <div className="text-neutral-600">
+            运行环境: {microPcOs === "ubuntu" ? "Ubuntu 24.04 LTS (预装防关联指纹浏览器环境)" : "Windows Server 安全隔离开发沙箱"}
+          </div>
+          <div className="text-[11px] text-emerald-700 font-medium">
+            ✓ 预装反指纹伪装与 7×24h 自动化值守守护进程
+          </div>
+        </div>
+      ) : currentPlan ? (
+        <div>{currentPlan.specs.hardware} · {currentPlan.specs.os}</div>
+      ) : null,
+    });
+  }
+
+  if (chosenAiSubscription) {
+    const aiDelta = currency === "CNY" ? chosenAiSubscription.priceDeltaCNY : chosenAiSubscription.priceDeltaTHB;
+    const isBaseIncluded = aiDelta === 0;
+
+    deliverableItems.push({
+      title: "官方 AI 会员服务规格",
+      enTitle: "Official AI Membership",
+      content: (
+        <div className="space-y-1">
+          <div className="font-bold text-neutral-900 flex items-center gap-2 flex-wrap">
+            <span>{chosenAiSubscription.name}</span>
+            {isBaseIncluded ? (
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-semibold">
+                套餐标配包含 (官方 $20/月 费用全包)
+              </span>
+            ) : (
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 font-semibold">
+                {chosenAiSubscription.id.includes("ultra") || chosenAiSubscription.id.includes("pro200")
+                  ? "旗舰顶配升级"
+                  : "进阶高配升级"}{" "}
+                (+{currSym}{aiDelta.toLocaleString()}/月)
+              </span>
+            )}
+          </div>
+          <div className="text-neutral-600 text-[11px]">
+            {chosenAiSubscription.summary}
+          </div>
+          <div className="text-[11px] text-neutral-600">
+            <strong>保障承诺：</strong>服务商使用合规海外商业外卡代缴代充；服务期内若出现非人为官方风控，提供 24h 免费协助解封或重置更换，免除风控拒付降智。
+          </div>
+        </div>
+      ),
+    });
+  }
+
+  if (selectedPlanId || extraIpCount > 0) {
+    deliverableItems.push({
+      title: "独立静态商业 IP",
+      enTitle: "Dedicated Clean IP",
+      content: (
+        <div className="space-y-0.5">
+          <div className="font-semibold text-neutral-900">
+            {1 + extraIpCount}× 海外原生独占静态商业出口 IP (Clean ASN, Fraud Score 0)
+          </div>
+          <div className="text-neutral-600 text-[11px]">
+            专属绑定所分配云工位/物理机，出口长期固定，不与其他租户共享。支持海外开发者后台、TikTok/亚马逊跨境防关联、App Store 提审与大模型免降智直连。
+          </div>
+        </div>
+      ),
+    });
+
+    deliverableItems.push({
+      title: "网络传输与安全隧道",
+      enTitle: "IPLC Line & Enterprise VPN",
+      content: (
+        <div className="text-neutral-800">
+          <strong>中泰 IPLC / 国际专线端到端直连</strong> (&lt;18ms 超低抖动延迟) + 企业级 VPN 安全传输隧道（提供 WireGuard / Cisco AnyConnect SSL VPN 全平台凭据，数据端到端硬件级加密）。
+        </div>
+      ),
+    });
+  }
+
+  if (activeAddons.length > 0 || (customAddonEnabled && (customAddonName || customAddonPrice))) {
+    deliverableItems.push({
+      title: "选配配套增值服务",
+      enTitle: "Configured Add-ons",
+      content: (
+        <div className="space-y-1">
+          {activeAddons.map((add, aIdx) => (
+            <div key={aIdx} className="flex items-center gap-1.5 text-neutral-800">
+              <span className="font-bold text-emerald-700">● {add.name}:</span>
+              <span>{add.description}</span>
+            </div>
+          ))}
+          {customAddonEnabled && (customAddonName || customAddonPrice) && (
+            <div className="flex items-center gap-1.5 text-neutral-800">
+              <span className="font-bold text-blue-700">● 其他定制补充服务 ({customAddonName || "定制项目"}):</span>
+              <span>
+                费用标准：+{currSym}{(parseFloat(customAddonPrice) || 0).toLocaleString()} {customAddonIsOneTime ? "一次性收费" : "/月"}
+              </span>
+            </div>
+          )}
+        </div>
+      ),
+    });
+  }
+
+  if (selectedPlanId || effectiveSetupFee > 0) {
+    deliverableItems.push({
+      title: "开机/开户技术服务",
+      enTitle: "Setup & Engineering Support",
+      content: (
+        <div className="text-neutral-800 text-[11px] leading-relaxed">
+          含 1 对 1 专属技术支持环境深度调优、专属节点初始化上架、客户端一键直连配置交付、7×24h 物理服务器心跳监控与故障 15 分钟内应急响应。
+        </div>
+      ),
+    });
+  }
+
+  if (deliverableItems.length === 0) {
+    deliverableItems.push({
+      title: "专属定制服务标的",
+      enTitle: "Custom Deliverables",
+      content: (
+        <div className="text-neutral-500 text-[11px] italic">
+          按客户实际选配之专属咨询与技术服务标的约定交付。
+        </div>
+      ),
+    });
+  }
+
+  // Dynamic Legal Terms & SLA Clauses
+  const chineseNumbers = ["第一条", "第二条", "第三条", "第四条", "第五条", "第六条", "第七条", "第八条", "第九条", "第十条"];
+  const dynamicTerms: { title: string; body: string }[] = [];
+
+  if (selectedPlanId) {
+    dynamicTerms.push({
+      title: "服务交付与标的标准：",
+      body: `甲方承诺按照本合同第一条所列明的具体规格标准向乙方交付所选定的 ${
+        selectedPlanId === "workstation_888"
+          ? `Apple Silicon 物理机（包含指定 CPU 芯片型号 ${chosenCpu.name}、统一内存 ${chosenMemory.size} 及 ${chosenStorage.size} SSD 空间）`
+          : selectedPlanId === "ai_lazy_488"
+          ? `轻量微主机算力（${microPcTier === "pro" ? "增强型 8 vCPU / 16GB RAM / 240GB NVMe" : "标准型 4 vCPU / 8GB RAM / 120GB NVMe"}）`
+          : "基础云主机算力"
+      }，并在乙方完成首付款项后 24 小时内完成初始化调优并交付使用凭证。`,
+    });
+  }
+
+  if (chosenAiSubscription) {
+    const aiDelta = currency === "CNY" ? chosenAiSubscription.priceDeltaCNY : chosenAiSubscription.priceDeltaTHB;
+    dynamicTerms.push({
+      title: "官方 AI 会员服务及 KYC 合规代充条款：",
+      body: `甲方负责为乙方开通所选定的官方 AI 会员账号（${chosenAiSubscription.name}），${
+        aiDelta > 0
+          ? `其官方进阶订阅差额（+${currSym}${aiDelta.toLocaleString()}/月）已计入本合同月度服务费，全额由甲方通过境外正规商业外卡代充代缴。`
+          : `每月官方 $20 订阅美金费用已全额包含在基础套餐服务费中，由甲方通过境外正规商业外卡代充代缴。`
+      }甲方承诺代充渠道合法合规，免除普通虚拟卡封号拒付风险。在服务有效期内，若账号发生非因乙方违法使用造成的官方风控异常，甲方提供全流程免费运维及重置更换保障。`,
+    });
+  }
+
+  if (selectedPlanId || extraIpCount > 0) {
+    dynamicTerms.push({
+      title: "独立商业 IP 与专线 SLA 保障：",
+      body: `甲方交付之 IP 为 100% 海外原生静态商业 IP（固定 IPv4，Clean ASN，欺诈分 0），独占专用，支持苹果开发者账号及各类高风控外服平台。中泰专线提供端到端 <18ms 超低时延。甲方承诺提供 99.9% 算力与网络可用性 SLA；若因甲方机房电力或网络单点故障导致服务连续中断超过 4 小时，甲方按实际中断时长的 3 倍无偿顺延服务期。`,
+    });
+  }
+
+  if (activeAddons.length > 0) {
+    dynamicTerms.push({
+      title: "增值服务交付标准与保障：",
+      body: `若乙方选配泰国实体 SIM 卡保号，甲方承诺提供 100% 真实泰国物理 SIM 卡，全天候保障 OTP 验证码接收；若乙方选配机房托管，甲方承诺提供双路市电、清洁太阳能光伏绿电与 APC 在线式 UPS 零秒倒闸供电；若选配出海合规商业落地包，甲方承诺负责泰国 DBD 公司注册、银行对公账户开设及合规材料交付；若选配线下大楼共享工位，乙方享有清迈 AI 中心独栋 5 层实体大厦工位通行、万兆光纤与现磨咖啡权益。`,
+    });
+  }
+
+  if (customAddonEnabled && (customAddonName || customAddonPrice)) {
+    dynamicTerms.push({
+      title: "定制补充项目特别约定：",
+      body: `双方确认并同意本合同约定的定制补充项目「${customAddonName || "其他定制"}」，计费标准为 ${currSym}${parseFloat(customAddonPrice) || 0}（${customAddonIsOneTime ? "一次性收费" : "按月计费"}）。甲方承诺按照双方商务沟通确认的技术规范与工作范围严格履行交付与技术支持。`,
+    });
+  }
+
+  dynamicTerms.push({
+    title: "数据安全、知识产权与代码不落地保障：",
+    body: `甲方严格履行保密义务，采用机房物理隔离与全链路加密机制，确保“源码不落地、数据私有化”。乙方在云工位内创建、存储、运行的所有代码、项目工程、模型权重及业务资产，其 100% 知识产权与所有权独家归乙方所有。甲方绝不以任何形式审查、复制、镜像或向第三方透露乙方数据资产。`,
+  });
+
+  dynamicTerms.push({
+    title: "服务期限与续费规则：",
+    body: `本协议服务有效期自 ${startDate} 起至 ${endDate} 止（共 ${durationMonths} 个月）。服务期满前 7 个工作日，甲方将提醒乙方办理续费。若乙方选择年付合约，直接免收首月开机/开户技术服务费并享受合约优惠费率。`,
+  });
+
+  dynamicTerms.push({
+    title: "合规使用守则与终止权：",
+    body: `乙方承诺将本服务严格用于正规的软件研发、出海业务、AI 办公与电商合规运营，严禁从事任何网络攻击（如 DDoS、端口嗅探）、电信诈骗、垃圾邮件轰炸或违反中泰两国法律法规的行为。如乙方违规操作导致 IP 被封或列入黑名单，甲方有权立即解除合同并不予退还剩余款项。`,
+  });
+
+  dynamicTerms.push({
+    title: "电子签名效力与司法管辖：",
+    body: `双方确认本协议采用电子签名、数字时间戳及 SHA-256 哈希存证，具备与纸质合同完全同等的法律证明力。因本合同引起的争议，双方应友好协商，协商不成的，由泰王国清迈当地管辖法院审理。`,
+  });
+
+  return (
+    <div className="min-h-screen bg-neutral-100 dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100 flex flex-col font-sans transition-colors">
+      {/* Top Navbar: Mobile-First Responsive Design */}
+      <header className="sticky top-0 z-40 bg-white/95 dark:bg-neutral-900/95 backdrop-blur-md border-b border-neutral-200 dark:border-neutral-800 print:hidden">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-2">
+          {/* Left Brand & Title */}
+          <div className="flex items-center gap-2 min-w-0 shrink">
+            <Link
+              href="/"
+              className="p-1.5 sm:p-2 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-600 dark:text-neutral-400 transition-colors shrink-0"
+              title="返回平台主页"
+            >
+              <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+            </Link>
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="w-7 h-7 rounded-md bg-neutral-900 dark:bg-white flex items-center justify-center text-white dark:text-neutral-900 shrink-0">
+                <Cpu className="w-4 h-4" />
+              </div>
+              <div className="flex flex-col min-w-0">
+                <h1 className="text-xs sm:text-sm font-bold tracking-tight text-neutral-950 dark:text-white truncate flex items-center gap-1.5">
+                  <span className="hidden sm:inline">Chiang Mai AI Center 云工位协议</span>
+                  <span className="sm:hidden font-bold">CMAI 云工位协议</span>
+                  {viewMode === "customer" ? (
+                    <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 font-semibold whitespace-nowrap">
+                      ✍️ 顾客签署
+                    </span>
+                  ) : (
+                    <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-blue-100 dark:bg-blue-950/80 text-blue-700 dark:text-blue-300 font-semibold whitespace-nowrap">
+                      💼 定制模式
+                    </span>
+                  )}
+                </h1>
+                <span className="text-[10px] sm:text-[11px] text-neutral-500 font-mono truncate">
+                  REF: {contractSerial ? (contractSerial.length > 20 ? contractSerial.slice(0, 18) + "..." : contractSerial) : "CMAI-CLOUD"}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Action Buttons */}
+          <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+            {viewMode === "admin" ? (
+              <>
+                {/* Switch to customer preview */}
+                <button
+                  type="button"
+                  onClick={() => setViewMode("customer")}
+                  className="hidden md:flex items-center gap-1 px-2.5 sm:px-3 py-1.5 text-xs font-medium rounded-lg border border-neutral-200 dark:border-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-800 text-neutral-700 dark:text-neutral-300 whitespace-nowrap transition-colors cursor-pointer shrink-0"
+                  title="以顾客视角预览最终签署文档"
+                >
+                  <Eye className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                  <span>顾客视角</span>
+                </button>
+
+                {/* Send to Customer CTA */}
+                <button
+                  type="button"
+                  onClick={() => setIsShareModalOpen(true)}
+                  className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-blue-600 hover:bg-blue-700 text-white whitespace-nowrap shadow-xs cursor-pointer transition-all shrink-0"
+                  title="生成并发送专属签署链接与现场二维码"
+                >
+                  <QrCode className="w-3.5 h-3.5 shrink-0" />
+                  <span className="hidden sm:inline">📤 发送给客户 (链接与二维码)</span>
+                  <span className="sm:hidden">发给客户</span>
+                </button>
+              </>
+            ) : (
+              /* Customer mode: Salesperson preview back to admin */
+              <button
+                type="button"
+                onClick={() => setViewMode("admin")}
+                className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-neutral-800 dark:text-neutral-200 border border-neutral-300 dark:border-neutral-700 whitespace-nowrap transition-all cursor-pointer shrink-0"
+                title="返回业务员配置模式"
+              >
+                <Settings className="w-3.5 h-3.5 shrink-0" />
+                <span className="hidden sm:inline">切回业务员定制</span>
+                <span className="sm:hidden">定制模式</span>
+              </button>
+            )}
+
+            {isSigned && (
+              <button
+                type="button"
+                onClick={() => setIsCertificateOpen(true)}
+                className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white whitespace-nowrap shadow-xs cursor-pointer shrink-0"
+              >
+                <Award className="w-3.5 h-3.5 shrink-0" />
+                <span>存证证书</span>
+              </button>
+            )}
+
+            <button
+              type="button"
+              onClick={handleNativePrint}
+              className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-800 text-neutral-800 dark:text-neutral-200 whitespace-nowrap transition-colors shadow-xs cursor-pointer shrink-0"
+            >
+              <Printer className="w-3.5 h-3.5 shrink-0" />
+              <span>打印</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={handleDownloadPdf}
+              disabled={isExportingPdf}
+              className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3.5 py-1.5 text-xs font-medium rounded-lg bg-neutral-950 hover:bg-neutral-800 dark:bg-white dark:hover:bg-neutral-100 text-white dark:text-neutral-950 whitespace-nowrap transition-colors shadow-xs disabled:opacity-50 cursor-pointer shrink-0"
+              title="导出正式中文盖章版 PDF 合同"
+            >
+              {isExportingPdf ? <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0" /> : <Download className="w-3.5 h-3.5 shrink-0" />}
+              <span className="hidden sm:inline">导出 PDF</span>
+              <span className="sm:hidden">PDF</span>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* Global Print & Page Break Styles */}
+      <style>{`
+        @media print {
+          body {
+            background: #ffffff !important;
+          }
+          .cloud-contract-page {
+            page-break-after: always !important;
+            break-after: page !important;
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+            margin: 0 !important;
+            padding: 24px 32px !important;
+            border: none !important;
+          }
+          .cloud-contract-page:last-child {
+            page-break-after: auto !important;
+            break-after: auto !important;
+          }
+        }
+      `}</style>
+
+      {/* Main Container */}
+      <main className={`flex-1 mx-auto w-full py-6 sm:py-8 ${
+        viewMode === "customer"
+          ? "max-w-4xl px-3 sm:px-6 flex flex-col items-center gap-6"
+          : "max-w-7xl px-4 sm:px-6 grid grid-cols-1 lg:grid-cols-12 gap-8"
+      }`}>
+        {/* Left Side: Interactive Configurator (Admin Mode Only) */}
+        {viewMode === "admin" && (
+          <section className="lg:col-span-5 flex flex-col gap-6 print:hidden">
+            {/* Primary Action Card: Send to Customer Link & QR */}
+            <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 text-white shadow-md flex flex-col gap-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 font-bold text-sm">
+                  <QrCode className="w-5 h-5 text-white" />
+                  <span>发送给客户签署</span>
+                </div>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-white/20 text-white">
+                  专属锁定通道
+                </span>
+              </div>
+              <p className="text-xs text-blue-100 leading-relaxed">
+                在下方选择客户所需服务并填写个人/企业信息后，点击生成带锁定配置的专属链接与现场二维码，客户仅需核对签署。
+              </p>
+              <div className="flex items-center gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={() => setIsShareModalOpen(true)}
+                  className="flex-1 py-2 px-3 rounded-xl bg-white text-blue-700 font-bold text-xs hover:bg-blue-50 transition-colors shadow-xs flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  <QrCode className="w-3.5 h-3.5" />
+                  <span>生成客户签署链接与二维码</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setViewMode("customer")}
+                  className="py-2 px-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-medium text-xs border border-white/20 transition-colors flex items-center justify-center gap-1 cursor-pointer shrink-0"
+                  title="切换到顾客视角预览"
+                >
+                  <Eye className="w-3.5 h-3.5" />
+                  <span>顾客视角</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Locked Config Alert Banner */}
+          {isLockedConfig && (
+            <div className="bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 rounded-2xl p-4 flex items-start gap-3 shadow-xs">
+              <Lock className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
+              <div className="flex-1 text-xs">
+                <div className="flex items-center justify-between font-bold text-blue-950 dark:text-blue-200 text-sm">
+                  <span>Chiang Mai AI Center 官方定制专属合同 · 配置已锁定</span>
+                  <button
+                    type="button"
+                    onClick={() => setIsLockedConfig(false)}
+                    className="text-xs font-normal underline text-blue-600 hover:text-blue-800 dark:text-blue-300 cursor-pointer flex items-center gap-1"
+                  >
+                    <Unlock className="w-3 h-3" />
+                    <span>解锁调整</span>
+                  </button>
+                </div>
+                <p className="text-blue-700 dark:text-blue-300 mt-1 leading-relaxed">
+                  本合同已由 Chiang Mai AI Center 商务顾问为您预先定制配置（流水号：<span className="font-mono font-bold">{contractSerial}</span>）。方案标的、硬件算力与优惠费率已锁定。请核对右侧合同清单并在下方完成实名签署。
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Customizer Shortcut Card */}
+          <div className="p-4 rounded-2xl bg-gradient-to-r from-blue-50/80 to-indigo-50/80 dark:from-neutral-900 dark:to-neutral-800/90 border border-blue-200/80 dark:border-neutral-700 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                <Sparkles className="w-4 h-4" />
+              </div>
+              <div className="flex flex-col min-w-0">
+                <span className="text-xs font-bold text-neutral-900 dark:text-white truncate">
+                  合同定制与外发生成器
+                </span>
+                <span className="text-[11px] text-neutral-500 line-clamp-2">
+                  为客户单独定制硬件与费率，一键生成专属在线电子签署链接
+                </span>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={handleOpenCustomizer}
+              className="w-full sm:w-auto px-3 py-1.5 text-xs font-bold rounded-lg bg-neutral-950 hover:bg-neutral-800 dark:bg-white dark:hover:bg-neutral-100 text-white dark:text-neutral-950 transition-colors cursor-pointer shrink-0 text-center"
+            >
+              打开定制器
+            </button>
+          </div>
+
+          {/* Global Reset / Deselect All Action Banner */}
+          <div className="bg-white dark:bg-neutral-900 rounded-2xl p-3.5 border border-neutral-200/80 dark:border-neutral-800/80 shadow-xs flex items-center justify-between gap-2 text-xs">
+            <div className="flex items-center gap-2 text-neutral-600 dark:text-neutral-400 min-w-0">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
+              <span className="truncate">支持自由取消或全部清空，签约总金额可直接归零 (<strong>{currSym}0</strong>)</span>
+            </div>
+            {(selectedPlanId || selectedAiSubId || selectedAddonIds.length > 0 || extraIpCount > 0 || customAddonEnabled) && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedPlanId("");
+                  setSelectedAiSubId("");
+                  setSelectedAddonIds([]);
+                  setExtraIpCount(0);
+                  setCustomAddonEnabled(false);
+                }}
+                className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-neutral-100 dark:bg-neutral-800 hover:bg-red-50 dark:hover:bg-red-950/40 text-neutral-600 dark:text-neutral-400 hover:text-red-600 dark:hover:text-red-400 border border-neutral-200 dark:border-neutral-700 transition-all cursor-pointer whitespace-nowrap shrink-0"
+              >
+                全部取消 (总额归零)
+              </button>
+            )}
+          </div>
+
+          {/* Step 1: Base Package Selection */}
+          <div className="bg-white dark:bg-neutral-900 rounded-2xl p-5 border border-neutral-200/80 dark:border-neutral-800/80 shadow-xs">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <span className="w-6 h-6 rounded-full bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 text-xs font-bold flex items-center justify-center">
+                  1
+                </span>
+                <h2 className="text-sm font-bold text-neutral-900 dark:text-white">
+                  选定基础套餐
+                </h2>
+                {selectedPlanId ? (
+                  <button
+                    type="button"
+                    onClick={() => setSelectedPlanId("")}
+                    className="text-[11px] text-neutral-500 hover:text-red-500 underline ml-1.5 cursor-pointer transition-colors"
+                  >
+                    取消勾选 (0元)
+                  </button>
+                ) : (
+                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-500 font-mono">
+                    未勾选 (¥0)
+                  </span>
+                )}
+              </div>
+              <div className="flex items-center gap-1 bg-neutral-100 dark:bg-neutral-800 p-1 rounded-lg text-xs font-medium">
+                <button
+                  type="button"
+                  onClick={() => setCurrency("CNY")}
+                  className={`px-2 py-0.5 rounded transition-all cursor-pointer ${
+                    currency === "CNY" ? "bg-white dark:bg-neutral-700 shadow-xs font-bold text-neutral-950 dark:text-white" : "text-neutral-500"
+                  }`}
+                >
+                  ¥ 人民币
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setCurrency("THB")}
+                  className={`px-2 py-0.5 rounded transition-all cursor-pointer ${
+                    currency === "THB" ? "bg-white dark:bg-neutral-700 shadow-xs font-bold text-neutral-950 dark:text-white" : "text-neutral-500"
+                  }`}
+                >
+                  ฿ 泰铢
+                </button>
+              </div>
+            </div>
+
+            {/* Two Primary Packages */}
+            <div className="grid grid-cols-1 gap-3 mb-4">
+              {/* Plan 1: Workstation 888 (Flagship) */}
+              <div
+                onClick={() => setSelectedPlanId(selectedPlanId === "workstation_888" ? "" : "workstation_888")}
+                className={`relative rounded-xl p-4 cursor-pointer border-2 transition-all ${
+                  selectedPlanId === "workstation_888"
+                    ? "border-blue-600 bg-blue-50/40 dark:bg-blue-950/20 shadow-sm"
+                    : "border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 bg-white dark:bg-neutral-900 opacity-80 hover:opacity-100"
+                }`}
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-start gap-2.5">
+                    <div className={`w-5 h-5 rounded-md border flex items-center justify-center shrink-0 mt-0.5 transition-colors ${
+                      selectedPlanId === "workstation_888"
+                        ? "border-blue-600 bg-blue-600 text-white"
+                        : "border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800"
+                    }`}>
+                      {selectedPlanId === "workstation_888" && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+                    </div>
+                    <div className="flex flex-col">
+                      <div className="flex items-center gap-1.5 mb-1">
+                        <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 tracking-wider uppercase">
+                          DEV CHOICE
+                        </span>
+                        <span className="text-[11px] text-neutral-500 font-medium">
+                          FLAGSHIP · 极客旗舰首选
+                        </span>
+                      </div>
+                      <h3 className="text-base font-bold text-neutral-950 dark:text-white">
+                        云工位全服务包 (888套餐)
+                      </h3>
+                      <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5 leading-relaxed">
+                        1V1 物理独享 Apple Silicon 算力 · 独立静态IP · 企业VPN · 官方AI会员全包
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-right flex flex-col items-end shrink-0">
+                    <span className="text-[11px] text-neutral-400 line-through">
+                      {currency === "CNY" ? "¥1,188" : "฿5,940"}
+                    </span>
+                    <div className="text-lg font-black text-blue-600 dark:text-blue-400">
+                      {currency === "CNY" ? "¥888" : "฿4,440"}
+                      <span className="text-xs font-normal text-neutral-500"> /月起</span>
+                    </div>
+                    <span className="text-[10px] text-neutral-500">
+                      开机费 {currency === "CNY" ? "¥198" : "฿990"} (首月一次性)
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Plan 2: AI Lazy 488 */}
+              <div
+                onClick={() => setSelectedPlanId(selectedPlanId === "ai_lazy_488" ? "" : "ai_lazy_488")}
+                className={`relative rounded-xl p-4 cursor-pointer border-2 transition-all ${
+                  selectedPlanId === "ai_lazy_488"
+                    ? "border-emerald-500 bg-emerald-50/40 dark:bg-emerald-950/20 shadow-sm"
+                    : "border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 bg-white dark:bg-neutral-900 opacity-80 hover:opacity-100"
+                }`}
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-start gap-2.5">
+                    <div className={`w-5 h-5 rounded-md border flex items-center justify-center shrink-0 mt-0.5 transition-colors ${
+                      selectedPlanId === "ai_lazy_488"
+                        ? "border-emerald-600 bg-emerald-600 text-white"
+                        : "border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800"
+                    }`}>
+                      {selectedPlanId === "ai_lazy_488" && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+                    </div>
+                    <div className="flex flex-col">
+                      <div className="flex items-center gap-1.5 mb-1">
+                        <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-500 text-white tracking-wider uppercase">
+                          RECOMMENDED
+                        </span>
+                        <span className="text-[11px] text-neutral-500 font-medium">
+                          MOST POPULAR · 全包爆款
+                        </span>
+                      </div>
+                      <h3 className="text-base font-bold text-neutral-950 dark:text-white">
+                        海外AI无忧懒人包 (488套餐)
+                      </h3>
+                      <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5 leading-relaxed">
+                        微主机 · 独立静态商业IP · VPN · 官方AI账号 · 专享海外代充
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-right flex flex-col items-end shrink-0">
+                    <span className="text-[11px] text-neutral-400 line-through">
+                      {currency === "CNY" ? "¥688" : "฿3,440"}
+                    </span>
+                    <div className="text-lg font-black text-emerald-600 dark:text-emerald-400">
+                      {currency === "CNY" ? "¥488" : "฿2,440"}
+                      <span className="text-xs font-normal text-neutral-500"> /月起</span>
+                    </div>
+                    <span className="text-[10px] text-neutral-500">
+                      开户费 {currency === "CNY" ? "¥98" : "฿490"} (首月一次性)
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Other Plans Select */}
+            <div className="pt-2 border-t border-neutral-100 dark:border-neutral-800">
+              <label className="block text-xs font-medium text-neutral-500 dark:text-neutral-400 mb-1">
+                切换至其它场景服务：
+              </label>
+              <select
+                value={selectedPlanId}
+                onChange={(e) => setSelectedPlanId(e.target.value)}
+                className="w-full text-xs font-medium bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg px-3 py-2 text-neutral-800 dark:text-neutral-200 outline-hidden"
+              >
+                <option value="">-- 不选择基础云主机 (仅采购其它服务 / 总额归零) --</option>
+                {CLOUD_PLANS.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.name} ({currency === "CNY" ? `¥${p.priceCNY}` : `฿${p.priceTHB}`}/月)
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* Step 2: Strict Hardware Specs: CPU: M2, M4, M6 | RAM: 8, 16, 24, 32 | SSD: 256, 512, 1TB */}
+          <div className="bg-white dark:bg-neutral-900 rounded-2xl p-5 border border-neutral-200/80 dark:border-neutral-800/80 shadow-xs">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <span className="w-6 h-6 rounded-full bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 text-xs font-bold flex items-center justify-center">
+                  2
+                </span>
+                <h2 className="text-sm font-bold text-neutral-900 dark:text-white">
+                  硬件算力规格自选 (CPU / 内存 / SSD)
+                </h2>
+              </div>
+              <span className="text-[11px] font-mono text-neutral-400">
+                {selectedPlanId === "workstation_888" ? "1V1 物理独享 Apple Silicon" : selectedPlanId === "ai_lazy_488" ? "云端虚拟化算力" : "未选配基础主机"}
+              </span>
+            </div>
+
+            {!selectedPlanId ? (
+              <div className="p-4 rounded-xl border border-dashed border-neutral-300 dark:border-neutral-700 bg-neutral-50/50 dark:bg-neutral-800/30 text-center text-xs text-neutral-500">
+                <span className="font-semibold text-neutral-700 dark:text-neutral-300">暂未选定基础云主机硬件</span>
+                <p className="mt-1 text-[11px] text-neutral-400">
+                  如需独享 Apple Silicon (M2/M4/M6) 或微主机硬件环境，请在上方步骤 1 勾选套餐。
+                </p>
+              </div>
+            ) : selectedPlanId === "workstation_888" ? (
+              <div className="space-y-4">
+                {/* 1. CPU: M2 / M4 / M6 */}
+                <div>
+                  <label className="block text-xs font-bold text-neutral-700 dark:text-neutral-300 mb-2 flex items-center gap-1.5">
+                    <Cpu className="w-3.5 h-3.5 text-blue-600" />
+                    <span>Apple Silicon CPU 芯片类型 (M2 / M4 / M6) *</span>
+                  </label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {MAC_CPU_OPTIONS.map((cpu) => {
+                      const isSelected = selectedCpuId === cpu.id;
+                      const deltaText = cpu.priceDeltaCNY === 0 ? "标配 ¥0" : `+${currSym}${currency === "CNY" ? cpu.priceDeltaCNY : cpu.priceDeltaTHB}/月`;
+                      return (
+                        <div
+                          key={cpu.id}
+                          onClick={() => {
+                            setSelectedCpuId(cpu.id);
+                            if ((cpu.id === "m4" || cpu.id === "m6") && selectedMemoryId === "8") {
+                              setSelectedMemoryId("16");
+                            }
+                          }}
+                          className={`p-3 rounded-xl border text-center cursor-pointer transition-all flex flex-col justify-between ${
+                            isSelected
+                              ? "border-blue-600 bg-blue-50/50 dark:bg-blue-950/30 text-neutral-950 dark:text-white font-bold shadow-xs"
+                              : "border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 text-neutral-700 dark:text-neutral-300"
+                          }`}
+                        >
+                          <span className="text-sm font-bold">{cpu.name}</span>
+                          <span className={`text-[10px] font-mono mt-1 ${isSelected ? "text-blue-600 dark:text-blue-400 font-bold" : "text-neutral-400"}`}>
+                            {deltaText}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* 2. Memory: 16, 24, 32 for M4/M6; 8, 16, 24, 32 for M2 */}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="text-xs font-bold text-neutral-700 dark:text-neutral-300 flex items-center gap-1.5">
+                      <Laptop className="w-3.5 h-3.5 text-blue-600" />
+                      <span>统一内存容量 {selectedCpuId === "m4" || selectedCpuId === "m6" ? "(16GB 起步 · 无 8GB)" : "(8GB / 16GB / 24GB / 32GB)"} *</span>
+                    </label>
+                    {(selectedCpuId === "m4" || selectedCpuId === "m6") && (
+                      <span className="text-[10px] font-semibold text-blue-600 bg-blue-50 dark:bg-blue-950/40 px-2 py-0.5 rounded">
+                        M4/M6 标配 16GB 起步
+                      </span>
+                    )}
+                  </div>
+                  <div className={`grid gap-2 ${selectedCpuId === "m4" || selectedCpuId === "m6" ? "grid-cols-3" : "grid-cols-4"}`}>
+                    {MAC_MEMORY_OPTIONS
+                      .filter((mem) => {
+                        // M4 and M6 start from 16GB, NO 8GB!
+                        if (selectedCpuId === "m4" || selectedCpuId === "m6") {
+                          return mem.id !== "8";
+                        }
+                        return true;
+                      })
+                      .map((mem) => {
+                        const isSelected = selectedMemoryId === mem.id;
+                        let deltaText = "标配";
+                        if (selectedCpuId === "m4" || selectedCpuId === "m6") {
+                          if (mem.id === "16") deltaText = "起步标配";
+                          else if (mem.id === "24") deltaText = `+${currSym}${currency === "CNY" ? 50 : 250}`;
+                          else if (mem.id === "32") deltaText = `+${currSym}${currency === "CNY" ? 110 : 550}`;
+                        } else {
+                          deltaText = mem.priceDeltaCNY === 0 ? "标配" : `+${currSym}${currency === "CNY" ? mem.priceDeltaCNY : mem.priceDeltaTHB}`;
+                        }
+
+                        return (
+                          <div
+                            key={mem.id}
+                            onClick={() => setSelectedMemoryId(mem.id)}
+                            className={`p-2.5 rounded-xl border text-center cursor-pointer transition-all ${
+                              isSelected
+                                ? "border-blue-600 bg-blue-50/50 dark:bg-blue-950/30 text-neutral-950 dark:text-white font-bold shadow-xs"
+                                : "border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 text-neutral-700 dark:text-neutral-300"
+                            }`}
+                          >
+                            <span className="text-xs font-bold block">{mem.size}</span>
+                            <span className={`text-[10px] font-mono ${isSelected ? "text-blue-600 dark:text-blue-400 font-bold" : "text-neutral-400"}`}>
+                              {deltaText}
+                            </span>
+                          </div>
+                        );
+                      })}
+                  </div>
+                </div>
+
+                {/* 3. SSD: 256, 512, 1TB */}
+                <div>
+                  <label className="block text-xs font-bold text-neutral-700 dark:text-neutral-300 mb-2 flex items-center gap-1.5">
+                    <HardDrive className="w-3.5 h-3.5 text-blue-600" />
+                    <span>NVMe 高速固态存储 (256GB / 512GB / 1TB) *</span>
+                  </label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {MAC_STORAGE_OPTIONS.map((st) => {
+                      const isSelected = selectedStorageId === st.id;
+                      const deltaText = st.priceDeltaCNY === 0 ? "标配" : `+${currSym}${currency === "CNY" ? st.priceDeltaCNY : st.priceDeltaTHB}`;
+                      return (
+                        <button
+                          key={st.id}
+                          type="button"
+                          onClick={() => setSelectedStorageId(st.id)}
+                          className={`p-2 rounded-xl border text-center transition-all cursor-pointer ${
+                            isSelected
+                              ? "border-blue-600 bg-blue-50/50 dark:bg-blue-950/30 font-bold text-neutral-950 dark:text-white shadow-xs"
+                              : "border-neutral-200 dark:border-neutral-800 text-neutral-600 hover:bg-neutral-50"
+                          }`}
+                        >
+                          <span className="text-xs font-bold block">{st.size}</span>
+                          <span className="text-[10px] text-neutral-400 font-mono">{deltaText}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            ) : selectedPlanId === "ai_lazy_488" ? (
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs font-bold text-neutral-700 dark:text-neutral-300 mb-2">
+                    微主机算力规格：
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div
+                      onClick={() => setMicroPcTier("std")}
+                      className={`p-3 rounded-xl border cursor-pointer transition-all ${
+                        microPcTier === "std"
+                          ? "border-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/30 font-bold"
+                          : "border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50"
+                      }`}
+                    >
+                      <div className="flex justify-between items-center text-xs">
+                        <span>标准型 (4 vCPU / 8GB)</span>
+                        <span className="text-[10px] text-emerald-600">标配 ¥0</span>
+                      </div>
+                      <span className="text-[10px] text-neutral-500 mt-1 block">120GB NVMe 独立系统盘 · 满足日常挂机</span>
+                    </div>
+
+                    <div
+                      onClick={() => setMicroPcTier("pro")}
+                      className={`p-3 rounded-xl border cursor-pointer transition-all ${
+                        microPcTier === "pro"
+                          ? "border-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/30 font-bold"
+                          : "border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50"
+                      }`}
+                    >
+                      <div className="flex justify-between items-center text-xs">
+                        <span>增强型 (8 vCPU / 16GB)</span>
+                        <span className="text-[10px] text-emerald-600 font-mono">+{currSym}{currency === "CNY" ? 80 : 400}/月</span>
+                      </div>
+                      <span className="text-[10px] text-neutral-500 mt-1 block">240GB NVMe 高速盘 · 支撑多店铺多任务</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-neutral-700 dark:text-neutral-300 mb-2">
+                    预装系统沙箱环境：
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setMicroPcOs("ubuntu")}
+                      className={`p-2.5 rounded-xl border text-left text-xs transition-all cursor-pointer ${
+                        microPcOs === "ubuntu"
+                          ? "border-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/30 font-bold"
+                          : "border-neutral-200 dark:border-neutral-800 text-neutral-600"
+                      }`}
+                    >
+                      Ubuntu 24.04 (预装防关联指纹浏览器)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setMicroPcOs("windows")}
+                      className={`p-2.5 rounded-xl border text-left text-xs transition-all cursor-pointer ${
+                        microPcOs === "windows"
+                          ? "border-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/30 font-bold"
+                          : "border-neutral-200 dark:border-neutral-800 text-neutral-600"
+                      }`}
+                    >
+                      Windows Server 隔离开发沙箱
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ) : currentPlan ? (
+              <div className="p-3 bg-neutral-50 rounded-xl text-xs text-neutral-600">
+                当前场景包包含固定高规格资源配置：{currentPlan.specs.hardware} ({currentPlan.specs.os})。
+              </div>
+            ) : null}
+          </div>
+
+          {/* Step 3: AI Subscription Detailed Specifications */}
+          <div className="bg-white dark:bg-neutral-900 rounded-2xl p-5 border border-neutral-200/80 dark:border-neutral-800/80 shadow-xs">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <span className="w-6 h-6 rounded-full bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 text-xs font-bold flex items-center justify-center">
+                  3
+                </span>
+                <h2 className="text-sm font-bold text-neutral-900 dark:text-white">
+                  官方 AI 会员服务规格选配 (标配全包 / 进阶可选)
+                </h2>
+                {selectedAiSubId ? (
+                  <button
+                    type="button"
+                    onClick={() => setSelectedAiSubId("")}
+                    className="text-[11px] text-neutral-500 hover:text-red-500 underline ml-1.5 cursor-pointer transition-colors"
+                  >
+                    取消选配 (0元)
+                  </button>
+                ) : (
+                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-500 font-mono">
+                    未选配 (¥0)
+                  </span>
+                )}
+              </div>
+              <span className="text-[10px] text-emerald-600 font-semibold bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded">
+                合规海外外卡代充 · 零风控拒付
+              </span>
+            </div>
+
+            <div className="space-y-2.5">
+              {AI_SUBSCRIPTION_OPTIONS.map((opt) => {
+                const isSelected = selectedAiSubId === opt.id;
+                const deltaStr = opt.priceDeltaCNY === 0 ? "套餐内已包含 (¥0)" : `+${currSym}${currency === "CNY" ? opt.priceDeltaCNY : opt.priceDeltaTHB}/月`;
+                return (
+                  <div
+                    key={opt.id}
+                    onClick={() => setSelectedAiSubId(selectedAiSubId === opt.id ? "" : opt.id)}
+                    className={`p-3.5 rounded-xl border cursor-pointer transition-all ${
+                      isSelected
+                        ? "border-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/30 shadow-xs"
+                        : "border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 bg-white dark:bg-neutral-900 opacity-80 hover:opacity-100"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 ${isSelected ? "border-emerald-600 bg-emerald-600 text-white" : "border-neutral-400"}`}>
+                          {isSelected && <Check className="w-2.5 h-2.5" />}
+                        </div>
+                        <span className="text-xs font-bold text-neutral-900 dark:text-white">
+                          {opt.name}
+                        </span>
+                      </div>
+                      <span className={`text-[11px] font-mono font-medium ${isSelected ? "text-emerald-700 dark:text-emerald-400 font-bold" : "text-neutral-400"}`}>
+                        {deltaStr}
+                      </span>
+                    </div>
+
+                    <p className="text-[11px] text-neutral-500 dark:text-neutral-400 mt-1 pl-6">
+                      {opt.summary}
+                    </p>
+
+                    {isSelected && (
+                      <div className="mt-2.5 pt-2 pl-6 border-t border-emerald-200/60 dark:border-emerald-800/60 space-y-1">
+                        {opt.detailedSpecs.map((spec, sIdx) => (
+                          <div key={sIdx} className="flex items-start gap-1.5 text-[10px] text-neutral-700 dark:text-neutral-300">
+                            <span className="text-emerald-600 font-bold">✓</span>
+                            <span>{spec}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Step 4: Add-on Services Matrix (All miscellaneous services from cloud.lazzor.com) */}
+          <div className="bg-white dark:bg-neutral-900 rounded-2xl p-5 border border-neutral-200/80 dark:border-neutral-800/80 shadow-xs">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <span className="w-6 h-6 rounded-full bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 text-xs font-bold flex items-center justify-center">
+                  4
+                </span>
+                <h2 className="text-sm font-bold text-neutral-900 dark:text-white">
+                  配套与增值服务自选 (可自由组合，无冲突)
+                </h2>
+              </div>
+              <span className="text-[10px] text-neutral-400">已选 {selectedAddonIds.length + (extraIpCount > 0 ? 1 : 0)} 项</span>
+            </div>
+
+            <p className="text-xs text-neutral-500 mb-3">
+              整合平台所有出海服务能力（实体SIM卡长期保号、机房托管、API额度、线下工位、合规落地等），按需勾选自动列入合同。
+            </p>
+
+            <div className="space-y-2">
+              {/* Extra Dedicated IP Multiplier */}
+              <div className="p-3 rounded-xl border border-neutral-200 dark:border-neutral-800 flex items-center justify-between">
+                <div>
+                  <div className="text-xs font-bold text-neutral-900 dark:text-white flex items-center gap-1.5">
+                    <Globe2 className="w-3.5 h-3.5 text-blue-600" />
+                    <span>加购独享静态原生商业 IP (Clean ASN)</span>
+                    <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-600">
+                      套餐已含 1 个
+                    </span>
+                  </div>
+                  <div className="text-[11px] text-neutral-500 mt-0.5">
+                    一人一固定 IP 专线绑定 · 欺诈分 0 (+{currSym}{currency === "CNY" ? 100 : 500}/个/月)
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setExtraIpCount((prev) => Math.max(0, prev - 1))}
+                    disabled={extraIpCount === 0}
+                    className="w-6 h-6 rounded-md bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center text-xs font-bold disabled:opacity-30 cursor-pointer"
+                  >
+                    -
+                  </button>
+                  <span className="text-xs font-mono font-bold w-4 text-center">{extraIpCount}</span>
+                  <button
+                    type="button"
+                    onClick={() => setExtraIpCount((prev) => prev + 1)}
+                    className="w-6 h-6 rounded-md bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center text-xs font-bold cursor-pointer"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+
+              {/* Other Add-ons */}
+              {CLOUD_ADDON_SERVICES.filter((a) => a.id !== "extra_ip").map((addon) => {
+                const isSelected = selectedAddonIds.includes(addon.id);
+                const priceStr = addon.isOneTime
+                  ? `一次性 ${currSym}${currency === "CNY" ? addon.monthlyPriceCNY : addon.monthlyPriceTHB}`
+                  : `+${currSym}${currency === "CNY" ? addon.monthlyPriceCNY : addon.monthlyPriceTHB} /月`;
+
+                return (
+                  <div
+                    key={addon.id}
+                    onClick={() => toggleAddon(addon.id)}
+                    className={`p-3 rounded-xl border cursor-pointer transition-all flex items-start justify-between gap-3 ${
+                      isSelected
+                        ? "border-neutral-900 dark:border-white bg-neutral-50 dark:bg-neutral-800/60 shadow-xs"
+                        : "border-neutral-200 dark:border-neutral-800 hover:border-neutral-300"
+                    }`}
+                  >
+                    <div className="flex items-start gap-2.5">
+                      <div className={`w-4 h-4 rounded mt-0.5 border flex items-center justify-center shrink-0 ${isSelected ? "border-neutral-900 bg-neutral-900 text-white dark:border-white dark:bg-white dark:text-neutral-900" : "border-neutral-400"}`}>
+                        {isSelected && <Check className="w-3 h-3" />}
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-xs font-bold text-neutral-900 dark:text-white">
+                            {addon.name}
+                          </span>
+                          <span className="text-[10px] font-mono px-1 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-600">
+                            {addon.badge}
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-neutral-500 mt-0.5">
+                          {addon.description}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="text-right shrink-0">
+                      <span className={`text-xs font-mono font-bold ${isSelected ? "text-neutral-900 dark:text-white" : "text-neutral-500"}`}>
+                        {priceStr}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+
+              {/* Custom Freeform Add-on Item ("其他" 自定义格子: 默认置灰，打勾激活可填写内容与价格) */}
+              <div
+                className={`p-3 rounded-xl border transition-all ${
+                  customAddonEnabled
+                    ? "border-blue-600 dark:border-blue-500 bg-blue-50/20 dark:bg-blue-950/20 shadow-xs ring-1 ring-blue-500/20"
+                    : "border-neutral-200 dark:border-neutral-800 bg-neutral-50/60 dark:bg-neutral-800/30 opacity-70 hover:opacity-100"
+                }`}
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div
+                    onClick={() => setCustomAddonEnabled(!customAddonEnabled)}
+                    className="flex items-start gap-2.5 cursor-pointer select-none flex-1"
+                  >
+                    <div
+                      className={`w-4 h-4 rounded mt-0.5 border flex items-center justify-center shrink-0 transition-colors ${
+                        customAddonEnabled
+                          ? "border-blue-600 bg-blue-600 text-white dark:border-blue-500 dark:bg-blue-500"
+                          : "border-neutral-400 dark:border-neutral-600 bg-white dark:bg-neutral-800"
+                      }`}
+                    >
+                      {customAddonEnabled && <Check className="w-3 h-3 stroke-[3]" />}
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className={`text-xs font-bold ${customAddonEnabled ? "text-neutral-900 dark:text-white" : "text-neutral-500 dark:text-neutral-400"}`}>
+                          其他
+                        </span>
+                        <span className={`text-[10px] font-mono px-1 rounded ${customAddonEnabled ? "bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 font-semibold" : "bg-neutral-200 dark:bg-neutral-800 text-neutral-500"}`}>
+                          自由定制
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-neutral-500 mt-0.5">
+                        {customAddonEnabled ? "已开启自由填写，可在下方输入服务内容与费用金额" : "勾选前方方框后可自由填写服务内容与费用金额"}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="text-right shrink-0">
+                    <span className={`text-xs font-mono font-bold ${customAddonEnabled ? "text-blue-600 dark:text-blue-400" : "text-neutral-400"}`}>
+                      {customAddonEnabled
+                        ? parsedCustomPrice > 0
+                          ? `${customAddonIsOneTime ? "一次性" : "+"} ${currSym}${parsedCustomPrice.toLocaleString()} ${customAddonIsOneTime ? "" : "/月"}`
+                          : "待填写价格"
+                        : "待勾选"}
+                    </span>
+                  </div>
+                </div>
+
+                {/* If enabled, allow user to freely fill in content and price */}
+                {customAddonEnabled && (
+                  <div className="mt-3 pt-3 border-t border-blue-100 dark:border-blue-900/40 space-y-2.5">
+                    <div>
+                      <label className="block text-[11px] font-medium text-neutral-700 dark:text-neutral-300 mb-1">
+                        自定义服务内容说明
+                      </label>
+                      <input
+                        type="text"
+                        value={customAddonName}
+                        onChange={(e) => setCustomAddonName(e.target.value)}
+                        placeholder="例如：专线网络优化 / 域名商标合规代办 / 定制API开发..."
+                        className="w-full text-xs bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded-lg px-2.5 py-1.5 text-neutral-900 dark:text-white placeholder:text-neutral-400 outline-hidden focus:border-blue-500 transition-colors"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="block text-[11px] font-medium text-neutral-700 dark:text-neutral-300 mb-1">
+                          费用金额 ({currSym})
+                        </label>
+                        <div className="relative">
+                          <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs font-bold text-neutral-400">
+                            {currSym}
+                          </span>
+                          <input
+                            type="number"
+                            min="0"
+                            step="10"
+                            value={customAddonPrice}
+                            onChange={(e) => setCustomAddonPrice(e.target.value)}
+                            placeholder="0"
+                            className="w-full text-xs font-mono font-bold bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded-lg pl-6 pr-2.5 py-1.5 text-neutral-900 dark:text-white placeholder:text-neutral-400 outline-hidden focus:border-blue-500 transition-colors"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-[11px] font-medium text-neutral-700 dark:text-neutral-300 mb-1">
+                          计费周期
+                        </label>
+                        <select
+                          value={customAddonIsOneTime ? "onetime" : "monthly"}
+                          onChange={(e) => setCustomAddonIsOneTime(e.target.value === "onetime")}
+                          className="w-full text-xs bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded-lg px-2 py-1.5 font-medium text-neutral-900 dark:text-white outline-hidden focus:border-blue-500 transition-colors cursor-pointer"
+                        >
+                          <option value="monthly">/月 (按月计费)</option>
+                          <option value="onetime">一次性 (首月结算)</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Step 5: Billing Cycle, Promo Code & Price Summary */}
+          <div className="bg-white dark:bg-neutral-900 rounded-2xl p-5 border border-neutral-200/80 dark:border-neutral-800/80 shadow-xs">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="w-6 h-6 rounded-full bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 text-xs font-bold flex items-center justify-center">
+                5
+              </span>
+              <h2 className="text-sm font-bold text-neutral-900 dark:text-white">
+                采购周期与优惠码
+              </h2>
+            </div>
+
+            {/* Duration Selector */}
+            <div className="grid grid-cols-4 gap-2 mb-4">
+              {[
+                { m: 1, label: "月付", discount: "基础周期" },
+                { m: 3, label: "季付 (3月)", discount: "95折特惠" },
+                { m: 6, label: "半年付", discount: "9折特惠" },
+                { m: 12, label: "年付合约", discount: "8折+免开机费" },
+              ].map((item) => (
+                <button
+                  key={item.m}
+                  type="button"
+                  onClick={() => setDurationMonths(item.m)}
+                  className={`py-2 px-1 rounded-xl text-center flex flex-col items-center justify-center border transition-all cursor-pointer ${
+                    durationMonths === item.m
+                      ? "border-neutral-950 dark:border-white bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 font-bold shadow-xs"
+                      : "border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-800 text-neutral-700 dark:text-neutral-300"
+                  }`}
+                >
+                  <span className="text-xs">{item.label}</span>
+                  <span className={`text-[10px] ${durationMonths === item.m ? "text-neutral-300 dark:text-neutral-700" : "text-emerald-600 dark:text-emerald-400 font-medium"}`}>
+                    {item.discount}
+                  </span>
+                </button>
+              ))}
+            </div>
+
+            {/* Promo Code Input */}
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={promoInput}
+                onChange={(e) => setPromoInput(e.target.value)}
+                placeholder="优惠码 (如 cmai2026 或 cmai_vip2026)"
+                className="flex-1 text-xs bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg px-3 py-2 outline-hidden uppercase font-mono"
+              />
+              <button
+                type="button"
+                onClick={handleVerifyPromo}
+                className="px-4 py-2 bg-neutral-900 hover:bg-neutral-800 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-white rounded-lg text-xs font-medium transition-colors cursor-pointer"
+              >
+                验证优惠
+              </button>
+            </div>
+            {promoMessage && (
+              <p className={`text-[11px] mt-1.5 font-medium ${promoMessage.type === "success" ? "text-emerald-600 dark:text-emerald-400" : "text-rose-500"}`}>
+                {promoMessage.text}
+              </p>
+            )}
+
+            {/* Realtime Price Calculation Box */}
+            <div className="mt-4 p-3.5 rounded-xl bg-neutral-50 dark:bg-neutral-800/60 border border-neutral-200 dark:border-neutral-700 text-xs space-y-1.5">
+              <div className="flex justify-between text-neutral-600 dark:text-neutral-400">
+                <span>月度订阅小计 (含所选硬件、AI会员及配套):</span>
+                <span>{currSym}{subtotalMonthly.toLocaleString()} / 月</span>
+              </div>
+              {durationDiscountRate < 1 && (
+                <div className="flex justify-between text-emerald-600 dark:text-emerald-400 font-medium">
+                  <span>长周期阶梯折扣 ({durationMonths}个月):</span>
+                  <span>省 {Math.round((1 - durationDiscountRate) * 100)}%</span>
+                </div>
+              )}
+              {appliedPromo && (
+                <div className="flex justify-between text-emerald-600 dark:text-emerald-400 font-medium">
+                  <span>专属优惠券抵扣 ({appliedPromo.name}):</span>
+                  <span>省 {appliedPromo.percentOff}%</span>
+                </div>
+              )}
+              <div className="flex justify-between text-neutral-600 dark:text-neutral-400">
+                <span>一次性开机/开户技术服务费:</span>
+                <span>{effectiveSetupFee === 0 ? "¥0 (年付特惠全免)" : `${currSym}${effectiveSetupFee.toLocaleString()}`}</span>
+              </div>
+              {addonsOneTimeFee > 0 && (
+                <div className="flex justify-between text-neutral-600 dark:text-neutral-400">
+                  <span>一次性商业合规落地费用:</span>
+                  <span>{currSym}{addonsOneTimeFee.toLocaleString()}</span>
+                </div>
+              )}
+              <div className="pt-2 border-t border-neutral-200 dark:border-neutral-700 flex justify-between items-baseline font-bold text-sm text-neutral-950 dark:text-white">
+                <span>首期签约应付合计:</span>
+                <span className="text-base text-emerald-600 dark:text-emerald-400">
+                  {currSym}{totalInitialPayment.toLocaleString()}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Step 6: Customer Profile Information */}
+          <div className="bg-white dark:bg-neutral-900 rounded-2xl p-5 border border-neutral-200/80 dark:border-neutral-800/80 shadow-xs">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="w-6 h-6 rounded-full bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 text-xs font-bold flex items-center justify-center">
+                6
+              </span>
+              <h2 className="text-sm font-bold text-neutral-900 dark:text-white">
+                签约主体信息 (乙方 / Customer)
+              </h2>
+            </div>
+
+            {/* Type Switch */}
+            <div className="grid grid-cols-2 gap-2 mb-3">
+              <button
+                type="button"
+                onClick={() => setCustomerType("individual")}
+                className={`py-1.5 text-xs font-medium rounded-lg border text-center transition-all cursor-pointer ${
+                  customerType === "individual"
+                    ? "bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 font-bold"
+                    : "border-neutral-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-400"
+                }`}
+              >
+                个人开发者 / 个人认购
+              </button>
+              <button
+                type="button"
+                onClick={() => setCustomerType("company")}
+                className={`py-1.5 text-xs font-medium rounded-lg border text-center transition-all cursor-pointer ${
+                  customerType === "company"
+                    ? "bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 font-bold"
+                    : "border-neutral-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-400"
+                }`}
+              >
+                出海企业 / 团队采购
+              </button>
+            </div>
+
+            <div className="space-y-3 text-xs">
+              {customerType === "individual" ? (
+                <div>
+                  <label className="block text-neutral-600 dark:text-neutral-400 mb-1">
+                    客户真实姓名 (Full Name) *
+                  </label>
+                  <input
+                    type="text"
+                    value={customerName}
+                    onChange={(e) => setCustomerName(e.target.value)}
+                    placeholder="例如: 张三 / Alex Chen"
+                    className="w-full bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg px-3 py-2 outline-hidden"
+                  />
+                </div>
+              ) : (
+                <>
+                  <div>
+                    <label className="block text-neutral-600 dark:text-neutral-400 mb-1">
+                      企业全称 (Company Full Name) *
+                    </label>
+                    <input
+                      type="text"
+                      value={companyName}
+                      onChange={(e) => setCompanyName(e.target.value)}
+                      placeholder="例如: 杭州云起科技有限公司 / Global Trade Ltd."
+                      className="w-full bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg px-3 py-2 outline-hidden"
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="block text-neutral-600 dark:text-neutral-400 mb-1">
+                        法定代表人/签约人
+                      </label>
+                      <input
+                        type="text"
+                        value={signatoryName}
+                        onChange={(e) => setSignatoryName(e.target.value)}
+                        placeholder="例如: 李四"
+                        className="w-full bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg px-3 py-2 outline-hidden"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-neutral-600 dark:text-neutral-400 mb-1">
+                        职务头衔
+                      </label>
+                      <input
+                        type="text"
+                        value={signatoryTitle}
+                        onChange={(e) => setSignatoryTitle(e.target.value)}
+                        placeholder="例如: CEO / 业务负责人"
+                        className="w-full bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg px-3 py-2 outline-hidden"
+                      />
+                    </div>
+                  </div>
+                </>
+              )}
+
+              <div>
+                <label className="block text-neutral-600 dark:text-neutral-400 mb-1">
+                  证件号码 / 统一社会信用代码 / Passport / Tax ID *
+                </label>
+                <input
+                  type="text"
+                  value={customerIdNumber}
+                  onChange={(e) => setCustomerIdNumber(e.target.value)}
+                  placeholder="身份证号 / 护照号 / 营业执照信用代码"
+                  className="w-full bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg px-3 py-2 outline-hidden"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-neutral-600 dark:text-neutral-400 mb-1">
+                    联系电话 (含区号) *
+                  </label>
+                  <input
+                    type="text"
+                    value={customerPhone}
+                    onChange={(e) => setCustomerPhone(e.target.value)}
+                    placeholder="+86 / +66 / 手机号"
+                    className="w-full bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg px-3 py-2 outline-hidden"
+                  />
+                </div>
+                <div>
+                  <label className="block text-neutral-600 dark:text-neutral-400 mb-1">
+                    电子邮箱 (接收账号及凭据) *
+                  </label>
+                  <input
+                    type="email"
+                    value={customerEmail}
+                    onChange={(e) => setCustomerEmail(e.target.value)}
+                    placeholder="user@example.com"
+                    className="w-full bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg px-3 py-2 outline-hidden"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-neutral-600 dark:text-neutral-400 mb-1">
+                  通讯地址 / 注册地址
+                </label>
+                <input
+                  type="text"
+                  value={customerAddress}
+                  onChange={(e) => setCustomerAddress(e.target.value)}
+                  placeholder="详细地址与城市"
+                  className="w-full bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg px-3 py-2 outline-hidden"
+                />
+              </div>
+
+              <div>
+                <label className="block text-neutral-600 dark:text-neutral-400 mb-1">
+                  服务起租生效日期
+                </label>
+                <input
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  className="w-full bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg px-3 py-2 outline-hidden"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Step 7: Identity Document Upload */}
+          <div className="bg-white dark:bg-neutral-900 rounded-2xl p-5 border border-neutral-200/80 dark:border-neutral-800/80 shadow-xs">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <span className="w-6 h-6 rounded-full bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 text-xs font-bold flex items-center justify-center">
+                  7
+                </span>
+                <h2 className="text-sm font-bold text-neutral-900 dark:text-white">
+                  客户资质与 KYC 实名凭证上传 (可选)
+                </h2>
+              </div>
+              <span className="text-[10px] text-neutral-400">身份证 / 营业执照</span>
+            </div>
+
+            {idImage ? (
+              <div className="relative rounded-xl border border-neutral-200 dark:border-neutral-700 p-2 bg-neutral-50 dark:bg-neutral-800 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-16 h-12 rounded overflow-hidden bg-neutral-200 relative">
+                    <img src={idImage} alt="Uploaded Doc" className="w-full h-full object-cover" />
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                      <CheckCircle2 className="w-3.5 h-3.5" /> 证件已成功上传
+                    </span>
+                    <span className="text-[11px] text-neutral-400">将作为合同附件一合并导出</span>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIdImage(null)}
+                  className="p-1.5 rounded-lg text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors cursor-pointer"
+                  title="删除"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            ) : (
+              <div
+                onClick={() => fileInputRef.current?.click()}
+                className="border-2 border-dashed border-neutral-200 dark:border-neutral-700 hover:border-neutral-400 dark:hover:border-neutral-500 rounded-xl p-4 text-center cursor-pointer transition-all flex flex-col items-center justify-center gap-1.5 bg-neutral-50/50 dark:bg-neutral-800/30"
+              >
+                <div className="w-9 h-9 rounded-full bg-neutral-200/60 dark:bg-neutral-700/60 flex items-center justify-center text-neutral-600 dark:text-neutral-300">
+                  <Upload className="w-4 h-4" />
+                </div>
+                <span className="text-xs font-medium text-neutral-700 dark:text-neutral-300">
+                  点击上传身份证、护照或营业执照文件
+                </span>
+                <span className="text-[10px] text-neutral-400">
+                  JPG / PNG，用于合规实名备案与 KYC 官方外卡充值保障
+                </span>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileUpload}
+                  className="hidden"
+                />
+              </div>
+            )}
+          </div>
+
+          {/* Step 8: Digital Signature Canvas */}
+          <div className="bg-white dark:bg-neutral-900 rounded-2xl p-5 border border-neutral-200/80 dark:border-neutral-800/80 shadow-xs">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <span className="w-6 h-6 rounded-full bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 text-xs font-bold flex items-center justify-center">
+                  8
+                </span>
+                <h2 className="text-sm font-bold text-neutral-900 dark:text-white">
+                  客户在线电子签约 (Digital Signature)
+                </h2>
+              </div>
+              <div className="flex items-center gap-1 bg-neutral-100 dark:bg-neutral-800 p-1 rounded-lg text-[11px]">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSigMode("draw");
+                    setSignatureData(null);
+                  }}
+                  className={`px-2 py-0.5 rounded transition-all cursor-pointer flex items-center gap-1 ${
+                    sigMode === "draw" ? "bg-white dark:bg-neutral-700 shadow-xs font-bold text-neutral-950 dark:text-white" : "text-neutral-500"
+                  }`}
+                >
+                  <PenTool className="w-3 h-3" />
+                  <span>手写画板</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSigMode("type");
+                    setSignatureData(null);
+                  }}
+                  className={`px-2 py-0.5 rounded transition-all cursor-pointer flex items-center gap-1 ${
+                    sigMode === "type" ? "bg-white dark:bg-neutral-700 shadow-xs font-bold text-neutral-950 dark:text-white" : "text-neutral-500"
+                  }`}
+                >
+                  <Type className="w-3 h-3" />
+                  <span>键盘输入</span>
+                </button>
+              </div>
+            </div>
+
+            {sigMode === "draw" ? (
+              <div className="flex flex-col gap-2">
+                <div className="relative w-full h-36 bg-neutral-50 dark:bg-neutral-800/70 border border-neutral-200 dark:border-neutral-700 rounded-xl overflow-hidden touch-none">
+                  <canvas
+                    ref={canvasRef}
+                    onMouseDown={startDrawing}
+                    onMouseMove={draw}
+                    onMouseUp={stopDrawing}
+                    onMouseLeave={stopDrawing}
+                    onTouchStart={startDrawing}
+                    onTouchMove={draw}
+                    onTouchEnd={stopDrawing}
+                    className="w-full h-full cursor-crosshair"
+                  />
+                  {!hasDrawn && (
+                    <div className="absolute inset-0 pointer-events-none flex items-center justify-center text-xs text-neutral-400">
+                      请在此区域使用鼠标或手指书写签名
+                    </div>
+                  )}
+                  <div className="absolute bottom-1 right-2 pointer-events-none text-[10px] text-neutral-400 font-mono">
+                    TIMESTAMP: {signingDateIso}
+                  </div>
+                </div>
+
+                <div className="flex justify-end">
+                  <button
+                    type="button"
+                    onClick={clearCanvas}
+                    className="flex items-center gap-1 text-[11px] text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200 px-2 py-1 rounded hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors cursor-pointer"
+                  >
+                    <RotateCcw className="w-3 h-3" />
+                    <span>清除重签</span>
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-2">
+                <input
+                  type="text"
+                  value={typedSigText}
+                  onChange={(e) => handleTypedSignature(e.target.value)}
+                  placeholder="在此输入您的法定签名全名 (如: Zhang San)"
+                  className="w-full text-sm bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg px-3 py-2 outline-hidden"
+                />
+                <div className="h-20 bg-neutral-50 dark:bg-neutral-800/70 border border-neutral-200 dark:border-neutral-700 rounded-xl flex items-center justify-center">
+                  {signatureData ? (
+                    <img src={signatureData} alt="Signature Preview" className="h-14 object-contain" />
+                  ) : (
+                    <span className="text-xs text-neutral-400">电子签名艺术字体实时预览</span>
+                  )}
+                </div>
+              </div>
+            )}
+
+            <label className="flex items-start gap-2 mt-4 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={termsAgreed}
+                onChange={(e) => setTermsAgreed(e.target.checked)}
+                className="mt-0.5 rounded text-neutral-900 focus:ring-0 w-4 h-4 cursor-pointer"
+              />
+              <span className="text-xs text-neutral-600 dark:text-neutral-400 leading-snug">
+                我已仔细阅读并确认《企业级 AI 云工位与海外算力服务协议》所有细则及 SLA 交付标准，确认所选服务方案{selectedPlanId === "workstation_888" ? `（1V1 物理独享 Apple Silicon · ${chosenCpu.name} / ${chosenMemory.size} / ${chosenStorage.size}）` : selectedPlanId === "ai_lazy_488" ? `（轻量云电脑微主机 · ${microPcTier === "pro" ? "增强型 8 vCPU / 16GB RAM" : "标准型 4 vCPU / 8GB RAM"}）` : currentPlan ? `（${currentPlan.name}）` : ""}、AI 会员与增值配套服务规格无误，电子签名与时间戳哈希存证具有完全法律效力。
+              </span>
+            </label>
+
+            {/* Execute Button */}
+            <div className="mt-4 pt-3 border-t border-neutral-100 dark:border-neutral-800">
+              {isSigned ? (
+                <div className="p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800 flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-xs font-bold text-emerald-800 dark:text-emerald-200">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                    <span>本合同已完成正式电子签署 · 存证已生效</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setIsCertificateOpen(true)}
+                    className="text-xs font-bold underline text-emerald-700 hover:text-emerald-900 dark:text-emerald-300 cursor-pointer"
+                  >
+                    查看存证证书
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handleExecuteContract}
+                  className="w-full py-3 px-4 rounded-xl font-bold text-sm bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <PenTool className="w-4 h-4" />
+                  <span>✍️ 确认并签署电子合同 (Sign & Seal E-Contract)</span>
+                </button>
+              )}
+            </div>
+          </div>
+        </section>
+        )}
+
+        {/* Right Side: The Official Digital Contract Sheet & Customer Flow */}
+        <section className={viewMode === "customer" ? "w-full flex flex-col items-center gap-6" : "lg:col-span-7 flex flex-col items-center"}>
+          {/* Customer Mode Top Banner */}
+          {viewMode === "customer" && (
+            <div className="w-full max-w-[820px] bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 text-white rounded-2xl p-4 sm:p-5 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex items-start gap-3 min-w-0">
+                <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center shrink-0">
+                  <ShieldCheck className="w-6 h-6 text-white" />
+                </div>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-[10px] font-mono font-bold tracking-wider px-2 py-0.5 rounded bg-white/20 text-white uppercase">
+                      官方定制方案 · 待实名签署
+                    </span>
+                    <span className="text-xs font-mono text-blue-100">
+                      REF: {contractSerial}
+                    </span>
+                  </div>
+                  <h2 className="text-sm sm:text-base font-bold mt-1 text-white">
+                    尊敬的 {effectiveCustomerName} 您好！
+                  </h2>
+                  <p className="text-xs text-blue-100 mt-0.5 leading-relaxed">
+                    Chiang Mai AI Center 商务顾问已为您定制好专属服务协议。请逐项核对下方标的与费用明细，并在文末完成电子签名确认。
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
+                <button
+                  type="button"
+                  onClick={() => setViewMode("admin")}
+                  className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white text-xs font-semibold border border-white/20 transition-all flex items-center gap-1.5 cursor-pointer"
+                  title="切回业务员定制模式"
+                >
+                  <Settings className="w-3.5 h-3.5" />
+                  <span>切回定制</span>
+                </button>
+              </div>
+            </div>
+          )}
+
+          <div
+            id="printable-contract"
+            className="w-full max-w-[820px] bg-white text-neutral-900 rounded-2xl shadow-lg border border-neutral-200 overflow-hidden print:border-none print:shadow-none print:p-0 print:m-0 print:max-w-none print:w-full print:rounded-none"
+          >
+            {/* PAGE 1: Header, Banner, Parties, Deliverables, Fees */}
+            <div
+              id="cloud-contract-page-1"
+              className="cloud-contract-page p-4 sm:p-8 md:p-10 border-b-2 border-dashed border-neutral-300 print:border-none print:p-8 bg-white"
+            >
+              {/* Document Header */}
+              <div className="flex flex-col sm:flex-row items-start justify-between gap-4 pb-5 border-b-2 border-neutral-900">
+              <div className="flex items-center gap-3.5">
+                <div className="w-12 h-12 rounded-xl bg-neutral-950 flex items-center justify-center text-white shrink-0">
+                  <Cpu className="w-6 h-6" />
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-xs font-mono font-bold tracking-widest text-neutral-500 uppercase flex items-center gap-2">
+                    <span>CHIANG MAI AI CENTER · 官方电子合同系统</span>
+                    <span className="px-1.5 py-0.2 rounded bg-neutral-100 text-neutral-600 font-mono text-[10px]">
+                      CLOUD
+                    </span>
+                  </span>
+                  <h1 className="text-lg sm:text-xl font-black tracking-tight text-neutral-950">
+                    企业级 AI 云工位与海外算力服务协议
+                  </h1>
+                  <span className="text-[11px] text-neutral-600">
+                    Chiang Mai AI Center Co., Ltd. (官方运营机构) · 商业登记税号: 0505566006478 · cloud.lazzor.com
+                  </span>
+                </div>
+              </div>
+
+              <div className="text-left sm:text-right flex flex-col text-xs text-neutral-500 font-mono">
+                <span className="font-bold text-neutral-900">
+                  REF: {contractSerial || "CMAI-CLOUD-2026"}
+                </span>
+                <span>签署日期: {signingDateIso || "2026-11-11"}</span>
+                <span className="text-[10px] text-neutral-400">
+                  HASH: {contractHash || "SHA256-VERIFIED"}
+                </span>
+                <div className="mt-1 flex items-center gap-1.5 justify-start sm:justify-end">
+                  {isSigned ? (
+                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-sans font-bold text-[10px] border border-emerald-300">
+                      <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                      已正式签署生效 · 存证已固化
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 font-sans font-bold text-[10px] border border-amber-300">
+                      <Clock className="w-3 h-3 text-amber-600 animate-pulse" />
+                      待客户电子签署
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Selected Plan Highlight Banner */}
+            <div className={`mt-5 p-4 rounded-xl border-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
+              !currentPlan
+                ? "border-neutral-300 bg-neutral-50/80"
+                : currentPlan.id === "ai_lazy_488"
+                ? "border-emerald-500 bg-emerald-50/50"
+                : currentPlan.id === "workstation_888"
+                ? "border-blue-600 bg-blue-50/50"
+                : "border-neutral-300 bg-neutral-50"
+            }`}>
+              <div className="flex flex-col">
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-neutral-900 text-white font-mono uppercase">
+                    {currentPlan ? currentPlan.badge : "CUSTOM / 0 TOTAL"}
+                  </span>
+                  <span className="text-xs font-bold text-neutral-700">
+                    {currentPlan ? currentPlan.category : "自由定制采购方案"}
+                  </span>
+                </div>
+                <div className="text-lg font-black text-neutral-950 mt-1">
+                  {currentPlan ? currentPlan.name : "企业级定制服务方案"}
+                  {currentPlan && (
+                    <span className="text-xs font-normal text-neutral-500 ml-2">
+                      ({currentPlan.enName})
+                    </span>
+                  )}
+                </div>
+                <div className="text-xs text-neutral-600 mt-0.5">
+                  {currentPlan ? currentPlan.description : "根据客户专属商务需求定制之技术服务及配套交付标的（详见下方清单）。"}
+                </div>
+              </div>
+
+              <div className="text-left sm:text-right shrink-0">
+                <div className="text-xs text-neutral-500">签约实际服务费 (含所选规格与增值项)</div>
+                <div className="text-xl font-black text-neutral-950">
+                  {currSym}{effectiveMonthlyFee.toLocaleString()}
+                  <span className="text-xs font-normal text-neutral-500"> /月</span>
+                </div>
+                <div className="text-[11px] text-neutral-500">
+                  服务期: {durationMonths} 个月
+                  {appliedPromo && <span className="text-emerald-700 font-bold ml-1">({appliedPromo.percentOff}% 折扣)</span>}
+                </div>
+              </div>
+            </div>
+
+            {/* Parties Details Box */}
+            <div className="mt-5 grid grid-cols-1 md:grid-cols-2 gap-4 bg-neutral-50 p-4 rounded-xl border border-neutral-200 text-xs">
+              {/* Party A */}
+              <div className="flex flex-col gap-1 pr-0 md:pr-3 md:border-r border-neutral-200">
+                <span className="font-bold text-neutral-900 flex items-center gap-1.5">
+                  <Building2 className="w-3.5 h-3.5 text-neutral-700" />
+                  服务提供方 (甲方 / Service Provider):
+                </span>
+                <span className="font-semibold text-neutral-800">
+                  Chiang Mai AI Center Co., Ltd. (cloud.lazzor.com)
+                </span>
+                <span className="text-neutral-600">
+                  企业商业税号 (Tax ID): 0505566006478
+                </span>
+                <span className="text-neutral-600">
+                  机房物理地址: 236/105 Chiang Mai AI Center, Moo 6, Mahidol Rd, Nong Hoi, Chiang Mai 50000, Thailand
+                </span>
+                <span className="text-neutral-600">
+                  官方服务邮箱: service@cmai.center / admin@cmai.center
+                </span>
+              </div>
+
+              {/* Party B */}
+              <div className="flex flex-col gap-1 pl-0 md:pl-1">
+                <span className="font-bold text-neutral-900 flex items-center gap-1.5">
+                  <Server className="w-3.5 h-3.5 text-neutral-700" />
+                  客户认购方 (乙方 / Customer / Subscriber):
+                </span>
+                <span className="font-semibold text-neutral-800">
+                  {effectiveCustomerName} {customerType === "company" ? `(法定代表人: ${effectiveSignatoryDisplay})` : ""}
+                </span>
+                <span className="text-neutral-600">
+                  证件号码 / Tax ID: {customerIdNumber || "待补充填写"}
+                </span>
+                <span className="text-neutral-600">
+                  联系电话: {customerPhone || "待补充"} | 电子邮箱: {customerEmail || "待补充"}
+                </span>
+                <span className="text-neutral-600">
+                  法定通讯地址: {customerAddress || "客户指定通讯地址"}
+                </span>
+              </div>
+            </div>
+
+            {/* Section 1: Detailed Deliverables & Hardware Specs Table */}
+            <div className="mt-5">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-500 mb-2 flex items-center justify-between">
+                <span>1. DELIVERABLES & HARDWARE SPECIFICATIONS (交付清单与硬件详细规格)</span>
+                <span className="text-[10px] text-neutral-400 font-normal">逐项严格核对与验收标准</span>
+              </h3>
+
+              <div className="rounded-xl border border-neutral-200 overflow-x-auto text-xs">
+                <table className="w-full min-w-[520px] text-left border-collapse">
+                  <tbody className="divide-y divide-neutral-200">
+                    {deliverableItems.map((item, idx) => (
+                      <tr key={idx} className={idx % 2 === 0 ? "bg-neutral-50/50" : "bg-white"}>
+                        <td className="py-2.5 px-3.5 font-bold text-neutral-800 w-1/4 align-top">
+                          {item.title}
+                          <span className="block text-[10px] font-normal text-neutral-500">{item.enTitle}</span>
+                        </td>
+                        <td className="py-2.5 px-3.5 text-neutral-700 align-top">
+                          {item.content}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Financial Schedule Table */}
+            <div className="mt-5">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-500 mb-2">
+                2. FEES & SETTLEMENT SCHEDULE (费用明细与首期结算表)
+              </h3>
+              <div className="overflow-x-auto rounded-xl border border-neutral-200 text-xs">
+                <table className="w-full min-w-[520px] text-left border-collapse">
+                  <thead>
+                    <tr className="bg-neutral-100 text-neutral-700 font-bold border-b border-neutral-200">
+                      <th className="py-2 px-3">计费明细项 (Item Description)</th>
+                      <th className="py-2 px-3">周期 / 数量</th>
+                      <th className="py-2 px-3">核定单价</th>
+                      <th className="py-2 px-3 text-right">结算金额 ({currency})</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-neutral-200 text-neutral-800">
+                    {currentPlan ? (
+                      <tr>
+                        <td className="py-2.5 px-3 font-medium">
+                          {currentPlan.id === "workstation_888" ? (
+                            <span>
+                              {currentPlan.name} 服务费 (1V1 物理独享 Apple Silicon · {chosenCpu.name} / {chosenMemory.size} 内存 / {chosenStorage.size} SSD{chosenAiSubscription ? (aiDeltaMonthly > 0 ? ` / AI: ${chosenAiSubscription.name} [含升级+${currSym}${aiDeltaMonthly.toLocaleString()}/月]` : ` / AI: ${chosenAiSubscription.name}`) : ""})
+                            </span>
+                          ) : currentPlan.id === "ai_lazy_488" ? (
+                            <span>
+                              {currentPlan.name} 服务费 (轻量云电脑微主机 · {microPcTier === "pro" ? "增强型 8 vCPU / 16GB RAM / 240GB NVMe" : "标准型 4 vCPU / 8GB RAM / 120GB NVMe"}{chosenAiSubscription ? (aiDeltaMonthly > 0 ? ` / AI: ${chosenAiSubscription.name} [含升级+${currSym}${aiDeltaMonthly.toLocaleString()}/月]` : ` / AI: ${chosenAiSubscription.name}`) : ""})
+                            </span>
+                          ) : (
+                            <span>
+                              {currentPlan.name} 服务费 ({currentPlan.specs.hardware}{chosenAiSubscription ? (aiDeltaMonthly > 0 ? ` / AI: ${chosenAiSubscription.name} [含升级+${currSym}${aiDeltaMonthly.toLocaleString()}/月]` : ` / AI: ${chosenAiSubscription.name}`) : ""})
+                            </span>
+                          )}
+                        </td>
+                        <td className="py-2.5 px-3">{durationMonths} 个月</td>
+                        <td className="py-2.5 px-3">
+                          {currSym}{effectiveMonthlyFee.toLocaleString()} / 月
+                        </td>
+                        <td className="py-2.5 px-3 text-right font-medium">
+                          {currSym}{(effectiveMonthlyFee * durationMonths).toLocaleString()}
+                        </td>
+                      </tr>
+                    ) : effectiveMonthlyFee > 0 ? (
+                      <tr>
+                        <td className="py-2.5 px-3 font-medium">
+                          按月服务费 (含 {chosenAiSubscription ? `AI: ${chosenAiSubscription.name}` : ""} {extraIpCount > 0 ? `+ ${extraIpCount}x 额外独立IP` : ""})
+                        </td>
+                        <td className="py-2.5 px-3">{durationMonths} 个月</td>
+                        <td className="py-2.5 px-3">
+                          {currSym}{effectiveMonthlyFee.toLocaleString()} / 月
+                        </td>
+                        <td className="py-2.5 px-3 text-right font-medium">
+                          {currSym}{(effectiveMonthlyFee * durationMonths).toLocaleString()}
+                        </td>
+                      </tr>
+                    ) : null}
+                    {currentPlan && baseSetupFee > 0 && (
+                      <tr>
+                        <td className="py-2.5 px-3 font-medium">
+                          专属物理节点初始化与 1 对 1 环境调优开机/开户服务费
+                        </td>
+                        <td className="py-2.5 px-3">首月一次性</td>
+                        <td className="py-2.5 px-3">
+                          {currSym}{baseSetupFee.toLocaleString()}
+                        </td>
+                        <td className="py-2.5 px-3 text-right font-medium">
+                          {effectiveSetupFee === 0 ? "¥0 (年付特惠全免)" : `${currSym}${effectiveSetupFee.toLocaleString()}`}
+                        </td>
+                      </tr>
+                    )}
+                    {addonsOneTimeFee > 0 && (
+                      <tr>
+                        <td className="py-2.5 px-3 font-medium">
+                          商业合规落地一次性代办费 (DBD注册 + 银行对公账户 享7折特惠)
+                        </td>
+                        <td className="py-2.5 px-3">单次一次性</td>
+                        <td className="py-2.5 px-3">
+                          {currSym}{addonsOneTimeFee.toLocaleString()}
+                        </td>
+                        <td className="py-2.5 px-3 text-right font-medium">
+                          {currSym}{addonsOneTimeFee.toLocaleString()}
+                        </td>
+                      </tr>
+                    )}
+                    {customAddonEnabled && customAddonIsOneTime && parsedCustomPrice > 0 && (
+                      <tr>
+                        <td className="py-2.5 px-3 font-medium">
+                          其他定制补充服务一次性费用 ({customAddonName || "定制项目"})
+                        </td>
+                        <td className="py-2.5 px-3">单次一次性</td>
+                        <td className="py-2.5 px-3">
+                          {currSym}{parsedCustomPrice.toLocaleString()}
+                        </td>
+                        <td className="py-2.5 px-3 text-right font-medium">
+                          {currSym}{parsedCustomPrice.toLocaleString()}
+                        </td>
+                      </tr>
+                    )}
+                    {appliedPromo && (
+                      <tr className="bg-emerald-50/60 text-emerald-800 font-medium">
+                        <td className="py-2 px-3" colSpan={3}>
+                          优惠券抵扣: {appliedPromo.name}
+                        </td>
+                        <td className="py-2 px-3 text-right">
+                          - {appliedPromo.percentOff}%
+                        </td>
+                      </tr>
+                    )}
+                    <tr className="bg-emerald-50 text-emerald-950 font-bold text-sm">
+                      <td className="py-3 px-3" colSpan={2}>
+                        首期签约应付总计 (TOTAL INITIAL PAYMENT):
+                      </td>
+                      <td className="py-3 px-3 text-xs text-neutral-600 font-normal">
+                        大写: {currency === "CNY" ? numberToChineseRMB(totalInitialPayment) : numberToEnglishWords(totalInitialPayment, "THB")}
+                      </td>
+                      <td className="py-3 px-3 text-right text-base text-emerald-700">
+                        {currSym}{totalInitialPayment.toLocaleString()}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Page 1 Bottom Footer Indicator */}
+            <div className="mt-6 pt-3 border-t border-neutral-200 flex flex-col sm:flex-row justify-between items-center gap-1 text-[10px] text-neutral-400 font-mono">
+              <span>Chiang Mai AI Center Co., Ltd. · cloud.lazzor.com</span>
+              <span>第 1 页 (交付清单与费用核算) · 共 2 页</span>
+            </div>
+          </div>
+
+          {/* PAGE 2: Section 3 Legal Clauses, Signatures & Stamp */}
+          <div
+            id="cloud-contract-page-2"
+            className="cloud-contract-page p-4 sm:p-8 md:p-10 bg-white print:border-none print:p-8"
+          >
+            {/* Page 2 Top Header */}
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 pb-3 mb-6 border-b-2 border-neutral-900 font-mono text-[11px] text-neutral-600">
+              <div className="flex items-center gap-2">
+                <span className="font-black text-neutral-950 uppercase tracking-wide">
+                  CHIANG MAI AI CENTER · 核心服务条款与电子存证签署
+                </span>
+                <span className="px-1.5 py-0.2 rounded bg-neutral-100 text-neutral-700 text-[10px] font-bold">
+                  PAGE 2/2
+                </span>
+              </div>
+              <div className="text-neutral-500 text-[10px]">
+                REF: <strong className="text-neutral-900">{contractSerial || "CMAI-CLOUD"}</strong> · 签署日期: {signingDateIso}
+              </div>
+            </div>
+
+            {/* Legal Clauses Section: Structured & Explicit */}
+            <div className="space-y-3.5 text-[11px] text-neutral-600 leading-relaxed">
+              <h3 className="text-xs font-bold text-neutral-900 uppercase tracking-wider mb-2">
+                3. TERMS & CONDITIONS (核心基础条款与服务保障细则)
+              </h3>
+
+              {dynamicTerms.map((clause, cIdx) => (
+                <div key={cIdx}>
+                  <strong className="text-neutral-900">{chineseNumbers[cIdx] || `第${cIdx + 1}条`} {clause.title}</strong>
+                  {clause.body}
+                </div>
+              ))}
+            </div>
+
+            {/* Dual Signatures and Official Stamp */}
+            <div className="mt-8 pt-6 border-t-2 border-neutral-900 grid grid-cols-1 sm:grid-cols-2 gap-6">
+              {/* Party A: Service Provider */}
+              <div className="relative p-4 rounded-xl border border-neutral-300 bg-neutral-50/50 flex flex-col justify-between min-h-[160px]">
+                <div>
+                  <div className="text-xs font-bold text-neutral-900 uppercase">
+                    服务提供方 (甲方盖章 / PARTY A)
+                  </div>
+                  <div className="text-[11px] text-neutral-600 mt-0.5">
+                    Chiang Mai AI Center Co., Ltd.
+                  </div>
+                </div>
+
+                {/* Official Stamp Img */}
+                <div className="absolute right-6 top-8 w-28 h-28 pointer-events-none opacity-90 select-none">
+                  <CmaiOfficialSeal className="w-full h-full" />
+                </div>
+
+                <div className="mt-8 text-[11px] text-neutral-700 flex flex-col">
+                  <span>法定代表人 / 授权签署人: Authorized Director</span>
+                  <span>签署日期: {signingDateIso}</span>
+                  <span className="font-mono text-[9px] text-neutral-400 mt-1">
+                    VERIFIED HASH: {contractHash}
+                  </span>
+                </div>
+              </div>
+
+              {/* Party B: Customer Signature */}
+              <div className="p-4 rounded-xl border border-neutral-300 bg-neutral-50/50 flex flex-col justify-between min-h-[160px]">
+                <div>
+                  <div className="text-xs font-bold text-neutral-900 uppercase">
+                    客户认购方 (乙方签署 / PARTY B)
+                  </div>
+                  <div className="text-[11px] text-neutral-600 mt-0.5">
+                    {effectiveCustomerName}
+                  </div>
+                </div>
+
+                {/* Customer Signature Display */}
+                <div className="h-16 flex items-center justify-center my-1">
+                  {signatureData ? (
+                    <img src={signatureData} alt="Customer Digital Signature" className="max-h-14 object-contain" />
+                  ) : (
+                    <div className="text-xs text-neutral-400 italic">
+                      {viewMode === "customer" ? "[等待乙方在下方签署板完成实名签署]" : "[等待乙方在左侧画板完成签名]"}
+                    </div>
+                  )}
+                </div>
+
+                <div className="text-[11px] text-neutral-700 flex flex-col">
+                  <span>签署人姓名: {effectiveSignatoryDisplay}</span>
+                  <span>签署时间: {signedTimestamp || signingDateIso}</span>
+                  <span className="text-[10px] font-semibold mt-1">
+                    {isSigned ? (
+                      <span className="text-emerald-600 flex items-center gap-1">
+                        <CheckCircle2 className="w-3 h-3" />
+                        已完成原笔迹电子签署 · 存证上链生效
+                      </span>
+                    ) : termsAgreed ? (
+                      <span className="text-blue-600">✓ 条款已核对确认，等待点击完成签署</span>
+                    ) : (
+                      <span className="text-neutral-400">待完成电子签名与条款确认</span>
+                    )}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Document Bottom Footer */}
+            <div className="mt-8 pt-4 border-t border-neutral-200 flex flex-col sm:flex-row justify-between items-center gap-1 text-[10px] text-neutral-400 font-mono">
+              <span>Chiang Mai AI Center · Tax ID: 0505566006478 · cloud.lazzor.com</span>
+              <span>第 2 页 (条款细则与双方法律存证) · 具同等法律证明力</span>
+            </div>
+          </div>
+
+          {/* Annex Section: Attached ID Document Preview (Page 3) */}
+          {idImage && (
+            <div
+              id="cloud-contract-page-3"
+              className="cloud-contract-page p-4 sm:p-8 md:p-10 bg-white border-t-2 border-dashed border-neutral-300 print:border-none print:p-8"
+            >
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 pb-3 mb-6 border-b-2 border-neutral-900 font-mono text-[11px] text-neutral-600">
+                <div className="flex items-center gap-2">
+                  <span className="font-black text-neutral-950 uppercase tracking-wide">
+                    ANNEX 1: CUSTOMER IDENTITY / BUSINESS LICENSE (附件一：实名凭证)
+                  </span>
+                  <span className="px-1.5 py-0.2 rounded bg-neutral-100 text-neutral-700 text-[10px] font-bold">
+                    PAGE 3/3
+                  </span>
+                </div>
+                <div className="text-neutral-500 text-[10px]">
+                  REF: <strong className="text-neutral-900">{contractSerial || "CMAI-CLOUD"}</strong>
+                </div>
+              </div>
+
+              <div className="max-w-md mx-auto rounded-xl overflow-hidden border border-neutral-200 shadow-xs my-4">
+                <img src={idImage} alt="Customer ID / License" className="w-full object-contain max-h-72" />
+              </div>
+              <p className="text-[10px] text-center text-neutral-400 mt-2 font-mono">
+                已做合规数字水印加密存储，仅用于本次服务开通与跨境支付实名备案 · HASH: {contractHash}
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* Customer Mode: Party B Dedicated Electronic Signature Card */}
+        {viewMode === "customer" && (
+          <div className="w-full max-w-[820px] bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 rounded-2xl shadow-lg border border-neutral-200 dark:border-neutral-800 p-5 sm:p-7">
+            {isSigned ? (
+              <div className="flex flex-col items-center text-center gap-4 py-4">
+                <div className="w-14 h-14 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                  <CheckCircle2 className="w-8 h-8" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-black text-neutral-900 dark:text-white">
+                    电子协议已由双方实名签署生效！
+                  </h3>
+                  <p className="text-xs text-neutral-500 mt-1">
+                    签署人: <strong className="text-neutral-900 dark:text-white">{effectiveSignatoryDisplay}</strong> · 签署时间: {signedTimestamp || signingDateIso}
+                  </p>
+                  <p className="text-[11px] font-mono text-neutral-400 mt-0.5">
+                    防伪存证哈希: {contractHash}
+                  </p>
+                </div>
+
+                <div className="flex flex-wrap items-center justify-center gap-3 mt-2 w-full max-w-md">
+                  <button
+                    type="button"
+                    onClick={handleDownloadPdf}
+                    disabled={isExportingPdf}
+                    className="flex-1 min-w-[160px] py-2.5 px-4 rounded-xl font-bold text-xs bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 hover:bg-neutral-800 dark:hover:bg-neutral-100 flex items-center justify-center gap-2 shadow-xs transition-all cursor-pointer"
+                  >
+                    {isExportingPdf ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+                    <span>下载盖章版 PDF 合同</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setIsCertificateOpen(true)}
+                    className="py-2.5 px-4 rounded-xl font-bold text-xs bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center gap-1.5 shadow-xs transition-all cursor-pointer"
+                  >
+                    <Award className="w-4 h-4" />
+                    <span>查看存证证书</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleNativePrint}
+                    className="py-2.5 px-4 rounded-xl font-medium text-xs border border-neutral-200 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-800 dark:text-neutral-200 flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                  >
+                    <Printer className="w-4 h-4" />
+                    <span>打印</span>
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-5">
+                <div className="border-b border-neutral-200 dark:border-neutral-800 pb-3">
+                  <div className="flex items-center gap-2">
+                    <span className="w-6 h-6 rounded-full bg-blue-600 text-white text-xs font-bold flex items-center justify-center">
+                      ✍️
+                    </span>
+                    <h3 className="text-base font-bold text-neutral-900 dark:text-white">
+                      客户认购方实名电子签署 (Party B Digital Signature)
+                    </h3>
+                  </div>
+                  <p className="text-xs text-neutral-500 mt-1">
+                    请核对您的签署人全名并在下方画板完成原笔迹手写签名，完成签署后合同即时生效并生成法律存证。
+                  </p>
+                </div>
+
+                {/* Customer Name & ID Number Confirmation */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-medium text-neutral-700 dark:text-neutral-300 mb-1">
+                      签署人真实姓名 / 授权代表 *
+                    </label>
+                    <input
+                      type="text"
+                      value={customerName}
+                      onChange={(e) => setCustomerName(e.target.value)}
+                      placeholder="例如: 张三 / Alex Chen"
+                      className="w-full bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl px-3 py-2 text-xs outline-hidden"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-neutral-700 dark:text-neutral-300 mb-1">
+                      证件号码 / 税号 (可选核对)
+                    </label>
+                    <input
+                      type="text"
+                      value={customerIdNumber}
+                      onChange={(e) => setCustomerIdNumber(e.target.value)}
+                      placeholder="身份证号 / 护照号 / 营业执照代码"
+                      className="w-full bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl px-3 py-2 text-xs outline-hidden"
+                    />
+                  </div>
+                </div>
+
+                {/* Signature Mode & Canvas */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-semibold text-neutral-800 dark:text-neutral-200 flex items-center gap-1.5">
+                      <PenTool className="w-3.5 h-3.5 text-blue-600" />
+                      <span>原笔迹电子签名画板</span>
+                    </label>
+                    <div className="flex items-center gap-1 bg-neutral-100 dark:bg-neutral-800 p-0.5 rounded-lg text-[11px]">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSigMode("draw");
+                          setSignatureData(null);
+                        }}
+                        className={`px-2 py-0.5 rounded transition-all cursor-pointer ${
+                          sigMode === "draw" ? "bg-white dark:bg-neutral-700 shadow-xs font-bold text-neutral-950 dark:text-white" : "text-neutral-500"
+                        }`}
+                      >
+                        手写签名
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSigMode("type");
+                          setSignatureData(null);
+                        }}
+                        className={`px-2 py-0.5 rounded transition-all cursor-pointer ${
+                          sigMode === "type" ? "bg-white dark:bg-neutral-700 shadow-xs font-bold text-neutral-950 dark:text-white" : "text-neutral-500"
+                        }`}
+                      >
+                        键盘输入
+                      </button>
+                    </div>
+                  </div>
+
+                  {sigMode === "draw" ? (
+                    <div className="flex flex-col gap-2">
+                      <div className="relative w-full h-40 bg-neutral-50 dark:bg-neutral-800/70 border border-neutral-300 dark:border-neutral-700 rounded-xl overflow-hidden touch-none select-none">
+                        <canvas
+                          ref={canvasRef}
+                          onMouseDown={startDrawing}
+                          onMouseMove={draw}
+                          onMouseUp={stopDrawing}
+                          onMouseLeave={stopDrawing}
+                          onTouchStart={startDrawing}
+                          onTouchMove={draw}
+                          onTouchEnd={stopDrawing}
+                          className="w-full h-full cursor-crosshair touch-none"
+                        />
+                        {!hasDrawn && (
+                          <div className="absolute inset-0 pointer-events-none flex flex-col items-center justify-center gap-1 text-xs text-neutral-400">
+                            <PenTool className="w-5 h-5 text-neutral-300 dark:text-neutral-600" />
+                            <span>在此区域使用手指或鼠标原笔迹书写签名</span>
+                          </div>
+                        )}
+                        <div className="absolute bottom-1 right-2 pointer-events-none text-[10px] text-neutral-400 font-mono">
+                          TIMESTAMP: {signingDateIso}
+                        </div>
+                      </div>
+
+                      <div className="flex justify-end">
+                        <button
+                          type="button"
+                          onClick={clearCanvas}
+                          className="flex items-center gap-1 text-[11px] text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200 px-2 py-1 rounded hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors cursor-pointer"
+                        >
+                          <RotateCcw className="w-3 h-3" />
+                          <span>清除重签</span>
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col gap-2">
+                      <input
+                        type="text"
+                        value={typedSigText}
+                        onChange={(e) => handleTypedSignature(e.target.value)}
+                        placeholder="在此输入您的法定签名全名 (如: Zhang San)"
+                        className="w-full text-sm bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg px-3 py-2 outline-hidden"
+                      />
+                      <div className="h-20 bg-neutral-50 dark:bg-neutral-800/70 border border-neutral-200 dark:border-neutral-700 rounded-xl flex items-center justify-center">
+                        {signatureData ? (
+                          <img src={signatureData} alt="Signature Preview" className="h-14 object-contain" />
+                        ) : (
+                          <span className="text-xs text-neutral-400">电子签名艺术字体实时预览</span>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Agreement Checkbox */}
+                <label className="flex items-start gap-2.5 cursor-pointer p-3 rounded-xl bg-neutral-50 dark:bg-neutral-800/50 border border-neutral-200 dark:border-neutral-700">
+                  <input
+                    type="checkbox"
+                    checked={termsAgreed}
+                    onChange={(e) => setTermsAgreed(e.target.checked)}
+                    className="mt-0.5 rounded text-blue-600 focus:ring-0 w-4 h-4 cursor-pointer shrink-0"
+                  />
+                  <span className="text-xs text-neutral-600 dark:text-neutral-400 leading-snug">
+                    我已认真核对上述全部交付标的规格、费用明细及服务保障条款，确认信息真实准确，自愿签署本合同并承担相应法律责任。数字签名与时间戳具有完全同等法律效力。
+                  </span>
+                </label>
+
+                {/* Execute Button */}
+                <button
+                  type="button"
+                  onClick={handleExecuteContract}
+                  className="w-full py-3 px-4 rounded-xl font-bold text-sm bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <PenTool className="w-4 h-4" />
+                  <span>✍️ 确认并签署电子合同 (Sign & Execute Agreement)</span>
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+      </section>
+      </main>
+
+      {/* --- Share Modal for Salesperson to Send to Customer --- */}
+      {isShareModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm print:hidden animate-in fade-in duration-200">
+          <div className="relative w-full max-w-xl bg-white dark:bg-neutral-900 rounded-3xl shadow-2xl border border-neutral-200 dark:border-neutral-800 p-6 sm:p-7 text-neutral-900 dark:text-neutral-100 max-h-[90vh] overflow-y-auto">
+            <button
+              onClick={() => setIsShareModalOpen(false)}
+              className="absolute top-5 right-5 p-2 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 transition-colors cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center shadow-md">
+                <QrCode className="w-6 h-6" />
+              </div>
+              <div>
+                <div className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-blue-100 dark:bg-blue-950/80 text-blue-700 dark:text-blue-300 inline-block mb-0.5">
+                  EXCLUSIVE SIGNING LINK & QR
+                </div>
+                <h3 className="text-base sm:text-lg font-black text-neutral-950 dark:text-white">
+                  发送给客户 (专属签署链接与二维码)
+                </h3>
+              </div>
+            </div>
+
+            <p className="text-xs text-neutral-500 mb-4 leading-relaxed">
+              系统已按您当前的配置锁定方案标的与费率，并隐藏左侧配置栏。客户打开或扫码后仅看到定制文档，核对后直接原笔迹签署姓名。
+            </p>
+
+            {/* Plan Summary Badge */}
+            <div className="rounded-2xl bg-neutral-50 dark:bg-neutral-800/60 p-3.5 border border-neutral-200 dark:border-neutral-700 space-y-1.5 text-xs mb-4">
+              <div className="flex justify-between items-center pb-1.5 border-b border-neutral-200/60 dark:border-neutral-700">
+                <span className="text-neutral-500">签署客户:</span>
+                <span className="font-bold text-neutral-900 dark:text-white">{effectiveCustomerName}</span>
+              </div>
+              <div className="flex justify-between items-center pb-1.5 border-b border-neutral-200/60 dark:border-neutral-700">
+                <span className="text-neutral-500">签约首期总计:</span>
+                <span className="font-bold text-emerald-600 dark:text-emerald-400">
+                  {currSym}{totalInitialPayment.toLocaleString()} ({currency === "CNY" ? numberToChineseRMB(totalInitialPayment) : numberToEnglishWords(totalInitialPayment, "THB")})
+                </span>
+              </div>
+              <div className="flex justify-between items-start pt-0.5">
+                <span className="text-neutral-500 shrink-0">标的概览:</span>
+                <span className="text-right text-neutral-700 dark:text-neutral-300 font-medium">
+                  {currentPlan ? currentPlan.name : "定制增值方案"} {chosenAiSubscription ? `· ${chosenAiSubscription.name}` : ""} {extraIpCount > 0 ? `· 独立IP ${1 + extraIpCount}个` : ""}
+                </span>
+              </div>
+            </div>
+
+            {/* QR Code Section */}
+            <div className="flex flex-col items-center justify-center p-4 bg-white dark:bg-neutral-950 rounded-2xl border border-neutral-200 dark:border-neutral-800 mb-4">
+              <div className="w-48 h-48 bg-white p-2 rounded-xl border border-neutral-200 shadow-xs flex items-center justify-center">
+                <img
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=260x260&margin=8&data=${encodeURIComponent(getCustomerSignUrl())}`}
+                  alt="Customer Signing QR Code"
+                  className="w-full h-full object-contain"
+                />
+              </div>
+              <span className="text-[11px] text-neutral-500 mt-2 flex items-center gap-1">
+                <Smartphone className="w-3.5 h-3.5 text-blue-600" />
+                客户使用微信或手机相机扫码，现场直接查阅并原笔迹签署
+              </span>
+            </div>
+
+            {/* Link Copy Box */}
+            <div className="mb-4">
+              <label className="block text-xs font-semibold text-neutral-700 dark:text-neutral-300 mb-1">
+                专属在线签署链接 (锁定配置，仅客户签署)
+              </label>
+              <div className="flex items-center gap-1.5">
+                <input
+                  type="text"
+                  readOnly
+                  value={getCustomerSignUrl()}
+                  className="flex-1 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl px-3 py-2 text-xs font-mono text-neutral-600 dark:text-neutral-300 outline-hidden select-all"
+                />
+                <button
+                  type="button"
+                  onClick={handleCopyShareModalLink}
+                  className="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs whitespace-nowrap transition-colors flex items-center gap-1 cursor-pointer shrink-0"
+                >
+                  {copiedShareModalLink ? <Check className="w-3.5 h-3.5 text-white" /> : <Copy className="w-3.5 h-3.5" />}
+                  <span>{copiedShareModalLink ? "已复制" : "复制链接"}</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Invitation Text Box */}
+            <div className="mb-5">
+              <label className="block text-xs font-semibold text-neutral-700 dark:text-neutral-300 mb-1">
+                微信 / 邮件专属签约通知文案
+              </label>
+              <textarea
+                readOnly
+                rows={4}
+                value={generateCustomerInvitationText()}
+                className="w-full bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl p-3 text-xs text-neutral-700 dark:text-neutral-300 leading-relaxed outline-hidden resize-none select-all font-sans"
+              />
+              <div className="flex justify-end mt-1.5">
+                <button
+                  type="button"
+                  onClick={handleCopyShareModalText}
+                  className="px-3 py-1.5 rounded-lg border border-neutral-200 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-700 dark:text-neutral-300 font-medium text-xs transition-colors flex items-center gap-1 cursor-pointer"
+                >
+                  {copiedShareModalText ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
+                  <span>{copiedShareModalText ? "已复制文案" : "复制文案"}</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Modal Bottom Actions */}
+            <div className="flex items-center justify-between gap-3 pt-3 border-t border-neutral-200 dark:border-neutral-800">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsShareModalOpen(false);
+                  setViewMode("customer");
+                }}
+                className="px-3.5 py-2 rounded-xl bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-neutral-800 dark:text-neutral-200 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+              >
+                <Eye className="w-3.5 h-3.5 text-blue-600" />
+                <span>直接以顾客视角预览</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setIsShareModalOpen(false)}
+                className="px-4 py-2 rounded-xl bg-neutral-900 hover:bg-neutral-800 dark:bg-white dark:hover:bg-neutral-100 text-white dark:text-neutral-900 text-xs font-bold transition-colors cursor-pointer"
+              >
+                完成
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* --- Certificate of Digital Execution Modal --- */}
+      {isCertificateOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm print:hidden animate-in fade-in duration-200">
+          <div className="relative w-full max-w-xl bg-white dark:bg-neutral-900 rounded-3xl shadow-2xl border border-neutral-200 dark:border-neutral-800 p-6 sm:p-8 text-neutral-900 dark:text-neutral-100 overflow-hidden">
+            {/* Background seal watermark */}
+            <div className="absolute -right-8 -bottom-8 w-48 h-48 opacity-10 pointer-events-none">
+              <Cpu className="w-full h-full text-blue-600" />
+            </div>
+
+            <button
+              onClick={() => setIsCertificateOpen(false)}
+              className="absolute top-5 right-5 p-2 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 transition-colors cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="flex items-center gap-3 mb-5">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white flex items-center justify-center shadow-lg shadow-emerald-500/20">
+                <ShieldCheck className="w-7 h-7" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300">
+                    OFFICIAL VERIFICATION
+                  </span>
+                  <span className="text-xs text-neutral-500 font-mono">
+                    SHA-256 CHECKED
+                  </span>
+                </div>
+                <h3 className="text-lg font-black text-neutral-950 dark:text-white">
+                  Chiang Mai AI Center 电子合同存证证书
+                </h3>
+              </div>
+            </div>
+
+            <div className="rounded-2xl bg-neutral-50 dark:bg-neutral-800/60 p-4 border border-neutral-200/80 dark:border-neutral-700 space-y-2.5 text-xs">
+              <div className="flex justify-between items-center pb-2 border-b border-neutral-200/60 dark:border-neutral-700">
+                <span className="text-neutral-500">电子合同流水号:</span>
+                <span className="font-mono font-bold text-neutral-900 dark:text-white">{contractSerial}</span>
+              </div>
+              <div className="flex justify-between items-center pb-2 border-b border-neutral-200/60 dark:border-neutral-700">
+                <span className="text-neutral-500">存证防伪哈希:</span>
+                <span className="font-mono text-neutral-700 dark:text-neutral-300">{contractHash}</span>
+              </div>
+              <div className="flex justify-between items-center pb-2 border-b border-neutral-200/60 dark:border-neutral-700">
+                <span className="text-neutral-500">电子签署时间戳:</span>
+                <span className="font-medium text-neutral-800 dark:text-neutral-200">{signedTimestamp || signingDateIso}</span>
+              </div>
+              <div className="flex justify-between items-center pb-2 border-b border-neutral-200/60 dark:border-neutral-700">
+                <span className="text-neutral-500">服务提供方 (甲方):</span>
+                <span className="font-semibold text-neutral-900 dark:text-white">Chiang Mai AI Center (Chiang Mai AI Center Co., Ltd.)</span>
+              </div>
+              <div className="flex justify-between items-center pb-2 border-b border-neutral-200/60 dark:border-neutral-700">
+                <span className="text-neutral-500">客户认购方 (乙方):</span>
+                <span className="font-semibold text-neutral-900 dark:text-white">{effectiveCustomerName}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-neutral-500">签约交付标的:</span>
+                <span className="font-semibold text-neutral-900 dark:text-white">
+                  {currentPlan
+                    ? currentPlan.id === "workstation_888"
+                      ? `${currentPlan.name} (1V1 物理独享 Apple Silicon · ${chosenCpu.name} / ${chosenMemory.size} / ${chosenStorage.size})`
+                      : currentPlan.id === "ai_lazy_488"
+                      ? `${currentPlan.name} (轻量云电脑微主机 · ${microPcTier === "pro" ? "增强型 8 vCPU/16GB" : "标准型 4 vCPU/8GB"})`
+                      : `${currentPlan.name} (${currentPlan.specs.hardware})`
+                    : "纯定制/增值服务方案 (未选配基础主机)"}
+                </span>
+              </div>
+            </div>
+
+            <div className="my-5 p-3 rounded-xl bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 flex items-start gap-2.5 text-xs text-emerald-900 dark:text-emerald-200">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+              <div className="leading-relaxed">
+                <strong>电子签署生效与存证保障：</strong>
+                双方电子签名已与合同防伪哈希（SHA-256）及清迈标准时间戳安全绑定并加盖 Chiang Mai AI Center 官方电子合同专用章。依据《中华人民共和国电子签名法》及泰王国《电子交易法令》(Electronic Transactions Act)，本存证函具备完整不可篡改的法律证明力。
+              </div>
+            </div>
+
+            {/* Signatures Preview */}
+            <div className="grid grid-cols-2 gap-3 mb-6">
+              <div className="p-3 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-neutral-50/50 dark:bg-neutral-800/40 text-center">
+                <div className="text-[10px] text-neutral-500 uppercase mb-1">甲方授权印章</div>
+                <div className="h-16 flex items-center justify-center">
+                  <CmaiOfficialSeal className="h-14 w-14" />
+                </div>
+                <div className="text-[10px] text-neutral-600 dark:text-neutral-400 mt-1">Chiang Mai AI Center Co., Ltd.</div>
+              </div>
+
+              <div className="p-3 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-neutral-50/50 dark:bg-neutral-800/40 text-center">
+                <div className="text-[10px] text-neutral-500 uppercase mb-1">乙方电子签名</div>
+                <div className="h-16 flex items-center justify-center">
+                  {signatureData ? (
+                    <img src={signatureData} alt="Client Signature" className="h-14 object-contain" />
+                  ) : (
+                    <span className="text-xs text-neutral-400 italic">已确认签署</span>
+                  )}
+                </div>
+                <div className="text-[10px] text-neutral-600 dark:text-neutral-400 mt-1">{effectiveSignatoryDisplay}</div>
+              </div>
+            </div>
+
+            {/* Modal Actions */}
+            <div className="flex flex-col sm:flex-row items-center gap-2.5">
+              <button
+                onClick={handleDownloadPdf}
+                disabled={isExportingPdf}
+                className="w-full sm:flex-1 py-2.5 px-4 rounded-xl font-bold text-xs bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 hover:bg-neutral-800 dark:hover:bg-neutral-100 flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
+              >
+                {isExportingPdf ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+                <span>下载盖章版 PDF 合同</span>
+              </button>
+
+              <button
+                onClick={handleNativePrint}
+                className="w-full sm:w-auto py-2.5 px-4 rounded-xl font-semibold text-xs border border-neutral-200 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-800 dark:text-neutral-200 flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+              >
+                <Printer className="w-4 h-4" />
+                <span>打印存证</span>
+              </button>
+
+              <button
+                onClick={handleCopyLink}
+                className="w-full sm:w-auto py-2.5 px-4 rounded-xl font-semibold text-xs border border-neutral-200 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-800 dark:text-neutral-200 flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+              >
+                {copiedLink ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4" />}
+                <span>{copiedLink ? "链接已复制" : "复制存证链接"}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* --- Contract Customizer & Link Sharing Generator Modal --- */}
+      {isCustomizerOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/75 backdrop-blur-sm print:hidden animate-in fade-in duration-200 overflow-y-auto">
+          <div className="relative w-full max-w-5xl bg-white dark:bg-neutral-900 rounded-3xl shadow-2xl border border-neutral-200 dark:border-neutral-800 overflow-hidden my-auto max-h-[92vh] flex flex-col">
+            {/* Modal Header */}
+            <div className="px-6 py-4 border-b border-neutral-200 dark:border-neutral-800 flex items-center justify-between shrink-0 bg-neutral-50/50 dark:bg-neutral-800/40">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-md shadow-blue-500/20">
+                  <Sparkles className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-blue-100 dark:bg-blue-950/80 text-blue-800 dark:text-blue-300">
+                      CHIANG MAI AI CENTER · GENERATOR
+                    </span>
+                    <span className="text-xs text-neutral-400 font-mono">
+                      REF: {custContractSerial}
+                    </span>
+                  </div>
+                  <h2 className="text-base font-bold text-neutral-950 dark:text-white">
+                    客户专属服务合同定制与签约链接生成器
+                  </h2>
+                </div>
+              </div>
+
+              <button
+                onClick={() => setIsCustomizerOpen(false)}
+                className="p-2 rounded-full hover:bg-neutral-200 dark:hover:bg-neutral-700 text-neutral-500 transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Body: Two Columns */}
+            <div className="flex-1 overflow-y-auto p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+              {/* Left Column: Form Controls (7 cols) */}
+              <div className="lg:col-span-7 space-y-5">
+                {/* Section A: Customer Details */}
+                <div className="bg-neutral-50 dark:bg-neutral-800/40 p-4 rounded-2xl border border-neutral-200/80 dark:border-neutral-700/80">
+                  <h3 className="text-xs font-bold text-neutral-900 dark:text-white uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                    <Building2 className="w-4 h-4 text-blue-600" />
+                    <span>1. 客户签约主体信息 (预填或由客户补充)</span>
+                  </h3>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-[11px] font-medium text-neutral-500 mb-1">主体类型</label>
+                      <div className="flex rounded-lg border border-neutral-200 dark:border-neutral-700 p-0.5 bg-white dark:bg-neutral-800 text-xs">
+                        <button
+                          type="button"
+                          onClick={() => setCustCustomerType("individual")}
+                          className={`flex-1 py-1 rounded-md transition-all cursor-pointer ${
+                            custCustomerType === "individual" ? "bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 font-bold" : "text-neutral-500"
+                          }`}
+                        >
+                          个人客户
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setCustCustomerType("company")}
+                          className={`flex-1 py-1 rounded-md transition-all cursor-pointer ${
+                            custCustomerType === "company" ? "bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 font-bold" : "text-neutral-500"
+                          }`}
+                        >
+                          企业主体
+                        </button>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-medium text-neutral-500 mb-1">
+                        {custCustomerType === "company" ? "企业客户全称" : "客户姓名"}
+                      </label>
+                      <input
+                        type="text"
+                        value={custCustomerType === "company" ? custCompanyName : custCustomerName}
+                        onChange={(e) => {
+                          if (custCustomerType === "company") setCustCompanyName(e.target.value);
+                          else setCustCustomerName(e.target.value);
+                        }}
+                        placeholder={custCustomerType === "company" ? "例如：清迈智能创新科技有限公司" : "例如：张伟 / Alex"}
+                        className="w-full text-xs bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg px-2.5 py-1.5 outline-hidden"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-medium text-neutral-500 mb-1">联系手机</label>
+                      <input
+                        type="text"
+                        value={custPhone}
+                        onChange={(e) => setCustPhone(e.target.value)}
+                        placeholder="例如：+86 13800000000 / 0812345678"
+                        className="w-full text-xs bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg px-2.5 py-1.5 outline-hidden"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-medium text-neutral-500 mb-1">联系邮箱</label>
+                      <input
+                        type="email"
+                        value={custEmail}
+                        onChange={(e) => setCustEmail(e.target.value)}
+                        placeholder="例如：client@company.com"
+                        className="w-full text-xs bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg px-2.5 py-1.5 outline-hidden"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section B: Plan Selection */}
+                <div className="bg-neutral-50 dark:bg-neutral-800/40 p-4 rounded-2xl border border-neutral-200/80 dark:border-neutral-700/80">
+                  <h3 className="text-xs font-bold text-neutral-900 dark:text-white uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                    <Server className="w-4 h-4 text-blue-600" />
+                    <span>2. 选定服务方案套餐</span>
+                  </h3>
+
+                  <div className="grid grid-cols-2 gap-2.5">
+                    {CLOUD_PLANS.map((plan) => (
+                      <div
+                        key={plan.id}
+                        onClick={() => setCustPlanId(custPlanId === plan.id ? "" : plan.id)}
+                        className={`p-3 rounded-xl border cursor-pointer transition-all ${
+                          custPlanId === plan.id
+                            ? "border-blue-600 bg-blue-50/60 dark:bg-blue-950/40 shadow-xs"
+                            : "border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 hover:border-neutral-300"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 font-mono">
+                            {plan.badge}
+                          </span>
+                          <span className="text-xs font-black text-blue-600 dark:text-blue-400">
+                            {custCurrency === "CNY" ? `¥${plan.priceCNY}` : `฿${plan.priceTHB}`}/月
+                          </span>
+                        </div>
+                        <div className="text-xs font-bold text-neutral-900 dark:text-white truncate">
+                          {plan.name}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Section C: Hardware Specs (for 888 Mac Plan) */}
+                {custPlanId === "workstation_888" && (
+                  <div className="bg-neutral-50 dark:bg-neutral-800/40 p-4 rounded-2xl border border-neutral-200/80 dark:border-neutral-700/80 space-y-3">
+                    <h3 className="text-xs font-bold text-neutral-900 dark:text-white uppercase tracking-wider flex items-center gap-1.5">
+                      <Cpu className="w-4 h-4 text-blue-600" />
+                      <span>3. 硬件规格指定 (M2 / M4 / M6 · 内存 · SSD)</span>
+                    </h3>
+
+                    {/* CPU Selection */}
+                    <div>
+                      <label className="block text-[11px] font-medium text-neutral-500 mb-1.5">CPU 芯片型号</label>
+                      <div className="grid grid-cols-3 gap-2">
+                        {MAC_CPU_OPTIONS.map((cpu) => (
+                          <button
+                            key={cpu.id}
+                            type="button"
+                            onClick={() => {
+                              setCustCpuId(cpu.id);
+                              if ((cpu.id === "m4" || cpu.id === "m6") && custMemoryId === "8") {
+                                setCustMemoryId("16");
+                              }
+                            }}
+                            className={`py-2 px-2.5 rounded-xl border text-xs font-bold transition-all cursor-pointer text-left ${
+                              custCpuId === cpu.id
+                                ? "border-blue-600 bg-blue-600 text-white shadow-xs"
+                                : "border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 hover:border-neutral-300"
+                            }`}
+                          >
+                            <div>{cpu.name}</div>
+                            <div className={`text-[10px] font-normal ${custCpuId === cpu.id ? "text-blue-100" : "text-neutral-400"}`}>
+                              {cpu.priceDeltaCNY === 0 ? "标配基准" : `+¥${cpu.priceDeltaCNY}/月`}
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* RAM Selection */}
+                    <div>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <label className="text-[11px] font-medium text-neutral-500">RAM 统一内存容量</label>
+                        {(custCpuId === "m4" || custCpuId === "m6") && (
+                          <span className="text-[10px] text-blue-600 font-bold">16GB 起步标配 (无 8GB)</span>
+                        )}
+                      </div>
+                      <div className={`grid gap-2 ${custCpuId === "m4" || custCpuId === "m6" ? "grid-cols-3" : "grid-cols-4"}`}>
+                        {MAC_MEMORY_OPTIONS
+                          .filter((mem) => {
+                            if (custCpuId === "m4" || custCpuId === "m6") return mem.id !== "8";
+                            return true;
+                          })
+                          .map((mem) => {
+                            const isCustM4orM6 = custCpuId === "m4" || custCpuId === "m6";
+                            let deltaLabel = "标配";
+                            if (isCustM4orM6) {
+                              if (mem.id === "16") deltaLabel = "起步标配";
+                              else if (mem.id === "24") deltaLabel = "+¥50";
+                              else if (mem.id === "32") deltaLabel = "+¥110";
+                            } else {
+                              deltaLabel = mem.priceDeltaCNY === 0 ? "标配" : `+¥${mem.priceDeltaCNY}`;
+                            }
+
+                            return (
+                              <button
+                                key={mem.id}
+                                type="button"
+                                onClick={() => setCustMemoryId(mem.id)}
+                                className={`py-1.5 px-2 rounded-xl border text-xs font-bold transition-all cursor-pointer text-center ${
+                                  custMemoryId === mem.id
+                                    ? "border-blue-600 bg-blue-600 text-white shadow-xs"
+                                    : "border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 hover:border-neutral-300"
+                                }`}
+                              >
+                                <div>{mem.size}</div>
+                                <div className={`text-[9px] font-normal ${custMemoryId === mem.id ? "text-blue-100" : "text-neutral-400"}`}>
+                                  {deltaLabel}
+                                </div>
+                              </button>
+                            );
+                          })}
+                      </div>
+                    </div>
+
+                    {/* SSD Selection */}
+                    <div>
+                      <label className="block text-[11px] font-medium text-neutral-500 mb-1.5">NVMe 高速存储 (SSD)</label>
+                      <div className="grid grid-cols-3 gap-2">
+                        {MAC_STORAGE_OPTIONS.map((ssd) => (
+                          <button
+                            key={ssd.id}
+                            type="button"
+                            onClick={() => setCustStorageId(ssd.id)}
+                            className={`py-1.5 px-2 rounded-xl border text-xs font-bold transition-all cursor-pointer text-center ${
+                              custStorageId === ssd.id
+                                ? "border-blue-600 bg-blue-600 text-white shadow-xs"
+                                : "border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 hover:border-neutral-300"
+                            }`}
+                          >
+                            <div>{ssd.size}</div>
+                            <div className={`text-[9px] font-normal ${custStorageId === ssd.id ? "text-blue-100" : "text-neutral-400"}`}>
+                              {ssd.priceDeltaCNY === 0 ? "标配" : `+¥${ssd.priceDeltaCNY}`}
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Section D: AI Subscription Specification */}
+                <div className="bg-neutral-50 dark:bg-neutral-800/40 p-4 rounded-2xl border border-neutral-200/80 dark:border-neutral-700/80">
+                  <h3 className="text-xs font-bold text-neutral-900 dark:text-white uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                    <Bot className="w-4 h-4 text-blue-600" />
+                    <span>4. 官方 AI 会员规格包含 (ChatGPT & Claude)</span>
+                  </h3>
+
+                  <div className="space-y-2">
+                    {AI_SUBSCRIPTION_OPTIONS.map((ai) => (
+                      <div
+                        key={ai.id}
+                        onClick={() => setCustAiSubId(custAiSubId === ai.id ? "" : ai.id)}
+                        className={`p-2.5 rounded-xl border cursor-pointer transition-all flex items-center justify-between ${
+                          custAiSubId === ai.id
+                            ? "border-blue-600 bg-blue-50/60 dark:bg-blue-950/40 shadow-xs"
+                            : "border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 hover:border-neutral-300"
+                        }`}
+                      >
+                        <div className="flex flex-col">
+                          <span className="text-xs font-bold text-neutral-900 dark:text-white">
+                            {ai.name}
+                          </span>
+                          <span className="text-[10px] text-neutral-500">
+                            {ai.summary}
+                          </span>
+                        </div>
+                        <span className="text-xs font-bold text-blue-600 shrink-0">
+                          {ai.priceDeltaCNY === 0 ? "套餐内已全包" : `+¥${ai.priceDeltaCNY}/月`}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Section E: Add-ons & Term */}
+                <div className="bg-neutral-50 dark:bg-neutral-800/40 p-4 rounded-2xl border border-neutral-200/80 dark:border-neutral-700/80 space-y-3">
+                  <h3 className="text-xs font-bold text-neutral-900 dark:text-white uppercase tracking-wider flex items-center gap-1.5">
+                    <Sliders className="w-4 h-4 text-blue-600" />
+                    <span>5. 增值服务、租期与流水号定制</span>
+                  </h3>
+
+                  {/* Add-on Toggles */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                    {CLOUD_ADDON_SERVICES.map((addon) => {
+                      const isSelected = custAddonIds.includes(addon.id);
+                      return (
+                        <div
+                          key={addon.id}
+                          onClick={() => {
+                            setCustAddonIds((prev) =>
+                              prev.includes(addon.id) ? prev.filter((id) => id !== addon.id) : [...prev, addon.id]
+                            );
+                          }}
+                          className={`p-2.5 rounded-xl border cursor-pointer transition-all flex items-start gap-2 ${
+                            isSelected
+                              ? "border-emerald-600 bg-emerald-50/50 dark:bg-emerald-950/30 text-emerald-950 dark:text-emerald-200"
+                              : "border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300"
+                          }`}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            readOnly
+                            className="mt-0.5 rounded text-emerald-600 pointer-events-none"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <div className="font-bold text-[11px] truncate">{addon.name}</div>
+                            <div className="text-[10px] text-neutral-500">
+                              {custCurrency === "CNY" ? `+¥${addon.monthlyPriceCNY}` : `+฿${addon.monthlyPriceTHB}`} {addon.isOneTime ? "(一次性)" : "/月"}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Extra IPs */}
+                  <div className="flex items-center justify-between p-2.5 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-xs">
+                    <div className="flex flex-col">
+                      <span className="font-bold text-neutral-900 dark:text-white">加购独立原生商业 IP 数量</span>
+                      <span className="text-[10px] text-neutral-500">套餐已含 1 个独享出口，可加购防关联</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setCustExtraIpCount(Math.max(0, custExtraIpCount - 1))}
+                        className="w-6 h-6 rounded bg-neutral-100 dark:bg-neutral-700 flex items-center justify-center font-bold text-xs cursor-pointer"
+                      >
+                        -
+                      </button>
+                      <span className="font-mono font-bold w-6 text-center">{custExtraIpCount}</span>
+                      <button
+                        type="button"
+                        onClick={() => setCustExtraIpCount(Math.min(10, custExtraIpCount + 1))}
+                        className="w-6 h-6 rounded bg-neutral-100 dark:bg-neutral-700 flex items-center justify-center font-bold text-xs cursor-pointer"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Custom Other Addon in Customizer ("其他" 自定义格子) */}
+                  <div
+                    className={`p-3 rounded-xl border transition-all ${
+                      custCustomAddonEnabled
+                        ? "border-blue-600 bg-blue-50/40 dark:bg-blue-950/30 text-blue-950 dark:text-blue-200"
+                        : "border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 opacity-80"
+                    }`}
+                  >
+                    <div
+                      onClick={() => setCustCustomAddonEnabled(!custCustomAddonEnabled)}
+                      className="flex items-center gap-2 cursor-pointer select-none"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={custCustomAddonEnabled}
+                        readOnly
+                        className="rounded text-blue-600 pointer-events-none"
+                      />
+                      <span className="font-bold text-xs text-neutral-900 dark:text-white">
+                        包含“其他”自定义项目 (自由填写内容与价格)
+                      </span>
+                    </div>
+
+                    {custCustomAddonEnabled && (
+                      <div className="mt-2.5 pt-2 border-t border-neutral-200 dark:border-neutral-700 grid grid-cols-1 sm:grid-cols-3 gap-2">
+                        <div className="sm:col-span-1">
+                          <label className="block text-[10px] font-medium text-neutral-500 mb-0.5">项目名称/说明</label>
+                          <input
+                            type="text"
+                            value={custCustomAddonName}
+                            onChange={(e) => setCustCustomAddonName(e.target.value)}
+                            placeholder="如：专线网络调优"
+                            className="w-full text-xs bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-lg px-2 py-1 outline-hidden"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] font-medium text-neutral-500 mb-0.5">金额 ({custCurrency === "CNY" ? "¥" : "฿"})</label>
+                          <input
+                            type="number"
+                            value={custCustomAddonPrice}
+                            onChange={(e) => setCustCustomAddonPrice(e.target.value)}
+                            placeholder="0"
+                            className="w-full text-xs font-mono font-bold bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-lg px-2 py-1 outline-hidden"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] font-medium text-neutral-500 mb-0.5">计费周期</label>
+                          <select
+                            value={custCustomAddonIsOneTime ? "onetime" : "monthly"}
+                            onChange={(e) => setCustCustomAddonIsOneTime(e.target.value === "onetime")}
+                            className="w-full text-xs bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-lg px-2 py-1 outline-hidden"
+                          >
+                            <option value="monthly">按月计费 (/月)</option>
+                            <option value="onetime">一次性收费 (首月)</option>
+                          </select>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Duration, Currency, Serial */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-2">
+                    <div>
+                      <label className="block text-[11px] font-medium text-neutral-500 mb-1">签约服务周期</label>
+                      <select
+                        value={custDurationMonths}
+                        onChange={(e) => setCustDurationMonths(Number(e.target.value))}
+                        className="w-full text-xs bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg px-2.5 py-1.5 font-bold outline-hidden"
+                      >
+                        <option value={1}>1 个月 (月付)</option>
+                        <option value={3}>3 个月 (95折特惠)</option>
+                        <option value={6}>6 个月 (9折特惠)</option>
+                        <option value={12}>12 个月 (8折 + 免开机费)</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-medium text-neutral-500 mb-1">结算币种</label>
+                      <select
+                        value={custCurrency}
+                        onChange={(e) => setCustCurrency(e.target.value as "CNY" | "THB")}
+                        className="w-full text-xs bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg px-2.5 py-1.5 font-bold outline-hidden"
+                      >
+                        <option value="CNY">¥ 人民币 (CNY)</option>
+                        <option value="THB">฿ 泰铢 (THB)</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-medium text-neutral-500 mb-1">自定义合同编号</label>
+                      <input
+                        type="text"
+                        value={custContractSerial}
+                        onChange={(e) => setCustContractSerial(e.target.value)}
+                        placeholder="CMAI-CLOUD-XXXX"
+                        className="w-full text-xs bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg px-2.5 py-1.5 font-mono outline-hidden"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Lock Specs Option */}
+                  <div className="pt-2">
+                    <label className="flex items-center gap-2 cursor-pointer p-2.5 rounded-xl bg-blue-50/60 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800">
+                      <input
+                        type="checkbox"
+                        checked={custLockSpecs}
+                        onChange={(e) => setCustLockSpecs(e.target.checked)}
+                        className="rounded text-blue-600 focus:ring-0 w-4 h-4 cursor-pointer"
+                      />
+                      <div className="text-xs">
+                        <span className="font-bold text-blue-950 dark:text-blue-200">
+                          锁定服务与硬件配置（推荐客户直接签字）
+                        </span>
+                        <span className="block text-[11px] text-blue-700 dark:text-blue-300">
+                          开启后，客户打开链接时无需自选，直接查阅已商定方案并在线实名签署。
+                        </span>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Column: Generated Link, QR, Invitation (5 cols) */}
+              <div className="lg:col-span-5 flex flex-col gap-4">
+                {/* Box 1: Real-time Price Summary */}
+                <div className="bg-gradient-to-br from-neutral-900 to-neutral-800 text-white p-5 rounded-2xl shadow-lg">
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-neutral-400 block mb-1">
+                    CHIANG MAI AI CENTER · 专属定制合同
+                  </span>
+                  <div className="flex items-baseline justify-between">
+                    <div className="text-lg font-bold text-white">
+                      {custDurationMonths} 个月合约方案
+                    </div>
+                    <span className="text-xs font-mono text-emerald-400">
+                      {custLockSpecs ? "● 已锁定配置" : "○ 允许自选"}
+                    </span>
+                  </div>
+                  <div className="text-[11px] text-neutral-400 mt-2 pt-2 border-t border-neutral-700/60 leading-relaxed">
+                    专为出海团队打造的高性能硬件与合规网络基座，客户点击链接即可核对明细并完成原笔迹电子签署。
+                  </div>
+                </div>
+
+                {/* Box 2: Personalized Shareable Link */}
+                <div className="bg-neutral-50 dark:bg-neutral-800/40 p-4 rounded-2xl border border-neutral-200/80 dark:border-neutral-700/80">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-bold text-neutral-900 dark:text-white flex items-center gap-1.5">
+                      <Share2 className="w-3.5 h-3.5 text-blue-600" />
+                      <span>专属客户签约链接 (URL)</span>
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const url = computeCustomizerUrl();
+                        navigator.clipboard.writeText(url).then(() => {
+                          setCopiedShareUrl(true);
+                          setTimeout(() => setCopiedShareUrl(false), 2000);
+                        });
+                      }}
+                      className="text-xs text-blue-600 hover:text-blue-700 font-semibold flex items-center gap-1 cursor-pointer"
+                    >
+                      {copiedShareUrl ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                      <span>{copiedShareUrl ? "已复制链接" : "一键复制"}</span>
+                    </button>
+                  </div>
+
+                  <textarea
+                    readOnly
+                    rows={3}
+                    value={computeCustomizerUrl()}
+                    className="w-full text-[11px] font-mono bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-xl p-2.5 text-neutral-700 dark:text-neutral-300 outline-hidden select-all"
+                  />
+                </div>
+
+                {/* Box 3: Formal WeChat/Email Invitation */}
+                <div className="bg-neutral-50 dark:bg-neutral-800/40 p-4 rounded-2xl border border-neutral-200/80 dark:border-neutral-700/80">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-bold text-neutral-900 dark:text-white flex items-center gap-1.5">
+                      <Send className="w-3.5 h-3.5 text-blue-600" />
+                      <span>微信 / WhatsApp / 邮件 签约邀请函</span>
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const url = computeCustomizerUrl();
+                        const text = computeInvitationText(url);
+                        navigator.clipboard.writeText(text).then(() => {
+                          setCopiedInvitation(true);
+                          setTimeout(() => setCopiedInvitation(false), 2000);
+                        });
+                      }}
+                      className="text-xs text-blue-600 hover:text-blue-700 font-semibold flex items-center gap-1 cursor-pointer"
+                    >
+                      {copiedInvitation ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                      <span>{copiedInvitation ? "已复制文案" : "一键复制文案"}</span>
+                    </button>
+                  </div>
+
+                  <textarea
+                    readOnly
+                    rows={5}
+                    value={computeInvitationText(computeCustomizerUrl())}
+                    className="w-full text-[10px] leading-relaxed bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-xl p-2.5 text-neutral-700 dark:text-neutral-300 outline-hidden select-all"
+                  />
+                </div>
+
+                {/* Box 4: QR Code for Mobile Scanning */}
+                <div className="bg-neutral-50 dark:bg-neutral-800/40 p-4 rounded-2xl border border-neutral-200/80 dark:border-neutral-700/80 flex items-center gap-4">
+                  <div className="w-24 h-24 bg-white rounded-xl p-1.5 border border-neutral-200 dark:border-neutral-700 shrink-0 flex items-center justify-center">
+                    <img
+                      src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&margin=8&data=${encodeURIComponent(computeCustomizerUrl())}`}
+                      alt="Contract QR Code"
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
+                  <div className="flex flex-col text-xs">
+                    <span className="font-bold text-neutral-950 dark:text-white">手机扫码原笔迹手写签署</span>
+                    <p className="text-[11px] text-neutral-500 mt-1 leading-relaxed">
+                      可直接让客户使用微信或手机自带相机扫码，在触屏手机上流畅完成原笔迹电子手写签名。
+                    </p>
+                  </div>
+                </div>
+
+                {/* Bottom Action Buttons */}
+                <div className="pt-2 flex items-center gap-2.5">
+                  <button
+                    type="button"
+                    onClick={handleApplyCustomizerToLive}
+                    className="flex-1 py-2.5 px-4 rounded-xl font-bold text-xs bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition-all cursor-pointer text-center"
+                  >
+                    应用到当前合同并查阅
+                  </button>
+                  <a
+                    href={computeCustomizerUrl()}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="py-2.5 px-4 rounded-xl font-semibold text-xs border border-neutral-200 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-800 dark:text-neutral-200 flex items-center gap-1.5 transition-colors cursor-pointer"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" />
+                    <span>新标签页预览</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+    </div>
+  );
+}
+
+export default function CloudContractLastClient(props: CloudContractLastClientProps = {}) {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-neutral-950 text-white">
+          <div className="flex items-center gap-2 text-sm text-neutral-400">
+            <Loader2 className="w-5 h-5 animate-spin" />
+            正在加载企业级云工位合同界面...
+          </div>
+        </div>
+      }
+    >
+      <CloudContractContent {...props} />
+    </Suspense>
+  );
+}
